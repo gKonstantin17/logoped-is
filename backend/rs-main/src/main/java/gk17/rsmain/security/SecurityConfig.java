@@ -3,27 +3,32 @@ package gk17.rsmain.security;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+
+import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 public class SecurityConfig {
 
-    @Value("${swagger.enabled:true}")
+    @Value("${swagger.enabled}")
     private boolean swaggerEnabled;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         if (swaggerEnabled) {
-            http.authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                    .anyRequest().authenticated()
-            );
+            http
+                    .csrf(csrf -> csrf.disable())
+                    .authorizeHttpRequests(auth -> auth
+                            .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").authenticated() // Swagger требует аутентификации
+                            .anyRequest().authenticated() // все остальные тоже требуют
+                    )
+                    .httpBasic(withDefaults()); // включаем basic auth
         } else {
-            http.authorizeHttpRequests(auth -> auth.anyRequest().authenticated());
+            http
+                    .csrf(csrf -> csrf.disable())
+                    .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
         }
-
-        return http.csrf(csrf -> csrf.disable()).build();
+        return http.build();
     }
 }
