@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
 import java.util.Objects;
-
 @Data
 @NoArgsConstructor
 @Entity
@@ -20,12 +19,9 @@ public class Diagnostic {
     @Column(name = "Date", nullable = true)
     private Timestamp date;
     @Basic
-    @Column(name = "patientId", nullable = false)
-    private Long patientId;
+    @Column(name = "LessonId", nullable = true)
+    private Long lessonId;
     @Basic
-    @Column(name = "SpeechCardId", nullable = false)
+    @Column(name = "SpeechCardId", nullable = true)
     private Long speechCardId;
-    @Basic
-    @Column(name = "LogopedId", nullable = false)
-    private Long logopedId;
 }

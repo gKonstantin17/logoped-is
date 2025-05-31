@@ -1,6 +1,5 @@
 package gk17.rsmain.controller;
 
-import gk17.rsmain.entity.UserData;
 import gk17.rsmain.service.UserService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

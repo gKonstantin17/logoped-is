@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
 import java.util.Objects;
-
 @Data
 @NoArgsConstructor
 @Entity
@@ -20,22 +19,18 @@ public class Lesson {
     @Column(name = "Type", nullable = true, length = -1)
     private String type;
     @Basic
+    @Column(name = "Topic", nullable = true, length = -1)
+    private String topic;
+    @Basic
     @Column(name = "Description", nullable = true, length = -1)
     private String description;
     @Basic
     @Column(name = "DateOfLesson", nullable = true)
     private Timestamp dateOfLesson;
     @Basic
-    @Column(name = "Duraction", nullable = true)
-    private Integer duraction;
-    @Basic
-    @Column(name = "diagnosticId", nullable = true)
-    private Long diagnosticId;
-    @Basic
-    @Column(name = "homeworkId", nullable = true)
-    private Long homeworkId;
-    @Basic
-    @Column(name = "logopedId", nullable = false)
+    @Column(name = "LogopedId", nullable = true)
     private Long logopedId;
-
+    @Basic
+    @Column(name = "HomeworkId", nullable = true)
+    private Long homeworkId;
 }

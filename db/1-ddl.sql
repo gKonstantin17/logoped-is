@@ -1,7 +1,7 @@
 --
 --		1 USER
 --
-CREATE TABLE IF NOT EXISTS logoped."User_data"
+CREATE TABLE IF NOT EXISTS logoped."UserData"
 (
     "Id" bigint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1 ),
     "FirstName" text COLLATE pg_catalog."default",
@@ -11,24 +11,7 @@ CREATE TABLE IF NOT EXISTS logoped."User_data"
     CONSTRAINT "User_pkey" PRIMARY KEY ("Id")
 )
 --
---		2 Patient
---
-CREATE TABLE IF NOT EXISTS logoped."Patient"
-(
-    "Id" bigint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1 ),
-    "FirstName" text COLLATE pg_catalog."default",
-    "SecondName" text COLLATE pg_catalog."default",
-    "DateOfBirth" timestamp without time zone,
-    "UserId" bigint NOT NULL,
-    CONSTRAINT "Patient_pkey" PRIMARY KEY ("Id"),
-    CONSTRAINT "FK_patient_user" FOREIGN KEY ("UserId")
-        REFERENCES logoped."User_data" ("Id") MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION
-        NOT VALID
-)
---
---		3 Logoped
+--		2 Logoped
 --
 CREATE TABLE IF NOT EXISTS logoped."Logoped"
 (
@@ -40,7 +23,50 @@ CREATE TABLE IF NOT EXISTS logoped."Logoped"
     CONSTRAINT "Logoped_pkey" PRIMARY KEY ("Id")
 )
 --
---		4 SpeechCard
+--		3 Patient
+--
+CREATE TABLE IF NOT EXISTS logoped."Patient"
+(
+    "Id" bigint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1 ),
+    "FirstName" text COLLATE pg_catalog."default",
+    "SecondName" text COLLATE pg_catalog."default",
+    "DateOfBirth" timestamp without time zone,
+    "UserId" bigint NOT NULL,
+    "LogopedId" bigint,
+    CONSTRAINT "Patient_pkey" PRIMARY KEY ("Id"),
+    CONSTRAINT "FK_patient_logoped" FOREIGN KEY ("LogopedId")
+        REFERENCES logoped."Logoped" ("Id") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        NOT VALID,
+    CONSTRAINT "FK_patient_user" FOREIGN KEY ("UserId")
+        REFERENCES logoped."UserData" ("Id") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        NOT VALID
+)
+--
+--		4 SpeechError
+--
+CREATE TABLE IF NOT EXISTS logoped."SpeechError"
+(
+    "Id" bigint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1 ),
+    "Title" text COLLATE pg_catalog."default",
+    "Description" text COLLATE pg_catalog."default",
+    CONSTRAINT "SpeechError_pkey" PRIMARY KEY ("Id")
+)
+--
+--		5 SoundCorrection
+--
+CREATE TABLE IF NOT EXISTS logoped."SoundCorrection"
+(
+    "Id" bigint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1 ),
+    "Sound" text COLLATE pg_catalog."default",
+    "Correction" text COLLATE pg_catalog."default",
+    CONSTRAINT "SoundCorrection_pkey" PRIMARY KEY ("Id")
+)
+--
+--		6 SpeechCard
 --
 CREATE TABLE IF NOT EXISTS logoped."SpeechCard"
 (
@@ -58,53 +84,18 @@ CREATE TABLE IF NOT EXISTS logoped."SpeechCard"
     CONSTRAINT "SpeechCard_pkey" PRIMARY KEY ("Id")
 )
 --
---		5 SpeechError
---
-CREATE TABLE IF NOT EXISTS logoped."SpeechError"
-(
-    "Id" bigint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1 ),
-    "Title" text COLLATE pg_catalog."default",
-    "Description" text COLLATE pg_catalog."default",
-    CONSTRAINT "SpeechError_pkey" PRIMARY KEY ("Id")
-)
---
---		6 SoundCorrection
---
-CREATE TABLE IF NOT EXISTS logoped."SoundCorrection"
-(
-    "Id" bigint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1 ),
-    "Sound" text COLLATE pg_catalog."default",
-    "Correction" text COLLATE pg_catalog."default",
-    CONSTRAINT "SoundCorrection_pkey" PRIMARY KEY ("Id")
-)
---
---		7 Homework
---
-CREATE TABLE IF NOT EXISTS logoped."Homework"
-(
-    "Id" bigint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1 ),
-    "Task" text COLLATE pg_catalog."default",
-    CONSTRAINT "Homework_pkey" PRIMARY KEY ("Id")
-)
---
---		8 Diagnostic
+--		7 Diagnostic
 --
 CREATE TABLE IF NOT EXISTS logoped."Diagnostic"
 (
     "Id" bigint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1 ),
     "Date" timestamp without time zone,
-    "patientId" bigint NOT NULL,
-    "SpeechCardId" bigint NOT NULL,
-    "LogopedId" bigint NOT NULL,
+    "LessonId" bigint,
+    "SpeechCardId" bigint,
     CONSTRAINT "Diagnostic_pkey" PRIMARY KEY ("Id"),
     CONSTRAINT "speechCard_uniq" UNIQUE ("SpeechCardId"),
-    CONSTRAINT "FK_diag_logoped" FOREIGN KEY ("LogopedId")
-        REFERENCES logoped."Logoped" ("Id") MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION
-        NOT VALID,
-    CONSTRAINT "FK_diag_patient" FOREIGN KEY ("patientId")
-        REFERENCES logoped."Patient" ("Id") MATCH SIMPLE
+    CONSTRAINT "FK_diag_lesson" FOREIGN KEY ("LessonId")
+        REFERENCES logoped."Lesson" ("Id") MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
         NOT VALID,
@@ -114,7 +105,15 @@ CREATE TABLE IF NOT EXISTS logoped."Diagnostic"
         ON DELETE NO ACTION
         NOT VALID
 )
-
+--
+--		8 Homework
+--
+CREATE TABLE IF NOT EXISTS logoped."Homework"
+(
+    "Id" bigint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1 ),
+    "Task" text COLLATE pg_catalog."default",
+    CONSTRAINT "Homework_pkey" PRIMARY KEY ("Id")
+)
 --
 --		9 Lesson
 --
@@ -122,51 +121,26 @@ CREATE TABLE IF NOT EXISTS logoped."Lesson"
 (
     "Id" bigint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1 ),
     "Type" text COLLATE pg_catalog."default",
+    "Topic" text COLLATE pg_catalog."default",
     "Description" text COLLATE pg_catalog."default",
     "DateOfLesson" timestamp without time zone,
-    "Duraction" integer,
-    "diagnosticId" bigint,
-    "homeworkId" bigint,
-    "logopedId" bigint NOT NULL,
+    "LogopedId" bigint,
+    "HomeworkId" bigint,
     CONSTRAINT "Lesson_pkey" PRIMARY KEY ("Id"),
-    CONSTRAINT diag_uniq UNIQUE ("diagnosticId"),
-    CONSTRAINT "FK_lesson_diag" FOREIGN KEY ("diagnosticId")
-        REFERENCES logoped."Diagnostic" ("Id") MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION
-        NOT VALID,
-    CONSTRAINT "FK_lesson_homework" FOREIGN KEY ("homeworkId")
+    CONSTRAINT homework_uniq UNIQUE ("HomeworkId"),
+    CONSTRAINT "FK_lesson_homework" FOREIGN KEY ("HomeworkId")
         REFERENCES logoped."Homework" ("Id") MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
         NOT VALID,
-    CONSTRAINT "FK_lesson_logoped" FOREIGN KEY ("logopedId")
+    CONSTRAINT "FK_lesson_logoped" FOREIGN KEY ("LogopedId")
         REFERENCES logoped."Logoped" ("Id") MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
         NOT VALID
 )
 --
---		10 Logoped_SpeechError
---
-CREATE TABLE IF NOT EXISTS logoped."Logoped_SpeechError"
-(
-    "logopedId" bigint NOT NULL,
-    "speechErrorId" bigint NOT NULL,
-    CONSTRAINT "Logoped_SpeechError_pkey" PRIMARY KEY ("logopedId", "speechErrorId"),
-    CONSTRAINT "FK_speechError_lse" FOREIGN KEY ("speechErrorId")
-        REFERENCES logoped."SpeechError" ("Id") MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION
-        NOT VALID,
-    CONSTRAINT "FL_logoped_lse" FOREIGN KEY ("logopedId")
-        REFERENCES logoped."Logoped" ("Id") MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION
-        NOT VALID
-)
---
---		11 SpeechCard_SoundCorrection
+--		10 SpeechCard_SoundCorrection
 --
 CREATE TABLE IF NOT EXISTS logoped."SpeechCard_SoundCorrection"
 (
@@ -185,7 +159,7 @@ CREATE TABLE IF NOT EXISTS logoped."SpeechCard_SoundCorrection"
         NOT VALID
 )
 --
---		12 SpeechCard_SpeechError
+--		11 SpeechCard_SpeechError
 --
 CREATE TABLE IF NOT EXISTS logoped."SpeechCard_SpeechError"
 (
@@ -204,58 +178,20 @@ CREATE TABLE IF NOT EXISTS logoped."SpeechCard_SpeechError"
         NOT VALID
 )
 --
---		13 Lesson_Patient
+--		12 Lesson_Patient
 --
 CREATE TABLE IF NOT EXISTS logoped."Lesson_Patient"
 (
-    "lessonId" bigint NOT NULL,
-    "patientId" bigint NOT NULL,
-    CONSTRAINT "LessonPatient_pkey" PRIMARY KEY ("lessonId", "patientId"),
-    CONSTRAINT "FK_lesson_lp" FOREIGN KEY ("lessonId")
+    "LessonId" bigint NOT NULL,
+    "PatientId" bigint NOT NULL,
+    CONSTRAINT "LessonPatient_pkey" PRIMARY KEY ("LessonId", "PatientId"),
+    CONSTRAINT "FK_lesson_lp" FOREIGN KEY ("LessonId")
         REFERENCES logoped."Lesson" ("Id") MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
         NOT VALID,
-    CONSTRAINT "FK_patient_lp" FOREIGN KEY ("patientId")
+    CONSTRAINT "FK_patient_lp" FOREIGN KEY ("PatientId")
         REFERENCES logoped."Patient" ("Id") MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION
-        NOT VALID
-)
---
---		14 Lesson_SoundCorrection
---
-CREATE TABLE IF NOT EXISTS logoped."Lesson_SoundCorrection"
-(
-    "lessonId" bigint NOT NULL,
-    "soundCorrectionId" bigint NOT NULL,
-    CONSTRAINT "Lesson_SoundCorrection_pkey" PRIMARY KEY ("lessonId", "soundCorrectionId"),
-    CONSTRAINT "FK_lesson_lsc" FOREIGN KEY ("lessonId")
-        REFERENCES logoped."Lesson" ("Id") MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION
-        NOT VALID,
-    CONSTRAINT "FK_soundCorrection_lsc" FOREIGN KEY ("soundCorrectionId")
-        REFERENCES logoped."SoundCorrection" ("Id") MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION
-        NOT VALID
-)
---
---		15 Lesson_SpeechError
---
-CREATE TABLE IF NOT EXISTS logoped."Lesson_SpeechError"
-(
-    "lessonId" bigint NOT NULL,
-    "speechErrorId" bigint NOT NULL,
-    CONSTRAINT "Lesson_SpeechError_pkey" PRIMARY KEY ("lessonId", "speechErrorId"),
-    CONSTRAINT "FK_lesson_lse" FOREIGN KEY ("lessonId")
-        REFERENCES logoped."Lesson" ("Id") MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION
-        NOT VALID,
-    CONSTRAINT "FK_speechError_lse" FOREIGN KEY ("speechErrorId")
-        REFERENCES logoped."SpeechError" ("Id") MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
         NOT VALID

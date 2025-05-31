@@ -28,4 +28,7 @@ public class Patient {
     @Basic
     @Column(name = "UserId", nullable = false)
     private Long userId;
+    @Basic
+    @Column(name = "LogopedId", nullable = true)
+    private Long logopedId;
 }
