@@ -33,8 +33,8 @@ public class UserService {
             user.setEmail(dto.email());
             user.setPhone(dto.phone());
 
-            UserData savedUser = repository.save(user);
-            return AsyncResult.success(savedUser);
+            UserData result = repository.save(user);
+            return AsyncResult.success(result);
         } catch (Exception ex) {
             return AsyncResult.error(ex.getMessage());
         }
@@ -43,17 +43,17 @@ public class UserService {
     @Async
     public CompletableFuture<ServiceResult<UserData>> update(Long id, UserDto dto) {
         try {
-            var result = repository.findById(id);
-            if (result.isEmpty())
+            var data = repository.findById(id); 
+            if (data.isEmpty())
                 return AsyncResult.error("Пользователь не найден");
-            var user = result.get();
+            var result = data.get();
 
-            if (dto.firstName() != null)     user.setFirstName(dto.firstName());
-            if (dto.secondName() != null)    user.setSecondName(dto.secondName());
-            if (dto.email() != null)         user.setEmail(dto.email());
-            if (dto.phone() != null)         user.setPhone(dto.phone());
+            if (dto.firstName() != null)     result.setFirstName(dto.firstName());
+            if (dto.secondName() != null)    result.setSecondName(dto.secondName());
+            if (dto.email() != null)         result.setEmail(dto.email());
+            if (dto.phone() != null)         result.setPhone(dto.phone());
 
-            return AsyncResult.success(repository.save(user));
+            return AsyncResult.success(repository.save(result));
         } catch (Exception ex) {
             return AsyncResult.error(ex.getMessage());
         }

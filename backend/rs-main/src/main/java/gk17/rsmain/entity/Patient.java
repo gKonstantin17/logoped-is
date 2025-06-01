@@ -5,7 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
-import java.util.Objects;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -16,19 +17,24 @@ public class Patient {
     @Id
     @Column(name = "Id", nullable = false)
     private Long id;
-    @Basic
-    @Column(name = "FirstName", nullable = true, length = -1)
+
+    @Column(name = "FirstName")
     private String firstName;
-    @Basic
-    @Column(name = "SecondName", nullable = true, length = -1)
+
+    @Column(name = "SecondName")
     private String secondName;
-    @Basic
-    @Column(name = "DateOfBirth", nullable = true)
+
+    @Column(name = "DateOfBirth")
     private Timestamp dateOfBirth;
-    @Basic
-    @Column(name = "UserId", nullable = false)
-    private Long userId;
-    @Basic
-    @Column(name = "LogopedId", nullable = true)
-    private Long logopedId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "UserId", nullable = false)
+    private UserData user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "LogopedId")
+    private Logoped logoped;
+
+    @ManyToMany(mappedBy = "patients", fetch = FetchType.LAZY)
+    private List<Lesson> lessons = new ArrayList<>();
 }

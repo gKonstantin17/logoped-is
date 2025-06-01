@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Objects;
 @Data
 @NoArgsConstructor
 @Entity
@@ -14,7 +13,7 @@ public class Homework {
     @Id
     @Column(name = "Id", nullable = false)
     private Long id;
-    @Basic
+
     @Column(name = "Task", nullable = true, length = -1)
     private String task;
 }

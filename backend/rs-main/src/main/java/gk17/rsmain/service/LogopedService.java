@@ -34,8 +34,8 @@ public class LogopedService {
             logoped.setEmail(dto.email());
             logoped.setPhone(dto.phone());
 
-            Logoped savedLogoped = repository.save(logoped);
-            return AsyncResult.success(savedLogoped);
+            Logoped result = repository.save(logoped);
+            return AsyncResult.success(result);
         } catch (Exception ex) {
             return AsyncResult.error(ex.getMessage());
         }
@@ -44,17 +44,17 @@ public class LogopedService {
     @Async
     public CompletableFuture<ServiceResult<Logoped>> update(Long id, LogopedDto dto) {
         try {
-            var result = repository.findById(id);
-            if (result.isEmpty())
+            var data = repository.findById(id);
+            if (data.isEmpty())
                 return AsyncResult.error("Логопед не найден");
-            var logoped = result.get();
+            var result = data.get();
 
-            if (dto.firstName() != null)     logoped.setFirstName(dto.firstName());
-            if (dto.secondName() != null)    logoped.setSecondName(dto.secondName());
-            if (dto.email() != null)         logoped.setEmail(dto.email());
-            if (dto.phone() != null)         logoped.setPhone(dto.phone());
+            if (dto.firstName() != null)     result.setFirstName(dto.firstName());
+            if (dto.secondName() != null)    result.setSecondName(dto.secondName());
+            if (dto.email() != null)         result.setEmail(dto.email());
+            if (dto.phone() != null)         result.setPhone(dto.phone());
 
-            return AsyncResult.success(repository.save(logoped));
+            return AsyncResult.success(repository.save(result));
         } catch (Exception ex) {
             return AsyncResult.error(ex.getMessage());
         }

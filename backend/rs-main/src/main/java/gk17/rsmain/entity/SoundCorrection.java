@@ -4,7 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Objects;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -15,10 +16,13 @@ public class SoundCorrection {
     @Id
     @Column(name = "Id", nullable = false)
     private Long id;
-    @Basic
+
     @Column(name = "Sound", nullable = true, length = -1)
     private String sound;
-    @Basic
+
     @Column(name = "Correction", nullable = true, length = -1)
     private String correction;
+
+    @ManyToMany(mappedBy = "soundCorrections", fetch = FetchType.LAZY)
+    private List<SpeechCard> speechCards = new ArrayList<>();
 }
