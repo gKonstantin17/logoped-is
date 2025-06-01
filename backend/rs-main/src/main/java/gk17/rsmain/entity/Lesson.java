@@ -1,16 +1,16 @@
 package gk17.rsmain.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @Entity
 @Table(name = "Lesson", schema = "logoped", catalog = "Logoped")
@@ -20,24 +20,24 @@ public class Lesson {
     @Column(name = "Id", nullable = false)
     private Long id;
 
-    @Column(name = "Type", nullable = true, length = -1)
+    @Column(name = "Type")
     private String type;
 
-    @Column(name = "Topic", nullable = true, length = -1)
+    @Column(name = "Topic")
     private String topic;
 
-    @Column(name = "Description", nullable = true, length = -1)
+    @Column(name = "Description")
     private String description;
 
-    @Column(name = "DateOfLesson", nullable = true)
+    @Column(name = "DateOfLesson")
     private Timestamp dateOfLesson;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "LogopedId", nullable = true)
+    @JoinColumn(name = "LogopedId")
     private Logoped logoped;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "HomeworkId", nullable = true)
+    @JoinColumn(name = "HomeworkId")
     private Homework homework;
 
     @ManyToMany(fetch = FetchType.LAZY)

@@ -1,15 +1,15 @@
 package gk17.rsmain.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @Entity
 @Table(name = "SpeechCard", schema = "logoped", catalog = "Logoped")
@@ -19,34 +19,34 @@ public class SpeechCard {
     @Column(name = "Id", nullable = false)
     private Long id;
 
-    @Column(name = "Reason", nullable = true, length = -1)
+    @Column(name = "Reason")
     private String reason;
 
-    @Column(name = "StateOfHearning", nullable = true, length = -1)
+    @Column(name = "StateOfHearning")
     private String stateOfHearning;
 
-    @Column(name = "Anamnesis", nullable = true, length = -1)
+    @Column(name = "Anamnesis")
     private String anamnesis;
 
-    @Column(name = "GeneralMotor", nullable = true, length = -1)
+    @Column(name = "GeneralMotor")
     private String generalMotor;
 
-    @Column(name = "FineMotor", nullable = true, length = -1)
+    @Column(name = "FineMotor")
     private String fineMotor;
 
-    @Column(name = "Articulatory", nullable = true, length = -1)
+    @Column(name = "Articulatory")
     private String articulatory;
 
-    @Column(name = "SoundReproduction", nullable = true, length = -1)
+    @Column(name = "SoundReproduction")
     private String soundReproduction;
 
-    @Column(name = "SoundComponition", nullable = true, length = -1)
+    @Column(name = "SoundComponition")
     private String soundComponition;
 
-    @Column(name = "SpeechChars", nullable = true, length = -1)
+    @Column(name = "SpeechChars")
     private String speechChars;
 
-    @Column(name = "PatientChars", nullable = true, length = -1)
+    @Column(name = "PatientChars")
     private String patientChars;
 
     @ManyToMany

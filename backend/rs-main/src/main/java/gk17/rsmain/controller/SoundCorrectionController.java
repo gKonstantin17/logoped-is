@@ -1,11 +1,7 @@
 package gk17.rsmain.controller;
 
-import gk17.rsmain.dto.patient.PatientCreateDto;
-import gk17.rsmain.dto.patient.PatientDto;
 import gk17.rsmain.dto.soundCorrection.SoundCorrectionDto;
-import gk17.rsmain.entity.Patient;
-import gk17.rsmain.entity.SoundCorrection;
-import gk17.rsmain.service.PatientService;
+import gk17.rsmain.dto.soundCorrection.SoundCorrectionReadDto;
 import gk17.rsmain.service.SoundCorrectionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +20,7 @@ public class SoundCorrectionController {
     }
 
     @PostMapping("/findall")
-    public List<SoundCorrection> findall() throws ExecutionException, InterruptedException {
+    public List<SoundCorrectionReadDto> findall() throws ExecutionException, InterruptedException {
         var result = service.findall();
         return result.get().data();
     }

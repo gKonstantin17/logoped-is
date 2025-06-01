@@ -1,15 +1,12 @@
 package gk17.rsmain.controller;
 
 import gk17.rsmain.dto.logoped.LogopedDto;
-import gk17.rsmain.dto.responseWrapper.AsyncResult;
-import gk17.rsmain.dto.responseWrapper.ServiceResult;
 import gk17.rsmain.entity.Logoped;
 import gk17.rsmain.service.LogopedService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 @RestController

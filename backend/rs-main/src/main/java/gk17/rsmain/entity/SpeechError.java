@@ -1,14 +1,16 @@
 package gk17.rsmain.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @Entity
 @Table(name = "SpeechError", schema = "logoped", catalog = "Logoped")
@@ -18,10 +20,10 @@ public class SpeechError {
     @Column(name = "Id", nullable = false)
     private Long id;
 
-    @Column(name = "Title", nullable = true, length = -1)
+    @Column(name = "Title")
     private String title;
 
-    @Column(name = "Description", nullable = true, length = -1)
+    @Column(name = "Description")
     private String description;
 
     @ManyToMany(mappedBy = "speechErrors", fetch = FetchType.LAZY)

@@ -1,14 +1,11 @@
 package gk17.rsmain.service;
 
-import gk17.rsmain.dto.diagnostic.DiagnosticDto;
 import gk17.rsmain.dto.homework.HomeworkDto;
 import gk17.rsmain.dto.responseWrapper.AsyncResult;
 import gk17.rsmain.dto.responseWrapper.ServiceResult;
-import gk17.rsmain.entity.Diagnostic;
 import gk17.rsmain.entity.Homework;
-import gk17.rsmain.entity.UserData;
-import gk17.rsmain.repository.DiagnosticRepository;
 import gk17.rsmain.repository.HomeworkRepository;
+import gk17.rsmain.utils.hibernate.ResponseHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -45,26 +42,22 @@ public class HomeworkService {
     @Async
     public CompletableFuture<ServiceResult<Homework>> update(Long id, HomeworkDto dto) {
         try {
-            var data = repository.findById(id);
-            if (data.isEmpty())
-                return AsyncResult.error("Домашняя работа не найдена");
-            var result = data.get();
-
-            if (dto.task() != null) result.setTask(dto.task());
-
-            return AsyncResult.success(repository.save(result));
+            var updated = ResponseHelper.findById(repository,id,"Домашняя работа не найдена");
+            if (dto.task() != null) updated.setTask(dto.task());
+            return AsyncResult.success(repository.save(updated));
         } catch (Exception ex) {
             return AsyncResult.error(ex.getMessage());
         }
     }
     @Async
-    public CompletableFuture<ServiceResult<Homework>> delete(Long id) {
-        var result = repository.findById(id);
-        if (result.isEmpty())
-            return AsyncResult.error("Домашняя работа не найден");
+    public CompletableFuture<ServiceResult<Long>> delete(Long id) {
+        try {
+            var deletedData = ResponseHelper.findById(repository,id,"Домашняя работа не найдена");
+            repository.deleteById(id);
+            return AsyncResult.success(deletedData.getId());
+        } catch (Exception ex) {
+            return AsyncResult.error(ex.getMessage());
+        }
 
-        var deletedData = result.get();
-        repository.deleteById(id);
-        return AsyncResult.success(deletedData);
     }
 }

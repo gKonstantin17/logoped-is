@@ -10,6 +10,7 @@ import gk17.rsmain.repository.HomeworkRepository;
 import gk17.rsmain.repository.LessonRepository;
 import gk17.rsmain.repository.LogopedRepository;
 import gk17.rsmain.repository.PatientRepository;
+import gk17.rsmain.utils.hibernate.ResponseHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -35,19 +36,7 @@ public class LessonService {
     @Async
     public CompletableFuture<ServiceResult<List<LessonReadDto>>> findall() {
         var data = repository.findAll();
-        List<LessonReadDto> lessons = data.stream().map(lesson -> new LessonReadDto(
-                lesson.getId(),
-                lesson.getType(),
-                lesson.getTopic(),
-                lesson.getDescription(),
-                lesson.getDateOfLesson(),
-                lesson.getLogoped() != null ? lesson.getLogoped().getId() : null,
-                lesson.getHomework() != null ? lesson.getHomework().getId() : null,
-                lesson.getPatients().stream()
-                        .map(Patient::getId)
-                        .toList()
-        )).toList();
-
+        List<LessonReadDto> lessons = data.stream().map(this::toReadDto).toList();
         return AsyncResult.success(lessons);
     }
 
@@ -61,19 +50,13 @@ public class LessonService {
             lesson.setDateOfLesson(dto.dateOfLesson());
 
             if (dto.logopedId() != null) {
-                var logoped = logopedRepository.findById(dto.logopedId());
-                if (logoped.isEmpty()) {
-                    return AsyncResult.error("Логопед не найден");
-                }
-                lesson.setLogoped(logoped.get());
+                var logoped = ResponseHelper.findById(logopedRepository,dto.logopedId(),"Логопед не найден");
+                lesson.setLogoped(logoped);
             }
 
             if (dto.homeworkId() != null) {
-                var homework = homeworkRepository.findById(dto.homeworkId());
-                if (homework.isEmpty()) {
-                    return AsyncResult.error("Домашнее задание не найдено");
-                }
-                lesson.setHomework(homework.get());
+                var homework = ResponseHelper.findById(homeworkRepository,dto.homeworkId(),"Домашнее задание не найдено");
+                lesson.setHomework(homework);
             }
             Set<Patient> patients = dto.patientsId() == null
                     ? Set.of()
@@ -81,16 +64,7 @@ public class LessonService {
 
             lesson.setPatients(patients);
             repository.save(lesson);
-            LessonReadDto createdDto = new LessonReadDto(
-                    lesson.getId(),
-                    lesson.getType(),
-                    lesson.getTopic(),
-                    lesson.getDescription(),
-                    lesson.getDateOfLesson(),
-                    lesson.getLogoped() != null ? lesson.getLogoped().getId() : null,
-                    lesson.getHomework() != null ? lesson.getHomework().getId() : null,
-                    lesson.getPatients().stream().map(Patient::getId).toList()
-            );
+            var createdDto = toReadDto(repository.findById(lesson.getId()).get());
             return AsyncResult.success(createdDto);
 
         } catch(Exception ex) {
@@ -101,49 +75,33 @@ public class LessonService {
     @Async
     public CompletableFuture<ServiceResult<LessonReadDto>> update(Long id, LessonDto dto) {
         try {
-            var data = repository.findById(id);
-            if (data.isEmpty())
-                return AsyncResult.error("Урок не найден");
-            var result = data.get();
+            var updated = ResponseHelper.findById(repository,id,"Урок не найден");
 
-            if (dto.type() != null) result.setType(dto.type());
-            if (dto.topic() != null) result.setTopic(dto.topic());
-            if (dto.description() != null) result.setDescription(dto.description());
-            if (dto.dateOfLesson() != null) result.setDateOfLesson(dto.dateOfLesson());
+            if (dto.type() != null) updated.setType(dto.type());
+            if (dto.topic() != null) updated.setTopic(dto.topic());
+            if (dto.description() != null) updated.setDescription(dto.description());
+            if (dto.dateOfLesson() != null) updated.setDateOfLesson(dto.dateOfLesson());
 
             if (dto.logopedId() != null) {
-                var logoped = logopedRepository.findById(dto.logopedId());
-                if (logoped.isEmpty())
-                    return AsyncResult.error("Логопед не найден");
-                result.setLogoped(logoped.get());
+                var logoped = ResponseHelper.findById(logopedRepository,dto.logopedId(),"Логопед не найден");
+                updated.setLogoped(logoped);
             }
 
             if (dto.homeworkId() != null) {
-                var homework = homeworkRepository.findById(dto.homeworkId());
-                if (homework.isEmpty())
-                    return AsyncResult.error("Домашнее задание не найдено");
-                result.setHomework(homework.get());
+                var homework = ResponseHelper.findById(homeworkRepository,dto.homeworkId(),"Домашнее задание не найдено");
+                updated.setHomework(homework);
             }
             if (dto.patientsId() != null) {
                 Set<Patient> patients  = new HashSet<>(patientRepository.findAllById(dto.patientsId()));
                 if (patients.size() != dto.patientsId().size()) {
                     return AsyncResult.error("Некоторые пациенты не найдены");
                 }
-                result.setPatients(patients);
+                updated.setPatients(patients);
             }
 
-            repository.save(result);
+            repository.save(updated);
 
-            LessonReadDto updatedDto = new LessonReadDto(
-                    result.getId(),
-                    result.getType(),
-                    result.getTopic(),
-                    result.getDescription(),
-                    result.getDateOfLesson(),
-                    result.getLogoped() != null ? result.getLogoped().getId() : null,
-                    result.getHomework() != null ? result.getHomework().getId() : null,
-                    result.getPatients().stream().map(Patient::getId).toList()
-            );
+            var updatedDto = toReadDto(repository.findById(updated.getId()).get());
             return AsyncResult.success(updatedDto);
         } catch (Exception ex) {
             return AsyncResult.error(ex.getMessage());
@@ -151,12 +109,26 @@ public class LessonService {
     }
     @Async
     public CompletableFuture<ServiceResult<Long>> delete(Long id) {
-        var result = repository.findById(id);
-        if (result.isEmpty())
-            return AsyncResult.error("Логопед не найден");
+        try {
+            var deletedData = ResponseHelper.findById(repository,id,"Логопед не найден");
+            repository.deleteById(id);
+            return AsyncResult.success(deletedData.getId());
+        } catch (Exception ex) {
+            return AsyncResult.error(ex.getMessage());
+        }
+    }
 
-        var deletedData = result.get();
-        repository.deleteById(id);
-        return AsyncResult.success(deletedData.getId());
+    private LessonReadDto toReadDto (Lesson entity) {
+        return new LessonReadDto(
+          entity.getId(),
+          entity.getType(),
+          entity.getTopic(),
+          entity.getDescription(),
+          entity.getDateOfLesson(),
+          entity.getLogoped() != null ? entity.getLogoped().getId() : null,
+          entity.getHomework() != null ? entity.getHomework().getId() : null,
+          entity.getPatients() != null ? entity.getPatients().stream().map(Patient::getId).toList()
+                  : List.of()
+        );
     }
 }

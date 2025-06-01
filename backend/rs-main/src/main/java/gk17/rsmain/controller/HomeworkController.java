@@ -1,12 +1,8 @@
 package gk17.rsmain.controller;
 
 import gk17.rsmain.dto.homework.HomeworkDto;
-import gk17.rsmain.dto.patient.PatientCreateDto;
-import gk17.rsmain.dto.patient.PatientDto;
 import gk17.rsmain.entity.Homework;
-import gk17.rsmain.entity.Patient;
 import gk17.rsmain.service.HomeworkService;
-import gk17.rsmain.service.PatientService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

@@ -3,7 +3,6 @@ package gk17.rsmain.controller;
 import gk17.rsmain.dto.patient.PatientCreateDto;
 import gk17.rsmain.dto.patient.PatientDto;
 import gk17.rsmain.dto.patient.PatientReadDto;
-import gk17.rsmain.entity.Patient;
 import gk17.rsmain.service.PatientService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

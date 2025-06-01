@@ -5,6 +5,7 @@ import gk17.rsmain.dto.responseWrapper.ServiceResult;
 import gk17.rsmain.dto.user.UserDto;
 import gk17.rsmain.entity.UserData;
 import gk17.rsmain.repository.UserRepository;
+import gk17.rsmain.utils.hibernate.ResponseHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -43,10 +44,7 @@ public class UserService {
     @Async
     public CompletableFuture<ServiceResult<UserData>> update(Long id, UserDto dto) {
         try {
-            var data = repository.findById(id); 
-            if (data.isEmpty())
-                return AsyncResult.error("Пользователь не найден");
-            var result = data.get();
+            var result = ResponseHelper.findById(repository,id,"Пользователь не найден");
 
             if (dto.firstName() != null)     result.setFirstName(dto.firstName());
             if (dto.secondName() != null)    result.setSecondName(dto.secondName());
@@ -60,13 +58,14 @@ public class UserService {
     }
 
     @Async
-    public CompletableFuture<ServiceResult<UserData>> delete(Long id) {
-        var result = repository.findById(id);
-        if (result.isEmpty())
-            return AsyncResult.error("Пользователь не найден");
+    public CompletableFuture<ServiceResult<Long>> delete(Long id) {
+        try {
+            var deletedData = ResponseHelper.findById(repository,id,"Пользователь не найден");
+            repository.deleteById(id);
+            return AsyncResult.success(deletedData.getId());
+        } catch (Exception ex) {
+            return AsyncResult.error(ex.getMessage());
+        }
 
-        var deletedData = result.get();
-        repository.deleteById(id);
-        return AsyncResult.success(deletedData);
     }
 }

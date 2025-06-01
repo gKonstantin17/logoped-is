@@ -1,12 +1,8 @@
 package gk17.rsmain.controller;
 
 import gk17.rsmain.dto.diagnostic.DiagnosticDto;
-import gk17.rsmain.dto.patient.PatientCreateDto;
-import gk17.rsmain.dto.patient.PatientDto;
-import gk17.rsmain.entity.Diagnostic;
-import gk17.rsmain.entity.Patient;
+import gk17.rsmain.dto.diagnostic.DiagnosticReadDto;
 import gk17.rsmain.service.DiagnosticService;
-import gk17.rsmain.service.PatientService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +20,7 @@ public class DiagnosticController {
     }
 
     @PostMapping("/findall")
-    public List<Diagnostic> findall() throws ExecutionException, InterruptedException {
+    public List<DiagnosticReadDto> findall() throws ExecutionException, InterruptedException {
         var result = service.findall();
         return result.get().data();
     }

@@ -3,7 +3,6 @@ package gk17.rsmain.controller;
 import gk17.rsmain.dto.user.UserDto;
 import gk17.rsmain.entity.UserData;
 import gk17.rsmain.service.UserService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

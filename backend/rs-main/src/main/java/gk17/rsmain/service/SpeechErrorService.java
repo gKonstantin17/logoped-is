@@ -1,14 +1,12 @@
 package gk17.rsmain.service;
 
-import gk17.rsmain.dto.diagnostic.DiagnosticDto;
 import gk17.rsmain.dto.responseWrapper.AsyncResult;
 import gk17.rsmain.dto.responseWrapper.ServiceResult;
 import gk17.rsmain.dto.speechError.SpeechErrorDto;
-import gk17.rsmain.entity.Diagnostic;
+import gk17.rsmain.dto.speechError.SpeechErrorReadDto;
 import gk17.rsmain.entity.SpeechError;
-import gk17.rsmain.entity.UserData;
-import gk17.rsmain.repository.DiagnosticRepository;
 import gk17.rsmain.repository.SpeechErrorRepository;
+import gk17.rsmain.utils.hibernate.ResponseHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -24,19 +22,21 @@ public class SpeechErrorService {
     }
 
     @Async
-    public CompletableFuture<ServiceResult<List<SpeechError>>> findall() {
+    public CompletableFuture<ServiceResult<List<SpeechErrorReadDto>>> findall() {
         var data = repository.findAll();
-        return AsyncResult.success(data);
+        var result = data.stream().map(this::toReadDto).toList();
+        return AsyncResult.success(result);
     }
 
     @Async
-    public CompletableFuture<ServiceResult<SpeechError>> create(SpeechErrorDto dto) {
+    public CompletableFuture<ServiceResult<SpeechErrorReadDto>> create(SpeechErrorDto dto) {
         try {
             SpeechError speechError = new SpeechError();
             speechError.setTitle(dto.title());
             speechError.setDescription(dto.description());
 
-            SpeechError result = repository.save(speechError);
+            SpeechError created = repository.save(speechError);
+            var result = toReadDto(created);
             return AsyncResult.success(result);
         } catch(Exception ex) {
             return AsyncResult.error(ex.getMessage());
@@ -45,29 +45,36 @@ public class SpeechErrorService {
 }
 
     @Async
-    public CompletableFuture<ServiceResult<SpeechError>> update(Long id, SpeechErrorDto dto) {
+    public CompletableFuture<ServiceResult<SpeechErrorReadDto>> update(Long id, SpeechErrorDto dto) {
         try {
-            var data = repository.findById(id);
-            if (data.isEmpty())
-                return AsyncResult.error("Речевая ошибка не найдена");
-            var result = data.get();
+            var updated = ResponseHelper.findById(repository,id,"Речевая ошибка не найдена");
 
-            if (dto.title() != null) result.setTitle(dto.title());
-            if (dto.description() != null) result.setDescription(dto.description());
+            if (dto.title() != null) updated.setTitle(dto.title());
+            if (dto.description() != null) updated.setDescription(dto.description());
+            repository.save(updated);
 
-            return AsyncResult.success(repository.save(result));
+            var result = toReadDto(updated);
+            return AsyncResult.success(result);
         } catch (Exception ex) {
             return AsyncResult.error(ex.getMessage());
         }
     }
     @Async
-    public CompletableFuture<ServiceResult<SpeechError>> delete(Long id) {
-        var result = repository.findById(id);
-        if (result.isEmpty())
-            return AsyncResult.error("Речевая ошибка не найден");
+    public CompletableFuture<ServiceResult<Long>> delete(Long id) {
+        try {
+            var deletedData = ResponseHelper.findById(repository,id,"Речевая ошибка не найдена");
+            repository.deleteById(id);
+            return AsyncResult.success(deletedData.getId());
+        } catch (Exception ex) {
+            return AsyncResult.error(ex.getMessage());
+        }
+    }
 
-        var deletedData = result.get();
-        repository.deleteById(id);
-        return AsyncResult.success(deletedData);
+    private SpeechErrorReadDto toReadDto (SpeechError entity) {
+        return new SpeechErrorReadDto(
+                entity.getId(),
+                entity.getTitle(),
+                entity.getDescription()
+        );
     }
 }
