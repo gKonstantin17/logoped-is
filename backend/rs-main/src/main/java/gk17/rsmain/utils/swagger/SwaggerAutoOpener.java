@@ -5,10 +5,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
-import java.awt.*;
-import java.net.URI;
-
-
 
 // открытие swagger при запуске проекта
 // (иначе самому открывать http://localhost:8180/swagger-ui/index.html)

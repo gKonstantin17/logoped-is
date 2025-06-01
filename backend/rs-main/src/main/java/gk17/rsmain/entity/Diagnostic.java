@@ -1,12 +1,14 @@
 package gk17.rsmain.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.sql.Timestamp;
-import java.util.Objects;
-@Data
+
+@Getter
+@Setter
 @NoArgsConstructor
 @Entity
 @Table(name = "Diagnostic", schema = "logoped", catalog = "Logoped")
@@ -15,13 +17,15 @@ public class Diagnostic {
     @Id
     @Column(name = "Id", nullable = false)
     private Long id;
-    @Basic
-    @Column(name = "Date", nullable = true)
+
+    @Column(name = "Date")
     private Timestamp date;
-    @Basic
-    @Column(name = "LessonId", nullable = true)
-    private Long lessonId;
-    @Basic
-    @Column(name = "SpeechCardId", nullable = true)
-    private Long speechCardId;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "LessonId")
+    private Lesson lesson;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "SpeechCardId")
+    private SpeechCard speechCard;
 }

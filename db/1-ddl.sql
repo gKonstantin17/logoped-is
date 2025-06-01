@@ -84,29 +84,7 @@ CREATE TABLE IF NOT EXISTS logoped."SpeechCard"
     CONSTRAINT "SpeechCard_pkey" PRIMARY KEY ("Id")
 )
 --
---		7 Diagnostic
---
-CREATE TABLE IF NOT EXISTS logoped."Diagnostic"
-(
-    "Id" bigint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1 ),
-    "Date" timestamp without time zone,
-    "LessonId" bigint,
-    "SpeechCardId" bigint,
-    CONSTRAINT "Diagnostic_pkey" PRIMARY KEY ("Id"),
-    CONSTRAINT "speechCard_uniq" UNIQUE ("SpeechCardId"),
-    CONSTRAINT "FK_diag_lesson" FOREIGN KEY ("LessonId")
-        REFERENCES logoped."Lesson" ("Id") MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION
-        NOT VALID,
-    CONSTRAINT "FK_diag_speechCard" FOREIGN KEY ("SpeechCardId")
-        REFERENCES logoped."SpeechCard" ("Id") MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION
-        NOT VALID
-)
---
---		8 Homework
+--		7 Homework
 --
 CREATE TABLE IF NOT EXISTS logoped."Homework"
 (
@@ -115,7 +93,7 @@ CREATE TABLE IF NOT EXISTS logoped."Homework"
     CONSTRAINT "Homework_pkey" PRIMARY KEY ("Id")
 )
 --
---		9 Lesson
+--		8 Lesson
 --
 CREATE TABLE IF NOT EXISTS logoped."Lesson"
 (
@@ -135,6 +113,28 @@ CREATE TABLE IF NOT EXISTS logoped."Lesson"
         NOT VALID,
     CONSTRAINT "FK_lesson_logoped" FOREIGN KEY ("LogopedId")
         REFERENCES logoped."Logoped" ("Id") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        NOT VALID
+)
+--
+--		9 Diagnostic
+--
+CREATE TABLE IF NOT EXISTS logoped."Diagnostic"
+(
+    "Id" bigint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1 ),
+    "Date" timestamp without time zone,
+    "LessonId" bigint,
+    "SpeechCardId" bigint,
+    CONSTRAINT "Diagnostic_pkey" PRIMARY KEY ("Id"),
+    CONSTRAINT "speechCard_uniq" UNIQUE ("SpeechCardId"),
+    CONSTRAINT "FK_diag_lesson" FOREIGN KEY ("LessonId")
+        REFERENCES logoped."Lesson" ("Id") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        NOT VALID,
+    CONSTRAINT "FK_diag_speechCard" FOREIGN KEY ("SpeechCardId")
+        REFERENCES logoped."SpeechCard" ("Id") MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
         NOT VALID

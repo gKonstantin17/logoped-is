@@ -1,12 +1,16 @@
 package gk17.rsmain.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.sql.Timestamp;
-import java.util.Objects;
-@Data
+import java.util.HashSet;
+import java.util.Set;
+
+@Getter
+@Setter
 @NoArgsConstructor
 @Entity
 @Table(name = "Lesson", schema = "logoped", catalog = "Logoped")
@@ -15,22 +19,31 @@ public class Lesson {
     @Id
     @Column(name = "Id", nullable = false)
     private Long id;
-    @Basic
-    @Column(name = "Type", nullable = true, length = -1)
+
+    @Column(name = "Type")
     private String type;
-    @Basic
-    @Column(name = "Topic", nullable = true, length = -1)
+
+    @Column(name = "Topic")
     private String topic;
-    @Basic
-    @Column(name = "Description", nullable = true, length = -1)
+
+    @Column(name = "Description")
     private String description;
-    @Basic
-    @Column(name = "DateOfLesson", nullable = true)
+
+    @Column(name = "DateOfLesson")
     private Timestamp dateOfLesson;
-    @Basic
-    @Column(name = "LogopedId", nullable = true)
-    private Long logopedId;
-    @Basic
-    @Column(name = "HomeworkId", nullable = true)
-    private Long homeworkId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "LogopedId")
+    private Logoped logoped;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "HomeworkId")
+    private Homework homework;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "Lesson_Patient",
+            schema = "logoped",
+            joinColumns = @JoinColumn(name = "LessonId"),
+            inverseJoinColumns = @JoinColumn(name = "PatientId"))
+    private Set<Patient> patients = new HashSet<>();
 }

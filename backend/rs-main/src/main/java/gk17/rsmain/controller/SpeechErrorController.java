@@ -1,8 +1,9 @@
 package gk17.rsmain.controller;
 
-import gk17.rsmain.dto.user.UserDto;
-import gk17.rsmain.entity.UserData;
-import gk17.rsmain.service.UserService;
+import gk17.rsmain.dto.speechError.SpeechErrorDto;
+import gk17.rsmain.dto.speechError.SpeechErrorReadDto;
+import gk17.rsmain.service.SpeechErrorService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,23 +11,26 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 @RestController
-@RequestMapping("/user")
-public class UserController {
-    private final UserService service;
-    public UserController(UserService service) {
+@RequestMapping("/speecherror")
+public class SpeechErrorController {
+    private final SpeechErrorService service;
+
+    public SpeechErrorController(SpeechErrorService service) {
         this.service = service;
     }
 
     @PostMapping("/findall")
-    public List<UserData> findall() throws ExecutionException, InterruptedException {
+    public List<SpeechErrorReadDto> findall() throws ExecutionException, InterruptedException {
         var result = service.findall();
         return result.get().data();
     }
-
-
     @PostMapping("/create")
-    public ResponseEntity<?> create(@RequestBody UserDto dto) throws ExecutionException, InterruptedException {
-        // валидация в keycloak
+    public ResponseEntity<?> create(@RequestBody SpeechErrorDto dto) throws ExecutionException, InterruptedException {
+        if (dto.title() == null)
+            return new ResponseEntity<>("Пропущено название", HttpStatus.BAD_REQUEST);
+        if (dto.description() == null)
+            return new ResponseEntity<>("Пропущено описание", HttpStatus.BAD_REQUEST);
+
         var future = service.create(dto);
         var result = future.get();
 
@@ -34,16 +38,14 @@ public class UserController {
                 ? ResponseEntity.ok(result.data())
                 : ResponseEntity.badRequest().body(result.message());
     }
-
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id,@RequestBody UserDto dto) throws ExecutionException, InterruptedException {
+    public ResponseEntity<?> update(@PathVariable Long id,@RequestBody SpeechErrorDto dto) throws ExecutionException, InterruptedException {
         var future = service.update(id, dto);
         var result = future.get();
         return result.isSuccess()
                 ? ResponseEntity.ok(result.data())
                 : ResponseEntity.badRequest().body(result.message());
     }
-
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) throws ExecutionException, InterruptedException {
         var future = service.delete(id);
@@ -52,5 +54,4 @@ public class UserController {
                 ? ResponseEntity.ok(result.data())
                 : ResponseEntity.badRequest().body(result.message());
     }
-
 }

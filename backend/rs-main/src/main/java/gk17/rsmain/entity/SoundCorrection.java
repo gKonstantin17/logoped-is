@@ -1,12 +1,15 @@
 package gk17.rsmain.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.util.Objects;
+import java.util.ArrayList;
+import java.util.List;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @Entity
 @Table(name = "SoundCorrection", schema = "logoped", catalog = "Logoped")
@@ -15,10 +18,13 @@ public class SoundCorrection {
     @Id
     @Column(name = "Id", nullable = false)
     private Long id;
-    @Basic
-    @Column(name = "Sound", nullable = true, length = -1)
+
+    @Column(name = "Sound")
     private String sound;
-    @Basic
-    @Column(name = "Correction", nullable = true, length = -1)
+
+    @Column(name = "Correction")
     private String correction;
+
+    @ManyToMany(mappedBy = "soundCorrections", fetch = FetchType.LAZY)
+    private List<SpeechCard> speechCards = new ArrayList<>();
 }

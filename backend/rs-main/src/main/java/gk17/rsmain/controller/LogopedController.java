@@ -1,8 +1,8 @@
 package gk17.rsmain.controller;
 
-import gk17.rsmain.dto.user.UserDto;
-import gk17.rsmain.entity.UserData;
-import gk17.rsmain.service.UserService;
+import gk17.rsmain.dto.logoped.LogopedDto;
+import gk17.rsmain.entity.Logoped;
+import gk17.rsmain.service.LogopedService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,23 +10,20 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 @RestController
-@RequestMapping("/user")
-public class UserController {
-    private final UserService service;
-    public UserController(UserService service) {
+@RequestMapping("/logoped")
+public class LogopedController {
+    private final LogopedService service;
+    public LogopedController(LogopedService service) {
         this.service = service;
     }
-
     @PostMapping("/findall")
-    public List<UserData> findall() throws ExecutionException, InterruptedException {
+    public List<Logoped> findall() throws ExecutionException, InterruptedException {
         var result = service.findall();
         return result.get().data();
     }
 
-
     @PostMapping("/create")
-    public ResponseEntity<?> create(@RequestBody UserDto dto) throws ExecutionException, InterruptedException {
-        // валидация в keycloak
+    public ResponseEntity<?> create(@RequestBody LogopedDto dto) throws ExecutionException, InterruptedException {
         var future = service.create(dto);
         var result = future.get();
 
@@ -34,16 +31,14 @@ public class UserController {
                 ? ResponseEntity.ok(result.data())
                 : ResponseEntity.badRequest().body(result.message());
     }
-
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id,@RequestBody UserDto dto) throws ExecutionException, InterruptedException {
+    public ResponseEntity<?> update(@PathVariable Long id,@RequestBody LogopedDto dto) throws ExecutionException, InterruptedException {
         var future = service.update(id, dto);
         var result = future.get();
         return result.isSuccess()
                 ? ResponseEntity.ok(result.data())
                 : ResponseEntity.badRequest().body(result.message());
     }
-
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) throws ExecutionException, InterruptedException {
         var future = service.delete(id);
@@ -52,5 +47,4 @@ public class UserController {
                 ? ResponseEntity.ok(result.data())
                 : ResponseEntity.badRequest().body(result.message());
     }
-
 }

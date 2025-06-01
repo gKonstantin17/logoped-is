@@ -1,12 +1,13 @@
 package gk17.rsmain.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.util.Objects;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @Entity
 @Table(name = "Logoped", schema = "logoped", catalog = "Logoped")
@@ -15,16 +16,16 @@ public class Logoped {
     @Id
     @Column(name = "Id", nullable = false)
     private Long id;
-    @Basic
-    @Column(name = "FirstName", nullable = true, length = -1)
+
+    @Column(name = "FirstName")
     private String firstName;
-    @Basic
-    @Column(name = "SecondName", nullable = true, length = -1)
+
+    @Column(name = "SecondName")
     private String secondName;
-    @Basic
-    @Column(name = "Phone", nullable = true, length = -1)
+
+    @Column(name = "Phone")
     private String phone;
-    @Basic
-    @Column(name = "Email", nullable = true, length = -1)
+
+    @Column(name = "Email")
     private String email;
 }

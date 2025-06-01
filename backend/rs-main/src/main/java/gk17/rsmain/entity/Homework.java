@@ -1,11 +1,12 @@
 package gk17.rsmain.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.util.Objects;
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @Entity
 @Table(name = "Homework", schema = "logoped", catalog = "Logoped")
@@ -14,7 +15,7 @@ public class Homework {
     @Id
     @Column(name = "Id", nullable = false)
     private Long id;
-    @Basic
-    @Column(name = "Task", nullable = true, length = -1)
+
+    @Column(name = "Task")
     private String task;
 }

@@ -1,11 +1,15 @@
 package gk17.rsmain.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.util.Objects;
-@Data
+import java.util.HashSet;
+import java.util.Set;
+
+@Getter
+@Setter
 @NoArgsConstructor
 @Entity
 @Table(name = "SpeechCard", schema = "logoped", catalog = "Logoped")
@@ -14,34 +18,52 @@ public class SpeechCard {
     @Id
     @Column(name = "Id", nullable = false)
     private Long id;
-    @Basic
-    @Column(name = "Reason", nullable = true, length = -1)
+
+    @Column(name = "Reason")
     private String reason;
-    @Basic
-    @Column(name = "StateOfHearning", nullable = true, length = -1)
+
+    @Column(name = "StateOfHearning")
     private String stateOfHearning;
-    @Basic
-    @Column(name = "Anamnesis", nullable = true, length = -1)
+
+    @Column(name = "Anamnesis")
     private String anamnesis;
-    @Basic
-    @Column(name = "GeneralMotor", nullable = true, length = -1)
+
+    @Column(name = "GeneralMotor")
     private String generalMotor;
-    @Basic
-    @Column(name = "FineMotor", nullable = true, length = -1)
+
+    @Column(name = "FineMotor")
     private String fineMotor;
-    @Basic
-    @Column(name = "Articulatory", nullable = true, length = -1)
+
+    @Column(name = "Articulatory")
     private String articulatory;
-    @Basic
-    @Column(name = "SoundReproduction", nullable = true, length = -1)
+
+    @Column(name = "SoundReproduction")
     private String soundReproduction;
-    @Basic
-    @Column(name = "SoundComponition", nullable = true, length = -1)
+
+    @Column(name = "SoundComponition")
     private String soundComponition;
-    @Basic
-    @Column(name = "SpeechChars", nullable = true, length = -1)
+
+    @Column(name = "SpeechChars")
     private String speechChars;
-    @Basic
-    @Column(name = "PatientChars", nullable = true, length = -1)
+
+    @Column(name = "PatientChars")
     private String patientChars;
+
+    @ManyToMany
+    @JoinTable(
+            name = "SpeechCard_SpeechError",
+            schema = "logoped",
+            joinColumns = @JoinColumn(name = "SpeechCardId"),
+            inverseJoinColumns = @JoinColumn(name = "SpeechErrorId")
+    )
+    private Set<SpeechError> speechErrors = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "SpeechCard_SoundCorrection",
+            schema = "logoped",
+            joinColumns = @JoinColumn(name = "SpeechCardId"),
+            inverseJoinColumns = @JoinColumn(name = "SpeechCorrectionId")
+    )
+    private Set<SoundCorrection> soundCorrections = new HashSet<>();
 }
