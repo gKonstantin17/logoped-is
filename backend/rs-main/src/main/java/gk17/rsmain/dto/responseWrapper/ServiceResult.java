@@ -1,4 +1,4 @@
-package gk17.rsmain.dto.serviceResult;
+package gk17.rsmain.dto.responseWrapper;
 
 public record ServiceResult<T>(String message, T data) {
     public static <T> ServiceResult<T> success(T data) {
