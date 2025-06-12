@@ -1,1 +1,75 @@
-<p>children works!</p>
+<div class="children-container">
+  <!-- Интерфейс для пользователя (роль 'user') -->
+  <ng-container *ngIf="currentRole === 'user'">
+    <div class="card-list">
+      <!-- Карточки добавленных детей -->
+      <div *ngFor="let child of addedChildren; let i = index" class="child-card filled-card">
+        <strong>{{ child.firstName }} {{ child.lastName }}</strong>
+        <p>Дата рождения: {{ child.birthDate | date }}</p>
+        <p><a href="#">Речевая карта</a></p>
+        <button (click)="removeChild(i)">Изменить</button>
+        <button (click)="removeChild(i)">Удалить</button>
+      </div>
+
+      <!-- Формы для добавления -->
+      <div *ngFor="let child of childrenForms; let i = index" class="child-card form-card">
+        <h3>Добавить ребёнка</h3>
+        <form (ngSubmit)="addChild(i)" #formRef="ngForm">
+          <input type="text" placeholder="Имя" [(ngModel)]="child.firstName" name="firstName{{i}}" required>
+          <input type="text" placeholder="Фамилия" [(ngModel)]="child.lastName" name="lastName{{i}}" required>
+          <input type="date" [(ngModel)]="child.birthDate" name="birthDate{{i}}" required>
+          <div class="button-group">
+            <button type="submit" [disabled]="!formRef.valid">Добавить</button>
+            <button type="button" (click)="removeForm(i)">Отменить</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Кнопка "Добавить ребёнка" -->
+      <div class="child-card add-card" (click)="addForm()">
+        <div class="plus">+</div>
+        <strong>Добавить ребёнка</strong>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- Интерфейс для логопеда (роль 'logoped') -->
+  <ng-container *ngIf="currentRole === 'logoped'">
+    <h2>Список детей</h2>
+    <label for="speechErrorFilter">Фильтр по речевым нарушениям:</label>
+    <select id="speechErrorFilter" [(ngModel)]="selectedSpeechError">
+      <option [ngValue]="null">-- Показать всех --</option>
+      <option *ngFor="let error of availableSpeechErrors" [ngValue]="error">
+        {{ error }}
+      </option>
+    </select>
+    <table class="logoped-table">
+      <thead>
+      <tr>
+        <th>Имя</th>
+        <th>Фамилия</th>
+        <th>Дата рождения</th>
+        <th (click)="toggleSort('speechErrors')">
+          Речевые нарушения
+          <span *ngIf="sortColumn === 'speechErrors'">({{ sortDirection === 'asc' ? '↑' : '↓' }})</span>
+        </th>
+        <th (click)="toggleSort('speechCorrection')">
+          Направления коррекции
+          <span *ngIf="sortColumn === 'speechCorrection'">({{ sortDirection === 'asc' ? '↑' : '↓' }})</span>
+        </th>
+        <th>О пациенте</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let child of filteredChildren; let i = index">
+        <td>{{ child.firstName }}</td>
+        <td>{{ child.lastName }}</td>
+        <td>{{ child.birthDate | date }}</td>
+        <td>{{child.speechErrors}}</td>
+        <td>{{child.speechCorrection}}</td>
+        <td><a>Речевая карта</a> </td>
+      </tr>
+      </tbody>
+    </table>
+  </ng-container>
+</div>

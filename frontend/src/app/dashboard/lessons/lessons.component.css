@@ -1,0 +1,48 @@
+.lessons-container {
+  display: flex;
+  gap: 20px;
+}
+
+.sidebar {
+  min-width: 200px;
+}
+
+.main-content {
+  flex-grow: 1;
+}
+
+.add-lessons-btn {
+  padding: 20px;
+  font-size: 18px;
+  background-color: #ef019b;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.lesson-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 16px; /* расстояние между карточками */
+  margin-top: 20px;
+}
+
+.lesson-card {
+  border: 1px solid #ddd; /* светлая рамка */
+  border-radius: 8px;
+  padding: 16px;
+  background-color: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  width: 250px;
+}
+
+h1 {
+  text-align:center;
+  margin-top: 20px;
+}
+.add-lessons-btn-container {
+  display: flex;
+  justify-content: center; /* по горизонтали центр */
+  margin-top: 40px; /* отступ сверху, можно поменять */
+}

@@ -1,0 +1,16 @@
+<div class="session-container">
+  <!-- Видео в центре -->
+  <div class="video-call">
+    <p>📹 Видео звонок здесь</p>
+  </div>
+
+  <!-- Время в правом верхнем углу -->
+  <div class="session-timer">
+    {{ currentTime }}
+  </div>
+
+  <!-- Кнопка "Закончить занятие" в правом нижнем углу -->
+  <button class="end-session-btn" (click)="endSession()">
+    Закончить занятие
+  </button>
+</div>

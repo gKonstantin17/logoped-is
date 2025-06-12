@@ -1,0 +1,15 @@
+<full-calendar [options]="calendarOptions"></full-calendar>
+<!-- Простое модальное окно -->
+<div class="modal-overlay" *ngIf="isModalOpen" (click)="isModalOpen = false">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <h2>Детали занятия</h2>
+    <p><strong>Тип:</strong> {{ selectedLesson?.type }}</p>
+    <p><strong>Тема:</strong> {{ selectedLesson?.topic }}</p>
+    <p><strong>Описание:</strong> {{ selectedLesson?.description }}</p>
+    <p><strong>Дата:</strong> {{ selectedLesson?.dateOfLesson | date: 'full' }}</p>
+    <p><strong>Логопед ID:</strong> {{ selectedLesson?.logopedId ?? 'не назначен' }}</p>
+    <p><strong>Домашка ID:</strong> {{ selectedLesson?.homeworkId ?? 'нет' }}</p>
+    <a [routerLink]="['/dashboard/details', selectedLesson?.id]">Подробнее</a>
+    <button (click)="isModalOpen = false">Закрыть</button>
+  </div>
+</div>

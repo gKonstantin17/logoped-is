@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
-import {RouterOutlet} from '@angular/router';
+import {RouterLink, RouterOutlet} from '@angular/router';
 
 @Component({
   selector: 'app-private-layout',
   standalone: true,
   imports: [
-    RouterOutlet
+    RouterOutlet,
+    RouterLink
   ],
   templateUrl: './private-layout.component.html',
   styleUrl: './private-layout.component.css'

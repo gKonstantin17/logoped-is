@@ -1,0 +1,74 @@
+.diagnostic-container {
+  display: flex;
+  height: 100vh;
+  position: relative;
+  background-color: #f2f2f2;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.speech-form {
+  width: 25%;
+  margin-right: 20px;
+  background: white;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.speech-form h3 {
+  margin-top: 0;
+}
+
+.speech-form label {
+  display: block;
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
+.speech-form textarea {
+  width: 100%;
+  height: 60px;
+  resize: vertical;
+  margin-top: 4px;
+}
+
+.speech-form button {
+  margin-top: 12px;
+  padding: 8px 16px;
+  background-color: #2ecc71;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.video-call {
+  flex: 1;
+  background-color: #ccc;
+  border-radius: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+}
+
+.diagnostic-timer {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.end-diagnostic-btn {
+  position: absolute;
+  bottom: 30px;
+  right: 30px;
+  background-color: #e67e22;
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}

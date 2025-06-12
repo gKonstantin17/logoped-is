@@ -1,0 +1,25 @@
+<!-- lesson-modal.component.html -->
+<div class="modal-overlay">
+  <div class="modal-content">
+    <button class="close-btn" (click)="cancel()">×</button>
+
+    <div *ngIf="step === 1">
+      <h2>Выберите тип записи</h2>
+      <button (click)="proceedToStep2('diagnostic')">Записаться на диагностику</button>
+      <button (click)="proceedToStep2('lesson')">Записаться на занятие</button>
+    </div>
+
+    <div *ngIf="step === 2">
+      <h2>Выберите дату и время</h2>
+      <input type="date" [(ngModel)]="selectedDate" [min]="minDate" />
+      <div class="time-slots">
+        <button *ngFor="let slot of timeSlots"
+                [class.selected]="selectedTime === slot"
+                (click)="selectedTime = slot">
+          {{ slot }}
+        </button>
+      </div>
+      <button [disabled]="!selectedDate || !selectedTime" (click)="submit()">Записаться</button>
+    </div>
+  </div>
+</div>

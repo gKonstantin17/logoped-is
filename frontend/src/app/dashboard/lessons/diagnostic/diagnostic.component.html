@@ -1,0 +1,29 @@
+<div class="diagnostic-container">
+  <!-- Левая панель: речевая карта -->
+  <div class="speech-form">
+    <h3>Речевая карта</h3>
+    <form (ngSubmit)="saveSpeechCard()" #formRef="ngForm">
+      <label>Жалобы:
+        <textarea [(ngModel)]="speechCard.complaints" name="complaints"></textarea>
+      </label>
+      <label>Общее развитие речи:
+        <textarea [(ngModel)]="speechCard.development" name="development"></textarea>
+      </label>
+      <label>Рекомендации:
+        <textarea [(ngModel)]="speechCard.recommendations" name="recommendations"></textarea>
+      </label>
+      <button type="submit" [disabled]="!formRef.form.valid">Сохранить</button>
+    </form>
+  </div>
+
+  <!-- Центр: видео -->
+  <div class="video-call">
+    <p>📹 Видео диагностика</p>
+  </div>
+
+  <!-- Время -->
+  <div class="diagnostic-timer">{{ currentTime }}</div>
+
+  <!-- Завершить -->
+  <button class="end-diagnostic-btn" (click)="endDiagnostic()">Завершить диагностику</button>
+</div>

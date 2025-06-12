@@ -1,0 +1,45 @@
+.session-container {
+  position: relative;
+  height: 100vh;
+  background-color: #f2f2f2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.video-call {
+  width: 70%;
+  height: 80%;
+  background-color: #ddd;
+  border-radius: 16px;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+}
+
+.session-timer {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.end-session-btn {
+  position: absolute;
+  bottom: 30px;
+  right: 30px;
+  background-color: #e74c3c;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.end-session-btn:hover {
+  background-color: #c0392b;
+}

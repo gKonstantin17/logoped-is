@@ -1,0 +1,33 @@
+<div class="tabs">
+  <button [class.active]="selectedTab === 'lesson'" (click)="selectedTab = 'lesson'">Занятие</button>
+  <button [class.active]="selectedTab === 'about'" (click)="selectedTab = 'about'">О занятии</button>
+  <button [class.active]="selectedTab === 'description'" (click)="selectedTab = 'description'">Описание</button>
+</div>
+
+<div class="tab-content">
+  <!-- Вкладка: Занятие -->
+  <ng-container *ngIf="selectedTab === 'lesson'">
+    <p>Вы записались на занятие, которое пройдет 21 марта в 12:00</p>
+    <button>Перенести занятие</button>
+    <button (click)="openSession()">Открыть виртуальный урок</button>
+    <button *ngIf="currentRole === 'logoped'" (click)="openDiagnostic()">Открыть диагностику</button>
+  </ng-container>
+
+  <!-- Вкладка: О занятии -->
+  <ng-container *ngIf="selectedTab === 'about'">
+    <div class="block-row">
+      <div class="block">О занятии</div>
+      <div class="block">Прилагаемые материалы</div>
+      <div class="block">Домашнее задание</div>
+    </div>
+  </ng-container>
+
+  <!-- Вкладка: Описание -->
+  <ng-container *ngIf="selectedTab === 'description'">
+    <div class="block-row">
+      <div class="block">О занятии</div>
+      <div class="block">Описание</div>
+      <div class="block">Ещё что-то</div>
+    </div>
+  </ng-container>
+</div>

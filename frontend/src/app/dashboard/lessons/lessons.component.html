@@ -1,1 +1,44 @@
-<p>lessons works!</p>
+<div class="lessons-container">
+  <!-- Sidebar: dropdown -->
+  <aside class="sidebar">
+    <label for="childSelect">Выберите ребёнка:</label>
+    <select id="childSelect" [(ngModel)]="selectedChildId">
+      <option [ngValue]="null" disabled>-- Выберите --</option>
+      <option *ngFor="let child of childrenData" [ngValue]="child.id">
+        {{ child.firstName }} {{ child.secondName }}
+      </option>
+    </select>
+  </aside>
+
+  <!-- Main content -->
+  <div class="main-content">
+    <h1>Логопедические занятия</h1>
+
+    <ng-container *ngIf="selectedChildId !== null">
+      <ng-container *ngIf="selectedChildLessons.length === 0; else showLessons">
+        <div class="add-lessons-btn-container">
+          <button class="add-lessons-btn" (click)="openModal()">Подобрать занятия</button>
+
+
+        </div>
+        <app-lesson-modal *ngIf="showModal"
+                          (closeModal)="showModal = false"
+                          (confirmBooking)="handleBooking($event)">
+        </app-lesson-modal>
+      </ng-container>
+
+      <ng-template #showLessons>
+        <div class="lesson-cards" *ngIf="selectedChildLessons.length > 0">
+          <div class="lesson-card" *ngFor="let lesson of selectedChildLessons">
+            <p><strong>Тип занятия:</strong> {{ lesson.type }}</p>
+            <p><strong>Тема:</strong> {{ lesson.topic }}</p>
+            <p><strong>Дата занятия:</strong> {{ lesson.dateOfLesson | date:'dd.MM.yyyy' }}</p>
+            <p><strong>Логопед ID:</strong> {{ lesson.logopedId ?? 'не назначен' }}</p>
+            <p *ngIf="lesson.homeworkId !== null"><strong>Домашнее задание ID:</strong> {{ lesson.homeworkId }}</p>
+            <a [routerLink]="['/dashboard/details', lesson.id]">Подробнее</a>
+          </div>
+        </div>
+      </ng-template>
+    </ng-container>
+  </div>
+</div>

@@ -1,1 +1,20 @@
-<p>login works!</p>
+<div>
+  ТЫ:
+  <p><strong>ID:</strong> {{userData.id}}</p>
+  <p><strong>Имя:</strong> {{userData.firstName}}</p>
+  <p><strong>Фамилия:</strong> {{userData.secondName}}</p>
+  <p><strong>Email:</strong> {{userData.email}}</p>
+  <p><strong>Телефон:</strong> {{userData.phone}}</p>
+  <p>Роль: {{userData.role}}</p>
+  <button (click)="loginAsUser()">Войти</button>
+  <br>
+  ТЫ:
+  <p><strong>ID:</strong> {{logopedData.id}}</p>
+  <p><strong>Имя:</strong> {{logopedData.firstName}}</p>
+  <p><strong>Фамилия:</strong> {{logopedData.secondName}}</p>
+  <p><strong>Email:</strong> {{logopedData.email}}</p>
+  <p><strong>Телефон:</strong> {{logopedData.phone}}</p>
+  <p>Роль: {{logopedData.role}}</p>
+  <button (click)="loginAsLogoped()">Войти</button>
+</div>
+
