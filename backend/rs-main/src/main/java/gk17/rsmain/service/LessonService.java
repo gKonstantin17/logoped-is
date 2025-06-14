@@ -12,16 +12,14 @@ import gk17.rsmain.dto.responseWrapper.AsyncResult;
 import gk17.rsmain.dto.responseWrapper.ServiceResult;
 import gk17.rsmain.entity.Homework;
 import gk17.rsmain.entity.Lesson;
+import gk17.rsmain.entity.Logoped;
 import gk17.rsmain.entity.Patient;
 import gk17.rsmain.repository.*;
 import gk17.rsmain.utils.hibernate.ResponseHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -122,6 +120,27 @@ public class LessonService {
             if (dto.logopedId() != null) {
                 var logoped = ResponseHelper.findById(logopedRepository, dto.logopedId(), "Логопед не найден");
                 lesson.setLogoped(logoped);
+            } else {
+                // Получаем всех логопедов
+                List<Logoped> logopeds = logopedRepository.findAll();
+
+                // Подгружаем пациентов и группируем по логопеду
+                List<Patient> allPatients = patientRepository.findAll();
+
+                Map<Long, Long> logopedPatientCounts = allPatients.stream()
+                        .filter(p -> p.getLogoped() != null)
+                        .collect(Collectors.groupingBy(
+                                p -> p.getLogoped().getId(),
+                                Collectors.counting()
+                        ));
+
+                // Выбираем логопеда с наименьшим количеством пациентов
+                Logoped selectedLogoped = logopeds.stream()
+                        .min(Comparator.comparing(logoped ->
+                                logopedPatientCounts.getOrDefault(logoped.getId(), 0L)))
+                        .orElseThrow(() -> new IllegalStateException("Нет доступных логопедов"));
+
+                lesson.setLogoped(selectedLogoped);
             }
 
             // Создаём Homework
