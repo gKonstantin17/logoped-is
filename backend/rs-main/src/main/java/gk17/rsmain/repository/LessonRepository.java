@@ -15,4 +15,11 @@ public interface LessonRepository extends JpaRepository<Lesson,Long> {
     @NonNull
     @EntityGraph(attributePaths = {"patients", "logoped", "homework"})
     Optional<Lesson> findById(@NonNull Long id);
+
+    @NonNull
+    @EntityGraph(attributePaths = {"patients", "logoped", "homework"})
+    List<Lesson> findByPatientsId(Long patientId);
+    @NonNull
+    @EntityGraph(attributePaths = {"patients", "logoped", "homework"})
+    List<Lesson> findByLogopedId(Long patientId);
 }

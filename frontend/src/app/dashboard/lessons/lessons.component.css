@@ -1,0 +1,76 @@
+.lessons-container {
+  display: flex;
+  gap: 20px;
+}
+
+.sidebar {
+  min-width: 200px;
+}
+
+.main-content {
+  flex-grow: 1;
+}
+
+.add-lessons-btn {
+  padding: 20px;
+  font-size: 18px;
+  background-color: #ef019b;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.lesson-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.lesson-card {
+  width: 300px;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  padding: 16px;
+  background-color: #f9f9f9;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+
+h1 {
+  text-align:center;
+  margin-top: 20px;
+}
+.add-lessons-btn-container {
+  display: flex;
+  justify-content: center; /* по горизонтали центр */
+  margin-top: 40px; /* отступ сверху, можно поменять */
+}
+.warning-message {
+  color: red;
+  margin-top: 10px;
+}
+.toast {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background-color: #ffdddd;
+  color: #a94442;
+  padding: 12px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  font-weight: 500;
+  z-index: 1000;
+  animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+@keyframes fadein {
+  from {opacity: 0; transform: translateY(20px);}
+  to {opacity: 1; transform: translateY(0);}
+}
+
+@keyframes fadeout {
+  from {opacity: 1; transform: translateY(0);}
+  to {opacity: 0; transform: translateY(20px);}
+}

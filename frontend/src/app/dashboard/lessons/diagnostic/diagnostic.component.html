@@ -1,0 +1,122 @@
+<div class="session-container">
+  <!-- Видео в центре -->
+  <div class="video-call">
+    <p>📹 Видео звонок здесь</p>
+  </div>
+
+  <!-- Время в правом верхнем углу -->
+  <div class="session-timer">
+    {{ currentTime }}
+  </div>
+
+  <!-- Кнопка "Закончить занятие" в правом нижнем углу -->
+  <button class="end-session-btn" (click)="endSession()">
+    Закончить занятие
+  </button>
+
+  <!-- Кнопка открыть/закрыть речевую карту -->
+  <!-- Кнопка открыть/закрыть речевую карту -->
+  <button class="toggle-form-btn" (click)="toggleSpeechCard()">
+    {{ showSpeechCard ? 'Скрыть речевую карту' : 'Открыть речевую карту' }}
+  </button>
+
+  <!-- Условный рендеринг панели -->
+  <ng-container *ngIf="showSpeechCard">
+    <div class="speech-card-panel" @slideInOut>
+      <form>
+        <h3>Речевая карта</h3>
+
+        <label>1. ФИО обследуемого:</label>
+        <input type="text" [(ngModel)]="speechCard.fullName" name="fullName">
+
+        <label>Возраст:</label>
+        <input type="text" [(ngModel)]="speechCard.age" name="age">
+
+        <label>2. Дата рождения:</label>
+        <input type="text" [(ngModel)]="speechCard.dateOfBirth" name="birthDate">
+
+        <label>3. Причина обращения:</label>
+        <textarea [(ngModel)]="speechCard.reason" name="reason"></textarea>
+
+        <label>4. Состояние слуха, зрения:</label>
+        <textarea [(ngModel)]="speechCard.stateOfHearning" name="senses"></textarea>
+
+        <label>5. Ход речевого развития:</label>
+        <textarea [(ngModel)]="speechCard.anamnesis" name="speechDev"></textarea>
+
+        <label>6. Общая моторика:</label>
+        <textarea [(ngModel)]="speechCard.generalMotor" name="motor"></textarea>
+
+        <label>7. Мелкая моторика:</label>
+        <textarea [(ngModel)]="speechCard.fineMotor" name="fineMotor"></textarea>
+
+        <label>8. Артикуляционный аппарат:</label>
+        <textarea [(ngModel)]="speechCard.articulatory" name="articulation"></textarea>
+
+        <label>9. Общее звучание речи:</label>
+        <textarea [(ngModel)]="speechCard.soundReproduction" name="speechSounding"></textarea>
+
+        <label>10. Звукопроизношение,Фонетический слух и восприятие:</label>
+        <textarea [(ngModel)]="speechCard.soundComponition" name="pronunciation"></textarea>
+
+        <label>11. Общая характеристика речи:</label>
+        <textarea [(ngModel)]="speechCard.speechChars" name="speechChar"></textarea>
+
+        <label>12. Характеристика по наблюдениям:</label>
+        <textarea [(ngModel)]="speechCard.patientChars" name="childObs"></textarea>
+
+        <label>13. Заключение логопеда:</label><br>
+        <div class="speech-errors-section">
+          <label>Речевые нарушения:</label>
+
+          <!-- Выбор из списка -->
+          <select [(ngModel)]="selectedError" name="selectedError">
+            <option [ngValue]="null">-- Выберите нарушение --</option>
+            <option *ngFor="let error of availableSpeechErrors" [ngValue]="error">
+              {{ error.title }}
+            </option>
+          </select>
+
+          <button type="button" (click)="addSpeechError()" [disabled]="!selectedError">
+            ➕ Добавить
+          </button>
+
+          <!-- Отображение добавленных -->
+          <ul>
+            <li *ngFor="let error of speechCard.speechErrors; let i = index">
+              {{ error.title }}
+              <button type="button" (click)="removeSpeechError(i)">🗑</button>
+            </li>
+          </ul>
+        </div>
+
+        <!--        ТУТ есть теги br -->
+        <label>Направления коррекции</label><br>
+        <div class="correction-section">
+          <label>Звук:</label>
+          <select [(ngModel)]="newCorrection.sound" name="sound">
+            <option *ngFor="let sound of availableSounds" [value]="sound">{{ sound }}</option>
+          </select>
+
+          <label>Направление коррекции:</label>
+          <select [(ngModel)]="newCorrection.correction" name="correction">
+            <option *ngFor="let type of correctionTypes" [value]="type">{{ type }}</option>
+          </select>
+
+          <button type="button" (click)="addSoundCorrection()">Добавить</button>
+        </div>
+
+        <!-- Вывод добавленных пар -->
+        <ul>
+          <li *ngFor="let item of speechCard.soundCorrections; let i = index">
+            {{ item.sound }} — {{ item.correction }}
+            <button type="button" (click)="removeSoundCorrection(i)">Удалить</button>
+          </li>
+        </ul>
+        <button type="button" (click)="saveSpeechCard()">Сохранить</button>
+
+      </form>
+    </div>
+  </ng-container>
+
+</div>

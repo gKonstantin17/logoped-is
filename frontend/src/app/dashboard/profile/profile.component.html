@@ -1,0 +1,40 @@
+<div class="profile-container">
+  <aside class="sidebar">
+    <nav class="tab-list">
+      <button class="tab-button"
+        [class.active]="activeTab === 'account'"
+        (click)="activeTab = 'account'">
+        Учётная запись
+      </button>
+      <button class="tab-button"
+        [class.active]="activeTab === 'help'"
+        (click)="activeTab = 'help'">
+        Помощь
+      </button>
+    </nav>
+  </aside>
+
+  <main class="tab-content">
+    <!-- Учётная запись -->
+    <div *ngIf="activeTab === 'account'" class="tab-section">
+      <h3>Личная информация</h3>
+      <div *ngIf="data">
+        <label>Имя:<input [(ngModel)]="data.firstName" /></label>
+        <label>Фамилия:<input [(ngModel)]="data.secondName" /></label>
+        <label>Email:<input [(ngModel)]="data.email" /></label>
+        <label>Телефон:<input [(ngModel)]="data.phone" /></label>
+        <button (click)="saveChanges()">Сохранить</button>
+      </div>
+    </div>
+
+    <!-- Помощь -->
+    <div *ngIf="activeTab === 'help'" class="tab-section">
+      <h3>Сменить логопеда</h3>
+      <p>Если логопед вам не подошёл, вы можете выбрать другого.</p>
+      <button (click)="changeLogoped()">Сменить логопеда</button>
+      <h3>Помощь</h3>
+      <p class="support-text">Нужна помощь? Напишите нам — мы поможем.</p>
+      <button (click)="contactSupport()">Написать в поддержку</button>
+    </div>
+  </main>
+</div>

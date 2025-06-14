@@ -1,0 +1,28 @@
+<div *ngIf="speechCardData">
+  <h2 style="text-align: center;">
+    Речевая карта «{{ speechCardData.diagnosticDate | date:'dd' }}»
+    {{ speechCardData.diagnosticDate | date:'MMMM' }}
+    {{ speechCardData.diagnosticDate | date:'y' }} год
+  </h2>
+
+  <p>1. Фамилия, имя: {{ speechCardData.patientSecondName }} {{ speechCardData.patientFirstName }}, возраст: {{ getAge(speechCardData.patientDateOfBirth) }}</p>
+  <p>2. Дата рождения: {{ speechCardData.patientDateOfBirth | date:'dd.MM.yyyy' }}</p>
+  <p>3. Причина обращения: {{ speechCardData.reason }}</p>
+  <p>4. Состояние слуха: {{ speechCardData.stateOfHearning }}</p>
+  <p>5. Анамнез: {{ speechCardData.anamnesis }}</p>
+  <p>6. Общая моторика: {{ speechCardData.generalMotor }}</p>
+  <p>7. Мелкая моторика: {{ speechCardData.fineMotor }}</p>
+  <p>8. Артикуляционный аппарат: {{ speechCardData.articulatory }}</p>
+  <p>9. Звучание речи: {{ speechCardData.soundReproduction }}</p>
+  <p>10. Звукопроизношение: {{ speechCardData.soundReproduction }}</p>
+  <p>11. Анализ и синтез: {{ speechCardData.soundComponition }}</p>
+  <p>12. Характеристика речи: {{ speechCardData.speechChars }}</p>
+  <p>13. Характеристика ребёнка: {{ speechCardData.patientChars }}</p>
+  <p>14. Заключение логопеда: </p>
+
+  <p>Речевые нарушения: {{ speechCardData.speechErrors.join(', ') }}</p>
+  <p>Направления коррекции: {{ speechCardData.soundCorrections.join(', ') }}</p>
+  <p style="text-align: right;">
+    ЛОГОПЕД: {{ speechCardData.logopedSecondName }} {{ speechCardData.logopedFirstName }}
+  </p>
+</div>

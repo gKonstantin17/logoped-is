@@ -53,10 +53,10 @@ public class DiagnosticService {
             var result = toReadDto(created);
             return AsyncResult.success(result);
         } catch(Exception ex) {
-        return AsyncResult.error(ex.getMessage());
-    }
+            return AsyncResult.error(ex.getMessage());
+        }
 
-}
+    }
     @Async
     public CompletableFuture<ServiceResult<DiagnosticReadDto>> update(Long id, DiagnosticDto dto) {
         try {

@@ -1,0 +1,122 @@
+section {
+  padding: 0; /* убираем отступы, чтобы секция была на весь экран */
+  height: 500px; /* высота секции - весь экран */
+  display: flex;
+  align-items: center; /* вертикальное центрирование */
+  background-color: #FFEDAC;
+}
+
+.container {
+  width: 1180px;
+  max-width: 90%;
+  margin: 0;
+  text-align: left; /* текст по левому краю */
+}
+
+/* --- Секция 1: hero-section --- */
+
+.hero-section {
+  background-color: #FFEDAC;
+  height: 500px;
+  padding: 80px 0;
+}
+
+.hero-section .container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* текст слева */
+}
+
+.hero-section h1 {
+  font-size: 36px;
+  margin-bottom: 20px;
+  color: #000000; /* черный цвет */
+}
+
+.hero-section p {
+  font-size: 18px;
+  margin-bottom: 30px;
+  color: #000000;
+  max-width: 600px;
+}
+
+/* Кнопка по центру */
+.hero-section .secondary-btn {
+  align-self: center;
+  padding: 16px 40px;      /* увеличенный padding */
+  font-size: 18px;         /* увеличенный шрифт */
+  font-weight: 600;
+  border-radius: 30px;
+  text-decoration: none;
+  cursor: pointer;
+  border: 2px solid #EF019B; /* ярко-розовый контур */
+  background-color: transparent;
+  color: #000000;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  white-space: nowrap;
+}
+
+.hero-section .secondary-btn:hover {
+  background-color: #EF019B;
+  color: white;
+}
+
+/* --- Секция 2: diagnostic-section --- */
+
+.diagnostic-section {
+  background-color: #EF019B; /* ярко-розовый фон */
+  padding: 80px 0;
+  color: white;
+  height: 500px;
+  display: flex;
+  align-items: center;
+}
+
+.diagnostic-section .container {
+  margin: 0 auto;
+}
+
+.content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 40px;
+  width: 100%;
+}
+
+.text-block h2 {
+  font-size: 32px;
+  margin-bottom: 20px;
+  color: white;
+}
+
+.text-block p {
+  font-size: 18px;
+  color: white;
+  margin-bottom: 0;
+  max-width: 600px;
+}
+
+.button-block {
+  /* кнопка справа */
+}
+
+/* Белая кнопка с черным текстом */
+.white-btn {
+  display: inline-block;
+  background-color: white;
+  color: black;
+  padding: 16px 40px;      /* увеличенный padding */
+  border-radius: 30px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  white-space: nowrap;
+}
+
+.white-btn:hover {
+  background-color: #f0f0f0;
+  color: #333;
+}

@@ -4,7 +4,7 @@ import java.sql.Timestamp;
 import java.util.List;
 
 public record LessonReadDto(
-        Long Id,
+        Long id,
         String type,
         String topic,
         String description,

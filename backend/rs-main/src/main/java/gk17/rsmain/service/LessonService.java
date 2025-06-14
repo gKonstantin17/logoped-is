@@ -1,23 +1,29 @@
 package gk17.rsmain.service;
 
+import gk17.rsmain.dto.homework.HomeworkDto;
 import gk17.rsmain.dto.lesson.LessonDto;
 import gk17.rsmain.dto.lesson.LessonReadDto;
+import gk17.rsmain.dto.lesson.LessonWithFKDto;
+import gk17.rsmain.dto.lesson.LessonWithHomeworkDto;
+import gk17.rsmain.dto.logoped.LogopedDto;
+import gk17.rsmain.dto.patient.PatientDto;
+import gk17.rsmain.dto.patient.PatientWithoutFK;
 import gk17.rsmain.dto.responseWrapper.AsyncResult;
 import gk17.rsmain.dto.responseWrapper.ServiceResult;
+import gk17.rsmain.entity.Homework;
 import gk17.rsmain.entity.Lesson;
 import gk17.rsmain.entity.Patient;
-import gk17.rsmain.repository.HomeworkRepository;
-import gk17.rsmain.repository.LessonRepository;
-import gk17.rsmain.repository.LogopedRepository;
-import gk17.rsmain.repository.PatientRepository;
+import gk17.rsmain.repository.*;
 import gk17.rsmain.utils.hibernate.ResponseHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 @Service
 public class LessonService {
@@ -39,7 +45,40 @@ public class LessonService {
         List<LessonReadDto> lessons = data.stream().map(this::toReadDto).toList();
         return AsyncResult.success(lessons);
     }
+    @Async
+    public CompletableFuture<ServiceResult<List<LessonReadDto>>> findByUserId(Long userId) {
+        var patients = patientRepository.findByUserId(userId);
 
+        if (patients == null || patients.isEmpty()) {
+            return AsyncResult.error("Пациенты не найдены");
+        }
+
+        List<Lesson> allLessons = new ArrayList<>();
+
+        for (Patient patient : patients) {
+            List<Lesson> lessons = repository.findByPatientsId(patient.getId());
+            allLessons.addAll(lessons);
+        }
+
+        List<LessonReadDto> lessonDtos = allLessons.stream()
+                .map(this::toReadDto)
+                .toList();
+
+        return AsyncResult.success(lessonDtos);
+    }
+
+    @Async
+    public CompletableFuture<ServiceResult<List<LessonReadDto>>> findByLogopedId(Long logopedId) {
+        var data = repository.findByLogopedId(logopedId);
+        List<LessonReadDto> lessons = data.stream().map(this::toReadDto).toList();
+        return AsyncResult.success(lessons);
+    }
+    @Async
+    public CompletableFuture<ServiceResult<LessonWithFKDto>> findByIdWithFK(Long id) {
+        var lesson = repository.findById(id).get();
+        var result = toReadDtoWithFK(lesson);
+        return AsyncResult.success(result);
+    }
     @Async
     public CompletableFuture<ServiceResult<LessonReadDto>> create(LessonDto dto) {
         try {
@@ -71,6 +110,44 @@ public class LessonService {
             return AsyncResult.error(ex.getMessage());
         }
     }
+    @Async
+    public CompletableFuture<ServiceResult<LessonReadDto>> createLessonWithHomework(LessonWithHomeworkDto dto) {
+        try {
+            Lesson lesson = new Lesson();
+            lesson.setType(dto.type());
+            lesson.setTopic(dto.topic());
+            lesson.setDescription(dto.description());
+            lesson.setDateOfLesson(dto.dateOfLesson());
+
+            if (dto.logopedId() != null) {
+                var logoped = ResponseHelper.findById(logopedRepository, dto.logopedId(), "Логопед не найден");
+                lesson.setLogoped(logoped);
+            }
+
+            // Создаём Homework
+            if (dto.homework() != null && !dto.homework().isBlank()) {
+                Homework homework = new Homework();
+                homework.setTask(dto.homework());
+                homeworkRepository.save(homework);
+                lesson.setHomework(homework);
+            }
+
+            Set<Patient> patients = dto.patientsId() == null
+                    ? Set.of()
+                    : new HashSet<>(patientRepository.findAllById(dto.patientsId()));
+            lesson.setPatients(patients);
+
+            repository.save(lesson);
+
+            var createdLesson = repository.findById(lesson.getId()).get();
+            var readDto = toReadDto(createdLesson);
+            return AsyncResult.success(readDto);
+
+        } catch (Exception ex) {
+            return AsyncResult.error("Ошибка при создании урока: " + ex.getMessage());
+        }
+    }
+
 
     @Async
     public CompletableFuture<ServiceResult<LessonReadDto>> update(Long id, LessonDto dto) {
@@ -129,6 +206,27 @@ public class LessonService {
           entity.getHomework() != null ? entity.getHomework().getId() : null,
           entity.getPatients() != null ? entity.getPatients().stream().map(Patient::getId).toList()
                   : List.of()
+        );
+    }
+    private LessonWithFKDto toReadDtoWithFK (Lesson lesson) {
+        return new LessonWithFKDto(
+                lesson.getId(),
+                lesson.getType(),
+                lesson.getTopic(),
+                lesson.getDescription(),
+                lesson.getDateOfLesson(),
+                lesson.getLogoped() == null ? null :
+                        new LogopedDto(
+                                lesson.getLogoped().getFirstName(),
+                                lesson.getLogoped().getSecondName(),
+                                lesson.getLogoped().getPhone(),
+                                lesson.getLogoped().getEmail()
+                        ),
+                lesson.getHomework() == null ? null :
+                        new HomeworkDto(lesson.getHomework().getTask()),
+                lesson.getPatients().stream()
+                        .map(p -> new PatientWithoutFK( p.getFirstName(), p.getSecondName(),p.getDateOfBirth()))
+                        .toList()
         );
     }
 }
