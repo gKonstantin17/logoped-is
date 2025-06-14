@@ -8,7 +8,7 @@ export const routes: Routes = [
     component: PublicLayoutComponent,
     children: [
       { path: '', loadComponent: () => import('./public/home/home.component').then(m => m.HomeComponent) },
-      { path: 'diagnostic', loadComponent: () => import('./public/diagnostic/diagnostic.component').then(m => m.DiagnosticComponent)},
+      { path: 'diagnostic', loadComponent: () => import('./public/diagnosticpromo/diagnosticpromo.component').then(m => m.DiagnosticPromoComponent)},
       { path: 'login', loadComponent: () => import('./public/login/login.component').then(m => m.LoginComponent)},
     ]
   },
@@ -24,6 +24,7 @@ export const routes: Routes = [
       {path: 'details/:id', loadComponent: () => import('./dashboard/lessons/details/details.component').then(m => m.DetailsComponent)},
       {path: 'session', loadComponent: () => import('./dashboard/lessons/session/session.component').then(m => m.SessionComponent)},
       {path: 'diagnostic', loadComponent: () => import('./dashboard/lessons/diagnostic/diagnostic.component').then(m => m.DiagnosticComponent)},
+      { path:'speechcard', loadComponent:() => import('./docs/speech-card/speech-card.component').then(m => m.SpeechCardComponent)},
     ]
   }
   ]

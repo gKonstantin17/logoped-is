@@ -7,9 +7,10 @@ import {RouterLink} from '@angular/router';
   imports: [
     RouterLink
   ],
-  templateUrl: './diagnostic.component.html',
-  styleUrl: './diagnostic.component.css'
+  templateUrl: './diagnosticpromo.component.html',
+  styleUrl: './diagnosticpromo.component.css'
 })
-export class DiagnosticComponent {
+export class DiagnosticPromoComponent {
+
 
 }

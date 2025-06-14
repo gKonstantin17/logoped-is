@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import {environment} from '../../environments/environment';
+import {HttpClient} from '@angular/common/http';
 
 export interface UserData {
   id: number;
@@ -14,6 +16,10 @@ export interface UserData {
   providedIn: 'root' // сервис будет синглтоном на всё приложение
 })
 export class UserDataService {
+  private apiUrl = `${environment.RESOURSE_URL}/user`;
+
+  constructor(private http: HttpClient) { }
+
   private userDataSubject = new BehaviorSubject<UserData | null>(null);
   userData$ = this.userDataSubject.asObservable();
 
@@ -23,6 +29,13 @@ export class UserDataService {
 
   getUserData(): UserData | null {
     return this.userDataSubject.getValue();
+  }
+
+  update(data:UserData) {
+    return this.http.put<any>(`${this.apiUrl}/update/${data.id}`,data);
+  }
+  updateLogoped(data:UserData) {
+    return this.http.put<any>(`${environment.RESOURSE_URL}/logoped/update/${data.id}`,data);
   }
 }
 

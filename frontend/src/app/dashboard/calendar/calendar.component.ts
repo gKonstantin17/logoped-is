@@ -7,6 +7,9 @@ import interactionPlugin from '@fullcalendar/interaction';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import ruLocale from '@fullcalendar/core/locales/ru';
 import {RouterLink} from '@angular/router';
+import {UserDataService} from '../../services/user-data.service';
+import {PatientService} from '../../services/patient.service';
+import {LessonService} from '../../services/lesson.service';
 
 interface LessonData {
   id: number;
@@ -27,28 +30,64 @@ interface LessonData {
   styleUrls: ['./calendar.component.css']
 })
 export class CalendarComponent implements OnInit {
-  lessonDataList: LessonData[] = [
-    {
-      id: 4,
-      type: 'диагностика',
-      topic: 'Первичная диагностика',
-      description: 'string',
-      dateOfLesson: '2025-06-01T15:58:36.786+03:00',
-      logopedId: null,
-      homeworkId: null,
-      patientsId: [1]
-    },
-    {
-      id: 5,
-      type: 'терапия',
-      topic: 'Логопедическое занятие',
-      description: 'string',
-      dateOfLesson: '2025-06-02T10:00:00.000+03:00',
-      logopedId: null,
-      homeworkId: null,
-      patientsId: [1]
-    }
-  ];
+  constructor(private userDataService: UserDataService,
+              private lessonService: LessonService,
+              private cdr: ChangeDetectorRef) {
+  }
+  lessonDataList: any[] = [];
+  currentRole: string | null = null;
+  userId: number | null = null;
+  ngOnInit(): void {
+    this.userDataService.userData$.subscribe(user => {
+      this.currentRole = user?.role || null;
+      this.userId = user?.id || null;
+
+      if (this.userId !== null) {
+        if (this.currentRole === 'user') {
+          this.lessonService.findByUser(this.userId).subscribe({
+            next: (data) => {
+              this.lessonDataList = data;
+              console.log('Полученные дети:', this.lessonDataList);
+              this.updateCalendarEvents();
+            },
+            error: (err) => {
+              console.error('Ошибка при получении детей:', err);
+            }
+          });
+        }
+
+        if (this.currentRole === 'logoped') {
+          this.lessonService.findByLogoped(this.userId).subscribe({
+            next: (data) => {
+              this.lessonDataList = data;
+              console.log('Полученные дети:', this.lessonDataList);
+              this.updateCalendarEvents();
+            },
+            error: (err) => {
+              console.error('Ошибка при получении детей:', err);
+            }
+          });
+        }
+      }
+    });
+
+    this.calendarOptions.events = this.lessonDataList.map(lesson => {
+      const start = new Date(lesson.dateOfLesson);
+      const end = new Date(start);
+      end.setHours(start.getHours() + 1); // по умолчанию +1 час
+
+      return {
+        id: String(lesson.id),
+        title: lesson.topic,
+        start: start.toISOString(),
+        end: end.toISOString()
+      } as EventInput;
+    });
+
+    // нужно вызвать detectChanges, если Angular не отследит изменения
+    this.cdr.detectChanges();
+  }
+
 
   selectedLesson: LessonData | null = null;
   isModalOpen = false;
@@ -58,6 +97,24 @@ export class CalendarComponent implements OnInit {
     this.selectedLesson = this.lessonDataList.find(lesson => lesson.id === eventId) || null;
     this.isModalOpen = true;
   }
+  updateCalendarEvents() {
+    this.calendarOptions.events = this.lessonDataList.map(lesson => {
+      const start = new Date(lesson.dateOfLesson);
+      const end = new Date(start);
+      end.setHours(start.getHours() + 1); // длительность 1 час
+
+      return {
+        id: String(lesson.id),
+        title: lesson.topic,
+        start: start.toISOString(),
+        end: end.toISOString()
+      } as EventInput;
+    });
+
+    // Явно детектим изменения
+    this.cdr.detectChanges();
+  }
+
 
   calendarOptions: CalendarOptions = {
     plugins: [interactionPlugin, timeGridPlugin],
@@ -83,23 +140,6 @@ export class CalendarComponent implements OnInit {
     eventClick: this.handleEventClick.bind(this),
   };
 
-  constructor(private cdr: ChangeDetectorRef) {}
 
-  ngOnInit(): void {
-    this.calendarOptions.events = this.lessonDataList.map(lesson => {
-      const start = new Date(lesson.dateOfLesson);
-      const end = new Date(start);
-      end.setHours(start.getHours() + 1); // по умолчанию +1 час
 
-      return {
-        id: String(lesson.id),
-        title: lesson.topic,
-        start: start.toISOString(),
-        end: end.toISOString()
-      } as EventInput;
-    });
-
-    // нужно вызвать detectChanges, если Angular не отследит изменения
-    this.cdr.detectChanges();
-  }
 }

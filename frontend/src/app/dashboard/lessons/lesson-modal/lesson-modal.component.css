@@ -1,4 +1,3 @@
-/* lesson-modal.component.css */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -11,25 +10,36 @@
   align-items: center;
   z-index: 1000;
 }
+
 .modal-content {
   background: white;
   padding: 20px;
   border-radius: 8px;
   width: 350px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
 }
+
+.modal-header {
+  display: flex;
+  justify-content: flex-end;
+}
+
 .close-btn {
-  position: absolute;
-  top: 10px;
-  right: 14px;
   background: none;
   border: none;
-  font-size: 24px;
+  font-size: 20px;
+  font-weight: bold;
+  line-height: 1;
   cursor: pointer;
+  color: #555;
 }
+
 .time-slots button {
   margin: 4px;
 }
+
 .time-slots button.selected {
   background: #007bff;
   color: white;

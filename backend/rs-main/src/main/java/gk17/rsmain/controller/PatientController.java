@@ -44,6 +44,21 @@ public class PatientController {
                 ? ResponseEntity.ok(result.data())
                 : ResponseEntity.badRequest().body(result.message());
     }
+
+    @PostMapping ("find-by-user")
+    public ResponseEntity<?> findByUserId(@RequestBody Long userId) throws ExecutionException, InterruptedException {
+        var result = service.findByUserId(userId).get();
+        return result.isSuccess()
+                ? ResponseEntity.ok(result.data())
+                : ResponseEntity.badRequest().body(result.message());
+    }
+    @PostMapping ("find-by-logoped")
+    public ResponseEntity<?> findByLogopedId(@RequestBody Long userId) throws ExecutionException, InterruptedException {
+        var result = service.findByLogopegId(userId).get();
+        return result.isSuccess()
+                ? ResponseEntity.ok(result.data())
+                : ResponseEntity.badRequest().body(result.message());
+    }
     @PutMapping("/update/{id}")
     public ResponseEntity<?> update(@PathVariable Long id,@RequestBody PatientDto dto) throws ExecutionException, InterruptedException {
         var future = service.update(id, dto);
@@ -56,6 +71,14 @@ public class PatientController {
     public ResponseEntity<?> delete(@PathVariable Long id) throws ExecutionException, InterruptedException {
         var future = service.delete(id);
         var result = future.get();
+        return result.isSuccess()
+                ? ResponseEntity.ok(result.data())
+                : ResponseEntity.badRequest().body(result.message());
+    }
+
+    @PostMapping("exists-speechcard")
+    public ResponseEntity<?> existsCardByPatient(@RequestBody Long id) throws ExecutionException, InterruptedException {
+        var result = service.existsCardByPatient(id).get();
         return result.isSuccess()
                 ? ResponseEntity.ok(result.data())
                 : ResponseEntity.badRequest().body(result.message());

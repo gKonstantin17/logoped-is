@@ -2,33 +2,41 @@ package gk17.rsmain.service;
 
 import gk17.rsmain.dto.responseWrapper.AsyncResult;
 import gk17.rsmain.dto.responseWrapper.ServiceResult;
+import gk17.rsmain.dto.speechCard.SCFromDiagnosticDto;
 import gk17.rsmain.dto.speechCard.SpeechCardDto;
+import gk17.rsmain.dto.speechCard.SpeechCardFullDto;
 import gk17.rsmain.dto.speechCard.SpeechCardReadDto;
-import gk17.rsmain.entity.SoundCorrection;
-import gk17.rsmain.entity.SpeechCard;
-import gk17.rsmain.entity.SpeechError;
-import gk17.rsmain.repository.SoundCorrectionRepository;
-import gk17.rsmain.repository.SpeechCardRepository;
-import gk17.rsmain.repository.SpeechErrorRepository;
+import gk17.rsmain.entity.*;
+import gk17.rsmain.repository.*;
 import gk17.rsmain.utils.hibernate.ResponseHelper;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 @Service
 public class SpeechCardService {
     private final SpeechCardRepository repository;
     private final SoundCorrectionRepository soundCorrectionRepository;
     private final SpeechErrorRepository speechErrorRepository;
+    private final LogopedRepository logopedRepository;
+    private final LessonRepository lessonRepository;
+    private final DiagnosticRepository diagnosticRepository;
 
-    public SpeechCardService(SpeechCardRepository repository, SoundCorrectionRepository soundCorrectionRepository, SpeechErrorRepository speechErrorRepository) {
+    public SpeechCardService(SpeechCardRepository repository, SoundCorrectionRepository soundCorrectionRepository, SpeechErrorRepository speechErrorRepository, LogopedRepository logopedRepository,
+                             LessonRepository lessonRepository, DiagnosticRepository diagnosticRepository) {
         this.repository = repository;
         this.soundCorrectionRepository = soundCorrectionRepository;
         this.speechErrorRepository = speechErrorRepository;
+        this.logopedRepository = logopedRepository;
+        this.lessonRepository = lessonRepository;
+        this.diagnosticRepository = diagnosticRepository;
     }
 
     @Async
@@ -36,6 +44,48 @@ public class SpeechCardService {
         var data = repository.findAll();
         var result = data.stream().map(this::toReadDto).toList();
         return AsyncResult.success(result);
+    }
+    @Async
+    public CompletableFuture<ServiceResult<SpeechCardFullDto>> findByPatientId(Long patientId) throws ChangeSetPersister.NotFoundException {
+        SpeechCard card = repository.findDetailedByPatientId(patientId)
+                .orElseThrow(() -> new ChangeSetPersister.NotFoundException());
+
+        Diagnostic diagnostic = diagnosticRepository.findBySpeechCard(card)
+                .orElseThrow(() -> new ChangeSetPersister.NotFoundException());
+
+        Lesson lesson = diagnostic.getLesson();
+        Logoped logoped = lesson.getLogoped();
+        Patient patient = lesson.getPatients()
+                .stream()
+                .filter(p -> p.getId().equals(patientId))
+                .findFirst()
+                .orElseThrow();
+
+        SpeechCardFullDto dto = new SpeechCardFullDto(
+                card.getId(),
+                card.getReason(),
+                card.getStateOfHearning(),
+                card.getAnamnesis(),
+                card.getGeneralMotor(),
+                card.getFineMotor(),
+                card.getArticulatory(),
+                card.getSoundReproduction(),
+                card.getSoundComponition(),
+                card.getSpeechChars(),
+                card.getPatientChars(),
+                card.getSpeechErrors().stream().map(SpeechError::getTitle).toList(),
+                card.getSoundCorrections().stream()
+                        .map(sc -> sc.getSound() + ": " + sc.getCorrection())
+                        .toList(),
+                diagnostic.getDate(),
+                logoped.getFirstName(),
+                logoped.getSecondName(),
+                patient.getFirstName(),
+                patient.getSecondName(),
+                patient.getDateOfBirth()
+        );
+
+        return AsyncResult.success(dto);
     }
 
 
@@ -71,6 +121,57 @@ public class SpeechCardService {
             SpeechCard result = repository.save(speechCard);
             return AsyncResult.success(toReadDto(result));
         } catch(Exception ex){
+            return AsyncResult.error(ex.getMessage());
+        }
+    }
+    @Async
+    public CompletableFuture<ServiceResult<SpeechCardReadDto>> createFromDiag(SCFromDiagnosticDto dto) {
+        try {
+            // 1. Собираем нарушения
+            Set<SpeechError> errors = new HashSet<>(speechErrorRepository.findAllById(dto.speechErrors()));
+
+            // 2. Обрабатываем soundCorrections
+            Set<SoundCorrection> corrections = dto.soundCorrections().stream().map(corrDto -> {
+                return soundCorrectionRepository.findBySoundAndCorrection(
+                        corrDto.sound(), corrDto.correction()
+                ).orElseGet(() -> {
+                    SoundCorrection newCorrection = new SoundCorrection();
+                    newCorrection.setSound(corrDto.sound());
+                    newCorrection.setCorrection(corrDto.correction());
+                    return soundCorrectionRepository.save(newCorrection);
+                });
+            }).collect(Collectors.toSet());
+
+            // 3. Создаем речевую карту
+            SpeechCard speechCard = new SpeechCard();
+            speechCard.setReason(dto.reason());
+            speechCard.setStateOfHearning(dto.stateOfHearning());
+            speechCard.setAnamnesis(dto.anamnesis());
+            speechCard.setGeneralMotor(dto.generalMotor());
+            speechCard.setFineMotor(dto.fineMotor());
+            speechCard.setArticulatory(dto.articulatory());
+            speechCard.setSoundReproduction(dto.soundReproduction());
+            speechCard.setSoundComponition(dto.soundComponition());
+            speechCard.setSpeechChars(dto.speechChars());
+            speechCard.setPatientChars(dto.patientChars());
+            speechCard.setSpeechErrors(errors);
+            speechCard.setSoundCorrections(corrections);
+
+            SpeechCard savedCard = repository.save(speechCard);
+
+            // 4. Создаем диагностику
+            Lesson lesson = lessonRepository.findById(dto.lessonId())
+                    .orElseThrow(() -> new RuntimeException("Занятие не найдено"));
+
+            Diagnostic diagnostic = new Diagnostic();
+            diagnostic.setSpeechCard(savedCard);
+            diagnostic.setLesson(lesson);
+            diagnostic.setDate(new Timestamp(System.currentTimeMillis()));
+            diagnosticRepository.save(diagnostic);
+
+            return AsyncResult.success(toReadDto(savedCard));
+
+        } catch (Exception ex) {
             return AsyncResult.error(ex.getMessage());
         }
     }

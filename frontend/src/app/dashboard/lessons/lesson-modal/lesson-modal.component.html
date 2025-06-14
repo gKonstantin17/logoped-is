@@ -1,12 +1,25 @@
 <!-- lesson-modal.component.html -->
 <div class="modal-overlay">
   <div class="modal-content">
-    <button class="close-btn" (click)="cancel()">×</button>
+    <div class="modal-header">
+      <button class="close-btn" (click)="cancel()">×</button>
+    </div>
 
     <div *ngIf="step === 1">
       <h2>Выберите тип записи</h2>
-      <button (click)="proceedToStep2('diagnostic')">Записаться на диагностику</button>
-      <button (click)="proceedToStep2('lesson')">Записаться на занятие</button>
+      <!-- Выполняется проверка наличия речевой карты -->
+      <!-- Если есть -->
+      <button *ngIf="hasSpeechCard === false" (click)="proceedToStep2('diagnostic')">
+        Записаться на диагностику
+      </button>
+
+      <!-- Если нет -->
+      <button *ngIf="hasSpeechCard === true" (click)="proceedToStep2('lesson')">
+        Записаться на занятие
+      </button>
+
+      <!-- Пока идёт проверка -->
+      <p *ngIf="hasSpeechCard === null">Проверка данных...</p>
     </div>
 
     <div *ngIf="step === 2">
@@ -19,7 +32,36 @@
           {{ slot }}
         </button>
       </div>
-      <button [disabled]="!selectedDate || !selectedTime" (click)="submit()">Записаться</button>
+      <button *ngIf="choice === 'lesson'" (click)="proceedToStep3()">Далее</button>
+      <button *ngIf="choice === 'diagnostic'" [disabled]="!selectedDate || !selectedTime" (click)="submit()">Записаться</button>
     </div>
+
+    <!-- Шаг 3: Ввод данных для занятия -->
+    <div *ngIf="step === 3">
+      <h2>Введите данные занятия</h2>
+
+      <label>Тип занятия:</label>
+      <select [(ngModel)]="lessonType" required>
+        <option value="Коррекция звукопроизношения">Коррекция звукопроизношения</option>
+        <option value="Коррекция лексико-грамматических нарушений">Коррекция лексико-грамматических нарушений</option>
+        <option value="Формирование связной речи">Формирование связной речи</option>
+        <option value="Фонетико-фонематические нарушения">Фонетико-фонематические нарушения</option>
+        <option value="Логопедический массаж">Логопедический массаж</option>
+      </select>
+
+      <label>Тема:</label>
+      <input type="text" [(ngModel)]="topic">
+
+      <label>Описание:</label>
+      <textarea [(ngModel)]="description"></textarea>
+
+      <label>Домашнее задание:</label>
+      <input type="text" [(ngModel)]="homework">
+
+      <button [disabled]="!lessonType" (click)="submit()">Сохранить</button>
+    </div>
+
+
+
   </div>
 </div>

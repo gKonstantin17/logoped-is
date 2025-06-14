@@ -18,7 +18,7 @@ export class LoginComponent {
      role: "user"
   }
   logopedData: UserData = {
-    id: 2,
+    id: 1,
     firstName: "logoped",
     secondName: "topic",
     email: "logo@gmail.com",

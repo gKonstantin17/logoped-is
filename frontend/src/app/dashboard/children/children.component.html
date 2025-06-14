@@ -3,11 +3,11 @@
   <ng-container *ngIf="currentRole === 'user'">
     <div class="card-list">
       <!-- Карточки добавленных детей -->
-      <div *ngFor="let child of addedChildren; let i = index" class="child-card filled-card">
-        <strong>{{ child.firstName }} {{ child.lastName }}</strong>
-        <p>Дата рождения: {{ child.birthDate | date }}</p>
-        <p><a href="#">Речевая карта</a></p>
-        <button (click)="removeChild(i)">Изменить</button>
+      <div *ngFor="let patient of patientsOfUser; let i = index" class="child-card filled-card">
+        <strong>{{ patient.firstName }} {{ patient.secondName }}</strong>
+        <p>Дата рождения: {{ patient.dateOfBirth | date }}</p>
+        <p><a [routerLink]="['/dashboard/speechcard']" [queryParams]="{ id: patient.id }">Речевая карта</a></p>
+        <button (click)="startEdit(patient)">Изменить</button>
         <button (click)="removeChild(i)">Удалить</button>
       </div>
 
@@ -63,13 +63,34 @@
       <tbody>
       <tr *ngFor="let child of filteredChildren; let i = index">
         <td>{{ child.firstName }}</td>
-        <td>{{ child.lastName }}</td>
-        <td>{{ child.birthDate | date }}</td>
+        <td>{{ child.secondName }}</td>
+        <td>{{ child.dateOfBirth | date }}</td>
         <td>{{child.speechErrors}}</td>
         <td>{{child.speechCorrection}}</td>
-        <td><a>Речевая карта</a> </td>
+        <td><p><a [routerLink]="['/dashboard/speechcard']" [queryParams]="{ id: child.id }">Речевая карта</a></p>
+        </td>
+        <td>
+          <button (click)="startEdit(child)" title="Редактировать" class="edit-btn">
+            ✏️
+          </button>
+        </td>
       </tr>
       </tbody>
     </table>
   </ng-container>
+  <!-- Модальное окно редактирования -->
+  <div class="modal" *ngIf="editingPatient">
+    <div class="modal-content">
+      <h3>Редактировать ребёнка</h3>
+      <form (ngSubmit)="saveEdit()" #editForm="ngForm">
+        <input type="text" [(ngModel)]="editFormData.firstName" name="editFirstName" required placeholder="Имя">
+        <input type="text" [(ngModel)]="editFormData.secondName" name="editSecondName" required placeholder="Фамилия">
+        <input type="date" [(ngModel)]="editFormData.dateOfBirth" name="editBirthDate" required>
+        <div class="button-group">
+          <button type="submit" [disabled]="!editForm.valid">Сохранить</button>
+          <button type="button" (click)="cancelEdit()">Отмена</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>

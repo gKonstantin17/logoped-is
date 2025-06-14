@@ -3,13 +3,13 @@ package gk17.rsmain.dto.lesson;
 import java.sql.Timestamp;
 import java.util.List;
 
-public record LessonReadDto(
-        Long id,
+public record LessonWithHomeworkDto(
         String type,
         String topic,
         String description,
         Timestamp dateOfLesson,
         Long logopedId,
-        Long homeworkId,
+        String homework,
         List<Long> patientsId
-        ){ }
+) {}
+

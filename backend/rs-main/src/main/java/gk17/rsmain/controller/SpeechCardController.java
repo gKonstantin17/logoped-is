@@ -2,12 +2,15 @@ package gk17.rsmain.controller;
 
 import gk17.rsmain.dto.patient.PatientCreateDto;
 import gk17.rsmain.dto.patient.PatientDto;
+import gk17.rsmain.dto.speechCard.SCFromDiagnosticDto;
 import gk17.rsmain.dto.speechCard.SpeechCardDto;
+import gk17.rsmain.dto.speechCard.SpeechCardFullDto;
 import gk17.rsmain.dto.speechCard.SpeechCardReadDto;
 import gk17.rsmain.entity.Patient;
 import gk17.rsmain.entity.SpeechCard;
 import gk17.rsmain.service.PatientService;
 import gk17.rsmain.service.SpeechCardService;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +32,11 @@ public class SpeechCardController {
         var result = service.findall();
         return result.get().data();
     }
+    @PostMapping("/find-by-patient")
+    public SpeechCardFullDto getByPatientId(@RequestBody Long id) throws ExecutionException, InterruptedException, ChangeSetPersister.NotFoundException {
+        return service.findByPatientId(id).get().data();
+    }
+
     @PostMapping("/create")
     public ResponseEntity<?> create(@RequestBody SpeechCardDto dto) throws ExecutionException, InterruptedException {
         if (dto.reason() == null || dto.reason().isBlank())
@@ -63,7 +71,17 @@ public class SpeechCardController {
                 ? ResponseEntity.ok(result.data())
                 : ResponseEntity.badRequest().body(result.message());
     }
+    @PostMapping("/create-with-diagnostic")
+    public ResponseEntity<?> createWithDiagnostic(@RequestBody SCFromDiagnosticDto dto) throws ExecutionException, InterruptedException {
 
+
+        var future = service.createFromDiag(dto);
+        var result = future.get();
+
+        return result.isSuccess()
+                ? ResponseEntity.ok(result.data())
+                : ResponseEntity.badRequest().body(result.message());
+    }
     @PutMapping("/update/{id}")
     public ResponseEntity<?> update(@PathVariable Long id,@RequestBody SpeechCardDto dto) throws ExecutionException, InterruptedException {
         var future = service.update(id, dto);

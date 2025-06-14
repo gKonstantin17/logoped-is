@@ -55,6 +55,27 @@ public class PatientService {
     }
 
     @Async
+    public CompletableFuture<ServiceResult<List<PatientReadDto>>> findByUserId(Long userId) {
+        try {
+            var patients = repository.findByUserId(userId);
+            List<PatientReadDto> result = patients.stream().map(this::toReadDto).toList();
+            return AsyncResult.success(result);
+        } catch (Exception ex) {
+            return AsyncResult.error(ex.getMessage());
+        }
+    }
+    @Async
+    public CompletableFuture<ServiceResult<List<PatientReadDto>>> findByLogopegId(Long logopegId) {
+        try {
+            var patients = repository.findByLogopedId(logopegId);
+            List<PatientReadDto> result = patients.stream().map(this::toReadDto).toList();
+            return AsyncResult.success(result);
+        } catch (Exception ex) {
+            return AsyncResult.error(ex.getMessage());
+        }
+    }
+
+    @Async
     public CompletableFuture<ServiceResult<PatientReadDto>> update(Long id, PatientDto dto) {
         try {
             var updated = ResponseHelper.findById(repository,id,"Пациент не найден");
@@ -89,6 +110,15 @@ public class PatientService {
         }
     }
 
+    @Async
+    public CompletableFuture<ServiceResult<Boolean>> existsCardByPatient(Long id) {
+        try {
+            var result = repository.existsSpeechCardByPatientId(id);
+            return AsyncResult.success(result);
+        } catch (Exception ex) {
+            return AsyncResult.error(ex.getMessage());
+        }
+    }
     private PatientReadDto toReadDto(Patient entity) {
         return new PatientReadDto(
                 entity.getId(),
