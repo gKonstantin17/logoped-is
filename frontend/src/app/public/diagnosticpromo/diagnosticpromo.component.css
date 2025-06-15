@@ -56,7 +56,6 @@ section {
 .image-block {
   flex: 1 1 400px;
   min-height: 250px;
-  background-color: #eee; /* светлый нейтральный фон для заглушки */
   border-radius: 12px;
 }
 

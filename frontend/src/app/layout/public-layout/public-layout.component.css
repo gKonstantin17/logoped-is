@@ -1,6 +1,10 @@
 .container {
-  width: 1180px;
+  max-width: 1180px;
+  width: 100%;
   margin: 0 auto;
+  padding: 0 20px; /* небольшой внутренний отступ, чтобы ничего не прилипало к краям */
+  box-sizing: border-box;
+  overflow: hidden; /* на всякий случай, если какие-то внутренние элементы могут вылазить */
 }
 
 .header {
