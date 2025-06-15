@@ -141,6 +141,14 @@ public class LessonService {
                         .orElseThrow(() -> new IllegalStateException("Нет доступных логопедов"));
 
                 lesson.setLogoped(selectedLogoped);
+                // Назначаем логопеда всем пациентам занятия
+                if (dto.patientsId() != null) {
+                    List<Patient> patientsToUpdate = patientRepository.findAllById(dto.patientsId());
+                    for (Patient patient : patientsToUpdate) {
+                        patient.setLogoped(selectedLogoped);
+                    }
+                    patientRepository.saveAll(patientsToUpdate);
+                }
             }
 
             // Создаём Homework

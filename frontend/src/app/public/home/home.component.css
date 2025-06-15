@@ -25,16 +25,20 @@ section {
   display: flex;
   flex-direction: column;
   align-items: flex-start; /* текст слева */
+  padding-left: 20px;
 }
 
 .hero-section h1 {
-  font-size: 36px;
+
+  font-size: 46px;
   margin-bottom: 20px;
   color: #000000; /* черный цвет */
+  font-family: var(--title-font);
+  font-weight: 400;
 }
 
 .hero-section p {
-  font-size: 18px;
+  font-size: 22px;
   margin-bottom: 30px;
   color: #000000;
   max-width: 600px;
@@ -88,6 +92,8 @@ section {
   font-size: 32px;
   margin-bottom: 20px;
   color: white;
+  font-family: var(--title-font);
+  font-weight: 400;
 }
 
 .text-block p {
