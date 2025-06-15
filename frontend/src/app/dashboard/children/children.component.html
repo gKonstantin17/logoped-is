@@ -6,9 +6,12 @@
       <div *ngFor="let patient of patientsOfUser; let i = index" class="child-card filled-card">
         <strong>{{ patient.firstName }} {{ patient.lastName }}</strong>
         <p>Дата рождения: {{ patient.dateOfBirth | date }}</p>
-        <p><a [routerLink]="['/dashboard/speechcard']" [queryParams]="{ id: patient.id }">Речевая карта</a></p>
-        <button (click)="startEdit(patient)">Изменить</button>
-        <button (click)="removeChild(i)">Удалить</button>
+
+        <div class="card-button-group">
+          <button (click)="goToSpeechCard(patient.id)">Речевая карта</button>
+          <button (click)="startEdit(patient)">Изменить</button>
+          <button (click)="removeChild(i)">Убрать</button>
+        </div>
       </div>
 
       <!-- Формы для добавления -->
@@ -36,27 +39,27 @@
   <!-- Интерфейс для логопеда (роль 'logoped') -->
   <ng-container *ngIf="currentRole === 'logoped'">
     <h2>Список детей</h2>
-    <label for="speechErrorFilter">Фильтр по речевым нарушениям:</label>
-    <select id="speechErrorFilter" [(ngModel)]="selectedSpeechError">
-      <option [ngValue]="null">-- Показать всех --</option>
-      <option *ngFor="let error of availableSpeechErrors" [ngValue]="error">
-        {{ error }}
-      </option>
-    </select>
+<!--    <label for="speechErrorFilter">Фильтр по речевым нарушениям:</label>-->
+<!--    <select id="speechErrorFilter" [(ngModel)]="selectedSpeechError">-->
+<!--      <option [ngValue]="null">&#45;&#45; Показать всех &#45;&#45;</option>-->
+<!--      <option *ngFor="let error of availableSpeechErrors" [ngValue]="error">-->
+<!--        {{ error }}-->
+<!--      </option>-->
+<!--    </select>-->
     <table class="logoped-table">
       <thead>
       <tr>
         <th>Имя</th>
         <th>Фамилия</th>
         <th>Дата рождения</th>
-        <th (click)="toggleSort('speechErrors')">
-          Речевые нарушения
-          <span *ngIf="sortColumn === 'speechErrors'">({{ sortDirection === 'asc' ? '↑' : '↓' }})</span>
-        </th>
-        <th (click)="toggleSort('speechCorrection')">
-          Направления коррекции
-          <span *ngIf="sortColumn === 'speechCorrection'">({{ sortDirection === 'asc' ? '↑' : '↓' }})</span>
-        </th>
+<!--        <th (click)="toggleSort('speechErrors')">-->
+<!--          Речевые нарушения-->
+<!--          <span *ngIf="sortColumn === 'speechErrors'">({{ sortDirection === 'asc' ? '↑' : '↓' }})</span>-->
+<!--        </th>-->
+<!--        <th (click)="toggleSort('speechCorrection')">-->
+<!--          Направления коррекции-->
+<!--          <span *ngIf="sortColumn === 'speechCorrection'">({{ sortDirection === 'asc' ? '↑' : '↓' }})</span>-->
+<!--        </th>-->
         <th>О пациенте</th>
       </tr>
       </thead>
@@ -65,9 +68,11 @@
         <td>{{ child.firstName }}</td>
         <td>{{ child.lastName }}</td>
         <td>{{ child.dateOfBirth | date }}</td>
-        <td>{{child.speechErrors}}</td>
-        <td>{{child.speechCorrection}}</td>
-        <td><p><a [routerLink]="['/dashboard/speechcard']" [queryParams]="{ id: child.id }">Речевая карта</a></p>
+<!--        <td>{{child.speechErrors}}</td>-->
+<!--        <td>{{child.speechCorrection}}</td>-->
+        <td><p>
+          <button (click)="goToSpeechCard(child.id)">Речевая карта</button>
+        </p>
         </td>
         <td>
           <button (click)="startEdit(child)" title="Редактировать" class="edit-btn">

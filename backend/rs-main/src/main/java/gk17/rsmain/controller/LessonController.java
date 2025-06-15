@@ -4,6 +4,7 @@ import gk17.rsmain.dto.lesson.LessonDto;
 import gk17.rsmain.dto.lesson.LessonReadDto;
 import gk17.rsmain.dto.lesson.LessonWithFKDto;
 import gk17.rsmain.dto.lesson.LessonWithHomeworkDto;
+import gk17.rsmain.dto.patient.PatientWithoutFKDto;
 import gk17.rsmain.service.LessonService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,12 +34,12 @@ public class LessonController {
         return result.get().data();
     }
     @PostMapping("find-by-user")
-    public List<LessonReadDto> findByUserId(@RequestBody UUID userId) throws ExecutionException, InterruptedException {
+    public List<LessonWithFKDto> findByUserId(@RequestBody UUID userId) throws ExecutionException, InterruptedException {
         var result = service.findByUserId(userId);
         return result.get().data();
     }
     @PostMapping("find-by-logoped")
-    public List<LessonReadDto> findByLogopedId(@RequestBody UUID logopedId) throws ExecutionException, InterruptedException {
+    public List<LessonWithFKDto> findByLogopedId(@RequestBody UUID logopedId) throws ExecutionException, InterruptedException {
         var result = service.findByLogopedId(logopedId);
         return result.get().data();
     }

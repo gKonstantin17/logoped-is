@@ -3,30 +3,38 @@ package gk17.rsmain.service;
 import gk17.rsmain.dto.patient.PatientCreateDto;
 import gk17.rsmain.dto.patient.PatientDto;
 import gk17.rsmain.dto.patient.PatientReadDto;
+import gk17.rsmain.dto.patient.PatientWithSpeechCard;
 import gk17.rsmain.dto.responseWrapper.AsyncResult;
 import gk17.rsmain.dto.responseWrapper.ServiceResult;
+import gk17.rsmain.dto.soundCorrection.SoundCorrectionDto;
+import gk17.rsmain.dto.speechCard.SpeechCardFullDto;
+import gk17.rsmain.dto.speechError.SpeechErrorDto;
 import gk17.rsmain.entity.Patient;
+import gk17.rsmain.repository.DiagnosticRepository;
 import gk17.rsmain.repository.LogopedRepository;
 import gk17.rsmain.repository.PatientRepository;
 import gk17.rsmain.repository.UserRepository;
 import gk17.rsmain.utils.hibernate.ResponseHelper;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 @Service
 public class PatientService {
     private final PatientRepository repository;
     private final UserRepository userRepository;
     private final LogopedRepository logopedRepository;
-
-    public PatientService(PatientRepository repository, UserRepository userRepository, LogopedRepository logopedRepository) {
+    private final SpeechCardService speechCardService;
+    public PatientService(PatientRepository repository, UserRepository userRepository, LogopedRepository logopedRepository, SpeechCardService speechCardService) {
         this.repository = repository;
         this.userRepository = userRepository;
         this.logopedRepository = logopedRepository;
+        this.speechCardService = speechCardService;
     }
     @Async
     public CompletableFuture<ServiceResult<List<PatientReadDto>>> findall() {
@@ -76,6 +84,8 @@ public class PatientService {
         }
     }
 
+
+
     @Async
     public CompletableFuture<ServiceResult<PatientReadDto>> update(Long id, PatientDto dto) {
         try {
@@ -96,6 +106,18 @@ public class PatientService {
             var updatedPatient  = repository.save(updated);
             var result = toReadDto(updatedPatient);
             return AsyncResult.success(result);
+        } catch (Exception ex) {
+            return AsyncResult.error(ex.getMessage());
+        }
+    }
+    @Async
+    public CompletableFuture<ServiceResult<PatientReadDto>> hide(Long id) {
+        try {
+            var dataForHide = ResponseHelper.findById(repository,id,"Пациент не найден");
+            dataForHide.setUser(null);
+            dataForHide.setLogoped(null);
+            var hiddenData =  toReadDto(repository.save(dataForHide));
+            return AsyncResult.success(hiddenData);
         } catch (Exception ex) {
             return AsyncResult.error(ex.getMessage());
         }

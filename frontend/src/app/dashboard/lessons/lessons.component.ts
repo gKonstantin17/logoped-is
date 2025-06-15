@@ -90,15 +90,14 @@ export class LessonsComponent implements OnInit {
 
   get selectedChildLessons() {
     if (this.selectedChildId === 0) {
-      // Вернуть все занятия, если выбраны "Все дети"
       return this.lessonDataList;
     }
 
-    // Вернуть только те занятия, где среди пациентов есть выбранный ребёнок
     return this.lessonDataList.filter(lesson =>
-      lesson.patientsId.includes(this.selectedChildId)
+      lesson.patients?.some((patient: any) => patient.id === this.selectedChildId)
     );
   }
+
 
 
 

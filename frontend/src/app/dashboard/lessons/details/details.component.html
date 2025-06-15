@@ -13,9 +13,9 @@
       </p>
       <p><strong>Тип:</strong> {{ lesson.type }}</p>
       <p><strong>Тема:</strong> {{ lesson.topic }}</p>
-      <button>Перенести занятие</button>
-      <button (click)="openSession()">Открыть виртуальный урок</button>
-      <button *ngIf="currentRole === 'logoped'" (click)="openDiagnostic()">Открыть диагностику</button>
+<!--      <button>Перенести занятие</button>-->
+      <button class="btn" (click)="openSession()">Открыть виртуальный урок</button>
+      <button class="btn" *ngIf="currentRole === 'logoped'" (click)="openDiagnostic()">Открыть диагностику</button>
     </ng-container>
 
     <!-- Вкладка: О занятии -->
@@ -65,10 +65,10 @@
           <p>{{ lesson.description || 'Описание отсутствует' }}</p>
         </div>
 
-        <div class="block">
-          <h3>Дополнительно</h3>
-          <p>Здесь можно добавить ссылки, заметки или статус.</p>
-        </div>
+<!--        <div class="block">-->
+<!--          <h3>Дополнительно</h3>-->
+<!--          <p>Здесь можно добавить ссылки, заметки или статус.</p>-->
+<!--        </div>-->
       </div>
     </ng-container>
   </div>

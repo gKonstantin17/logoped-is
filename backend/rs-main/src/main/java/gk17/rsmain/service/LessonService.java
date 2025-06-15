@@ -8,6 +8,7 @@ import gk17.rsmain.dto.lesson.LessonWithHomeworkDto;
 import gk17.rsmain.dto.logoped.LogopedDto;
 import gk17.rsmain.dto.patient.PatientDto;
 import gk17.rsmain.dto.patient.PatientWithoutFK;
+import gk17.rsmain.dto.patient.PatientWithoutFKDto;
 import gk17.rsmain.dto.responseWrapper.AsyncResult;
 import gk17.rsmain.dto.responseWrapper.ServiceResult;
 import gk17.rsmain.entity.Homework;
@@ -44,7 +45,7 @@ public class LessonService {
         return AsyncResult.success(lessons);
     }
     @Async
-    public CompletableFuture<ServiceResult<List<LessonReadDto>>> findByUserId(UUID userId) {
+    public CompletableFuture<ServiceResult<List<LessonWithFKDto>>> findByUserId(UUID userId) {
         var patients = patientRepository.findByUserId(userId);
 
         if (patients == null || patients.isEmpty()) {
@@ -58,17 +59,17 @@ public class LessonService {
             allLessons.addAll(lessons);
         }
 
-        List<LessonReadDto> lessonDtos = allLessons.stream()
-                .map(this::toReadDto)
+        List<LessonWithFKDto> lessonDtos = allLessons.stream()
+                .map(this::toReadDtoWithFK)
                 .toList();
 
         return AsyncResult.success(lessonDtos);
     }
 
     @Async
-    public CompletableFuture<ServiceResult<List<LessonReadDto>>> findByLogopedId(UUID logopedId) {
+    public CompletableFuture<ServiceResult<List<LessonWithFKDto>>> findByLogopedId(UUID logopedId) {
         var data = repository.findByLogopedId(logopedId);
-        List<LessonReadDto> lessons = data.stream().map(this::toReadDto).toList();
+        List<LessonWithFKDto> lessons = data.stream().map(this::toReadDtoWithFK).toList();
         return AsyncResult.success(lessons);
     }
     @Async
@@ -252,7 +253,7 @@ public class LessonService {
                 lesson.getHomework() == null ? null :
                         new HomeworkDto(lesson.getHomework().getTask()),
                 lesson.getPatients().stream()
-                        .map(p -> new PatientWithoutFK( p.getFirstName(), p.getLastName(),p.getDateOfBirth()))
+                        .map(p -> new PatientWithoutFKDto(p.getId(), p.getFirstName(), p.getLastName(),p.getDateOfBirth()))
                         .toList()
         );
     }
