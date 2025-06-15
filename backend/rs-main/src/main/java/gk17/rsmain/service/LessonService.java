@@ -44,7 +44,7 @@ public class LessonService {
         return AsyncResult.success(lessons);
     }
     @Async
-    public CompletableFuture<ServiceResult<List<LessonReadDto>>> findByUserId(Long userId) {
+    public CompletableFuture<ServiceResult<List<LessonReadDto>>> findByUserId(UUID userId) {
         var patients = patientRepository.findByUserId(userId);
 
         if (patients == null || patients.isEmpty()) {
@@ -66,7 +66,7 @@ public class LessonService {
     }
 
     @Async
-    public CompletableFuture<ServiceResult<List<LessonReadDto>>> findByLogopedId(Long logopedId) {
+    public CompletableFuture<ServiceResult<List<LessonReadDto>>> findByLogopedId(UUID logopedId) {
         var data = repository.findByLogopedId(logopedId);
         List<LessonReadDto> lessons = data.stream().map(this::toReadDto).toList();
         return AsyncResult.success(lessons);
@@ -127,7 +127,7 @@ public class LessonService {
                 // Подгружаем пациентов и группируем по логопеду
                 List<Patient> allPatients = patientRepository.findAll();
 
-                Map<Long, Long> logopedPatientCounts = allPatients.stream()
+                Map<UUID, Long> logopedPatientCounts = allPatients.stream()
                         .filter(p -> p.getLogoped() != null)
                         .collect(Collectors.groupingBy(
                                 p -> p.getLogoped().getId(),
@@ -237,14 +237,14 @@ public class LessonService {
                 lesson.getLogoped() == null ? null :
                         new LogopedDto(
                                 lesson.getLogoped().getFirstName(),
-                                lesson.getLogoped().getSecondName(),
+                                lesson.getLogoped().getLastName(),
                                 lesson.getLogoped().getPhone(),
                                 lesson.getLogoped().getEmail()
                         ),
                 lesson.getHomework() == null ? null :
                         new HomeworkDto(lesson.getHomework().getTask()),
                 lesson.getPatients().stream()
-                        .map(p -> new PatientWithoutFK( p.getFirstName(), p.getSecondName(),p.getDateOfBirth()))
+                        .map(p -> new PatientWithoutFK( p.getFirstName(), p.getLastName(),p.getDateOfBirth()))
                         .toList()
         );
     }

@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 @RestController
@@ -29,7 +30,7 @@ public class PatientController {
     public ResponseEntity<?> create(@RequestBody PatientCreateDto dto) throws ExecutionException, InterruptedException {
         if (dto.firstName() == null)
             return new ResponseEntity<>("Пропущено имя", HttpStatus.BAD_REQUEST);
-        if (dto.secondName() == null)
+        if (dto.lastName() == null)
             return new ResponseEntity<>("Пропущена фамилия", HttpStatus.BAD_REQUEST);
         if (dto.dateOfBirth() == null)
             return new ResponseEntity<>("Пропущена дата рождения", HttpStatus.BAD_REQUEST);
@@ -46,14 +47,14 @@ public class PatientController {
     }
 
     @PostMapping ("find-by-user")
-    public ResponseEntity<?> findByUserId(@RequestBody Long userId) throws ExecutionException, InterruptedException {
+    public ResponseEntity<?> findByUserId(@RequestBody UUID userId) throws ExecutionException, InterruptedException {
         var result = service.findByUserId(userId).get();
         return result.isSuccess()
                 ? ResponseEntity.ok(result.data())
                 : ResponseEntity.badRequest().body(result.message());
     }
     @PostMapping ("find-by-logoped")
-    public ResponseEntity<?> findByLogopedId(@RequestBody Long userId) throws ExecutionException, InterruptedException {
+    public ResponseEntity<?> findByLogopedId(@RequestBody UUID userId) throws ExecutionException, InterruptedException {
         var result = service.findByLogopegId(userId).get();
         return result.isSuccess()
                 ? ResponseEntity.ok(result.data())

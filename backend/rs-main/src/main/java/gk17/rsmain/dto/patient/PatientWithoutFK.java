@@ -4,6 +4,6 @@ import java.sql.Timestamp;
 
 public record PatientWithoutFK(
         String firstName,
-        String secondName,
+        String lastName,
         Timestamp dateOfBirth
 ){}

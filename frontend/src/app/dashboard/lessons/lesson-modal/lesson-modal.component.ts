@@ -1,7 +1,7 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {CommonModule} from '@angular/common';
-import {LessonData} from '../../../services/lesson.service';
+import {LessonData} from '../../../utils/services/lesson.service';
 
 @Component({
   selector: 'app-lesson-modal',

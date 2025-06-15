@@ -9,7 +9,7 @@ export const routes: Routes = [
     children: [
       { path: '', loadComponent: () => import('./public/home/home.component').then(m => m.HomeComponent) },
       { path: 'diagnostic', loadComponent: () => import('./public/diagnosticpromo/diagnosticpromo.component').then(m => m.DiagnosticPromoComponent)},
-      { path: 'login', loadComponent: () => import('./public/login/login.component').then(m => m.LoginComponent)},
+      { path: 'login', loadComponent: () => import('./utils/oauth2/login/login.component').then(m => m.LoginComponent)},
     ]
   },
   {

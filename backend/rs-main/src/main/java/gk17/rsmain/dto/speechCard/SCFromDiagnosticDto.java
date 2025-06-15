@@ -3,6 +3,7 @@ package gk17.rsmain.dto.speechCard;
 import gk17.rsmain.dto.soundCorrection.SoundCorrectionDto;
 
 import java.util.List;
+import java.util.UUID;
 
 public record SCFromDiagnosticDto(
         String reason,
@@ -18,5 +19,5 @@ public record SCFromDiagnosticDto(
         List<Long> speechErrors,
         List<SoundCorrectionDto> soundCorrections,
         Long lessonId,
-        Long logopedId
+        UUID logopedId
 ) {}

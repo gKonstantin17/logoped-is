@@ -8,7 +8,7 @@ import {
   animate
 } from '@angular/animations';
 import {Router} from '@angular/router';
-import {SpeechCardService} from '../../../services/speech-card.service';
+import {SpeechCardService} from '../../../utils/services/speech-card.service';
 @Component({
   selector: 'app-session',
   standalone: true,

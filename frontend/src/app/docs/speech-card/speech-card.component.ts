@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { SpeechCardService } from '../../services/speech-card.service';
+import { SpeechCardService } from '../../utils/services/speech-card.service';
 import {DatePipe, NgIf} from '@angular/common';
 
 @Component({

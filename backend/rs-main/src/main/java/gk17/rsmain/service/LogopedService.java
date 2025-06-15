@@ -10,6 +10,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -31,7 +32,7 @@ public class LogopedService {
         try {
             Logoped logoped = new Logoped();
             logoped.setFirstName(dto.firstName());
-            logoped.setSecondName(dto.secondName());
+            logoped.setLastName(dto.lastName());
             logoped.setEmail(dto.email());
             logoped.setPhone(dto.phone());
 
@@ -43,12 +44,12 @@ public class LogopedService {
     }
 
     @Async
-    public CompletableFuture<ServiceResult<Logoped>> update(Long id, LogopedDto dto) {
+    public CompletableFuture<ServiceResult<Logoped>> update(UUID id, LogopedDto dto) {
         try {
             var updated = ResponseHelper.findById(repository,id,"Логопед не найден");
 
             if (dto.firstName() != null)     updated.setFirstName(dto.firstName());
-            if (dto.secondName() != null)    updated.setSecondName(dto.secondName());
+            if (dto.lastName() != null)    updated.setLastName(dto.lastName());
             if (dto.email() != null)         updated.setEmail(dto.email());
             if (dto.phone() != null)         updated.setPhone(dto.phone());
 
@@ -59,7 +60,7 @@ public class LogopedService {
     }
 
     @Async
-    public CompletableFuture<ServiceResult<Long>> delete(Long id) {
+    public CompletableFuture<ServiceResult<UUID>> delete(UUID id) {
         try {
             var deletedData = ResponseHelper.findById(repository,id,"Логопед не найден");
             repository.deleteById(id);

@@ -79,9 +79,9 @@ public class SpeechCardService {
                         .toList(),
                 diagnostic.getDate(),
                 logoped.getFirstName(),
-                logoped.getSecondName(),
+                logoped.getLastName(),
                 patient.getFirstName(),
-                patient.getSecondName(),
+                patient.getLastName(),
                 patient.getDateOfBirth()
         );
 

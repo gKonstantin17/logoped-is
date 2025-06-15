@@ -4,7 +4,7 @@
     <div class="card-list">
       <!-- Карточки добавленных детей -->
       <div *ngFor="let patient of patientsOfUser; let i = index" class="child-card filled-card">
-        <strong>{{ patient.firstName }} {{ patient.secondName }}</strong>
+        <strong>{{ patient.firstName }} {{ patient.lastName }}</strong>
         <p>Дата рождения: {{ patient.dateOfBirth | date }}</p>
         <p><a [routerLink]="['/dashboard/speechcard']" [queryParams]="{ id: patient.id }">Речевая карта</a></p>
         <button (click)="startEdit(patient)">Изменить</button>
@@ -63,7 +63,7 @@
       <tbody>
       <tr *ngFor="let child of filteredChildren; let i = index">
         <td>{{ child.firstName }}</td>
-        <td>{{ child.secondName }}</td>
+        <td>{{ child.lastName }}</td>
         <td>{{ child.dateOfBirth | date }}</td>
         <td>{{child.speechErrors}}</td>
         <td>{{child.speechCorrection}}</td>
@@ -84,7 +84,7 @@
       <h3>Редактировать ребёнка</h3>
       <form (ngSubmit)="saveEdit()" #editForm="ngForm">
         <input type="text" [(ngModel)]="editFormData.firstName" name="editFirstName" required placeholder="Имя">
-        <input type="text" [(ngModel)]="editFormData.secondName" name="editSecondName" required placeholder="Фамилия">
+        <input type="text" [(ngModel)]="editFormData.lastName" name="editLastName" required placeholder="Фамилия">
         <input type="date" [(ngModel)]="editFormData.dateOfBirth" name="editBirthDate" required>
         <div class="button-group">
           <button type="submit" [disabled]="!editForm.valid">Сохранить</button>

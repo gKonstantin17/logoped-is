@@ -3,9 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {RouterLink} from "@angular/router";
 import {LessonModalComponent} from './lesson-modal/lesson-modal.component';
-import {UserDataService} from '../../services/user-data.service';
-import {PatientService} from '../../services/patient.service';
-import {LessonData, LessonService} from '../../services/lesson.service';
+import {UserDataService} from '../../utils/services/user-data.service';
+import {PatientService} from '../../utils/services/patient.service';
+import {LessonData, LessonService} from '../../utils/services/lesson.service';
 
 @Component({
   selector: 'app-lessons',
@@ -22,7 +22,7 @@ export class LessonsComponent implements OnInit {
               private patientService: PatientService,
               private lessonService: LessonService) {}
   currentRole: string | null = null;
-  userId: number | null = null;
+  userId: string | null = null;
   lessonDataList: any[] = [];
   ngOnInit() {
     this.userDataService.userData$.subscribe(user => {
