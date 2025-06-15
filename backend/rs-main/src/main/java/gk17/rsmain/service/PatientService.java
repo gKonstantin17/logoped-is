@@ -14,6 +14,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -41,7 +42,7 @@ public class PatientService {
 
             Patient patient = new Patient();
             patient.setFirstName(dto.firstName());
-            patient.setSecondName(dto.secondName());
+            patient.setLastName(dto.lastName());
             patient.setDateOfBirth(dto.dateOfBirth());
             patient.setUser(user);
 
@@ -55,7 +56,7 @@ public class PatientService {
     }
 
     @Async
-    public CompletableFuture<ServiceResult<List<PatientReadDto>>> findByUserId(Long userId) {
+    public CompletableFuture<ServiceResult<List<PatientReadDto>>> findByUserId(UUID userId) {
         try {
             var patients = repository.findByUserId(userId);
             List<PatientReadDto> result = patients.stream().map(this::toReadDto).toList();
@@ -65,7 +66,7 @@ public class PatientService {
         }
     }
     @Async
-    public CompletableFuture<ServiceResult<List<PatientReadDto>>> findByLogopegId(Long logopegId) {
+    public CompletableFuture<ServiceResult<List<PatientReadDto>>> findByLogopegId(UUID logopegId) {
         try {
             var patients = repository.findByLogopedId(logopegId);
             List<PatientReadDto> result = patients.stream().map(this::toReadDto).toList();
@@ -81,7 +82,7 @@ public class PatientService {
             var updated = ResponseHelper.findById(repository,id,"Пациент не найден");
 
             if (dto.firstName() != null)     updated.setFirstName(dto.firstName());
-            if (dto.secondName() != null)    updated.setSecondName(dto.secondName());
+            if (dto.lastName() != null)    updated.setLastName(dto.lastName());
             if (dto.dateOfBirth() != null)   updated.setDateOfBirth(dto.dateOfBirth());
             if (dto.userId() != null) {
                 var user = ResponseHelper.findById(userRepository,dto.userId(),"Пользователь не найден");
@@ -123,7 +124,7 @@ public class PatientService {
         return new PatientReadDto(
                 entity.getId(),
                 entity.getFirstName(),
-                entity.getSecondName(),
+                entity.getLastName(),
                 entity.getDateOfBirth(),
                 entity.getUser() != null ? entity.getUser().getId() : null,
                 entity.getLogoped() != null ? entity.getLogoped().getId() : null

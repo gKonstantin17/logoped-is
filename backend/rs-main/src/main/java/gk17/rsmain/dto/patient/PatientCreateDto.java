@@ -1,10 +1,11 @@
 package gk17.rsmain.dto.patient;
 
 import java.sql.Timestamp;
+import java.util.UUID;
 
 public record PatientCreateDto(
         String firstName,
-        String secondName,
+        String lastName,
         Timestamp dateOfBirth,
-        Long userId
+        UUID userId
 ){}

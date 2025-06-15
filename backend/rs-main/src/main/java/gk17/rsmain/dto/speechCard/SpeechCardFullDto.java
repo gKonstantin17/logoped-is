@@ -19,8 +19,8 @@ public record SpeechCardFullDto (
         List<String> soundCorrections,
         Timestamp diagnosticDate,
         String logopedFirstName,
-        String logopedSecondName,
+        String logopedLastName,
         String patientFirstName,
-        String patientSecondName,
+        String patientLastName,
         Timestamp patientDateOfBirth
 ) {}

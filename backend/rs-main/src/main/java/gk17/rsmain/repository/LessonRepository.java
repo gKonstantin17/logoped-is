@@ -7,6 +7,7 @@ import org.springframework.lang.NonNull;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface LessonRepository extends JpaRepository<Lesson,Long> {
     @NonNull
@@ -21,5 +22,5 @@ public interface LessonRepository extends JpaRepository<Lesson,Long> {
     List<Lesson> findByPatientsId(Long patientId);
     @NonNull
     @EntityGraph(attributePaths = {"patients", "logoped", "homework"})
-    List<Lesson> findByLogopedId(Long patientId);
+    List<Lesson> findByLogopedId(UUID logopedId);
 }

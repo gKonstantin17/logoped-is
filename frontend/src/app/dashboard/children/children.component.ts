@@ -1,8 +1,8 @@
 import {Component, OnInit} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {CommonModule, NgForOf} from '@angular/common';
-import {UserDataService} from '../../services/user-data.service';
-import {PatientService} from '../../services/patient.service';
+import {UserDataService} from '../../utils/services/user-data.service';
+import {PatientService} from '../../utils/services/patient.service';
 import {RouterLink} from '@angular/router';
 
 @Component({
@@ -19,9 +19,9 @@ import {RouterLink} from '@angular/router';
 })
 export class ChildrenComponent implements OnInit {
   childrenForms: { firstName: string; lastName: string; birthDate: string; speechErrors: string[]; speechCorrection: string[] }[] = [];
-  addedChildren: {id:number; firstName: string; secondName: string; dateOfBirth: string; speechErrors: string[]; speechCorrection: string[] }[] = [];
+  addedChildren: {id:number; firstName: string; lastName: string; dateOfBirth: string; speechErrors: string[]; speechCorrection: string[] }[] = [];
   currentRole: string | null = null;
-  userId: number | null = null;
+  userId: string | null = null;
   patientsOfUser: any[] = [];
   constructor(private userDataService: UserDataService,private patientService: PatientService) {}
 
@@ -65,7 +65,7 @@ export class ChildrenComponent implements OnInit {
 
     const payload = {
       firstName: newChild.firstName,
-      secondName: newChild.lastName,
+      lastName: newChild.lastName,
       dateOfBirth: newChild.birthDate,
       userId: this.userId
     };
@@ -89,7 +89,7 @@ export class ChildrenComponent implements OnInit {
     const patient = this.patientsOfUser[index];
     if (!patient || !patient.id) return;
 
-    const confirmed = confirm(`Вы уверены, что хотите удалить ${patient.firstName} ${patient.secondName}?`);
+    const confirmed = confirm(`Вы уверены, что хотите удалить ${patient.firstName} ${patient.lastName}?`);
     if (confirmed) {
       this.patientService.delete(patient.id).subscribe({
         next: () => {
@@ -145,9 +145,9 @@ export class ChildrenComponent implements OnInit {
   }
 
   editingPatient: any | null = null;
-  editFormData: { firstName: string; secondName: string; dateOfBirth: string } = {
+  editFormData: { firstName: string; lastName: string; dateOfBirth: string } = {
     firstName: '',
-    secondName: '',
+    lastName: '',
     dateOfBirth: ''
   };
   startEdit(patient: any) {
@@ -155,7 +155,7 @@ export class ChildrenComponent implements OnInit {
     this.editingPatient = patient;
     this.editFormData = {
       firstName: patient.firstName,
-      secondName: patient.secondName,
+      lastName: patient.lastName,
       dateOfBirth: formattedDate
     };
   }

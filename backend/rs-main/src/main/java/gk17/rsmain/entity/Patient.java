@@ -23,8 +23,8 @@ public class Patient {
     @Column(name = "FirstName")
     private String firstName;
 
-    @Column(name = "SecondName")
-    private String secondName;
+    @Column(name = "LastName")
+    private String lastName;
 
     @Column(name = "DateOfBirth")
     private Timestamp dateOfBirth;

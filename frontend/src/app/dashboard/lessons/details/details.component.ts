@@ -1,8 +1,8 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {DatePipe, NgForOf, NgIf} from '@angular/common';
-import {UserDataService} from '../../../services/user-data.service';
-import {LessonService} from '../../../services/lesson.service';
+import {UserDataService} from '../../../utils/services/user-data.service';
+import {LessonService} from '../../../utils/services/lesson.service';
 
 @Component({
   selector: 'app-details',
@@ -52,7 +52,7 @@ export class DetailsComponent implements OnInit {
 
     this.router.navigate(['/dashboard/diagnostic'], {
       state: {
-        fullName: `${patient.firstName} ${patient.secondName}`,
+        fullName: `${patient.firstName} ${patient.lastName}`,
         dateOfBirth: patient.dateOfBirth,
         lessonId: this.lesson?.id,
         logopedId: this.lesson?.logoped?.id

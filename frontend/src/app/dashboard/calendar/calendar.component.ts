@@ -7,9 +7,9 @@ import interactionPlugin from '@fullcalendar/interaction';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import ruLocale from '@fullcalendar/core/locales/ru';
 import {RouterLink} from '@angular/router';
-import {UserDataService} from '../../services/user-data.service';
-import {PatientService} from '../../services/patient.service';
-import {LessonService} from '../../services/lesson.service';
+import {UserDataService} from '../../utils/services/user-data.service';
+import {PatientService} from '../../utils/services/patient.service';
+import {LessonService} from '../../utils/services/lesson.service';
 
 interface LessonData {
   id: number;
@@ -36,7 +36,7 @@ export class CalendarComponent implements OnInit {
   }
   lessonDataList: any[] = [];
   currentRole: string | null = null;
-  userId: number | null = null;
+  userId: string | null = null;
   ngOnInit(): void {
     this.userDataService.userData$.subscribe(user => {
       this.currentRole = user?.role || null;

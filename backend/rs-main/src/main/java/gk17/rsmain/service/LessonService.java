@@ -12,16 +12,14 @@ import gk17.rsmain.dto.responseWrapper.AsyncResult;
 import gk17.rsmain.dto.responseWrapper.ServiceResult;
 import gk17.rsmain.entity.Homework;
 import gk17.rsmain.entity.Lesson;
+import gk17.rsmain.entity.Logoped;
 import gk17.rsmain.entity.Patient;
 import gk17.rsmain.repository.*;
 import gk17.rsmain.utils.hibernate.ResponseHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -46,7 +44,7 @@ public class LessonService {
         return AsyncResult.success(lessons);
     }
     @Async
-    public CompletableFuture<ServiceResult<List<LessonReadDto>>> findByUserId(Long userId) {
+    public CompletableFuture<ServiceResult<List<LessonReadDto>>> findByUserId(UUID userId) {
         var patients = patientRepository.findByUserId(userId);
 
         if (patients == null || patients.isEmpty()) {
@@ -68,7 +66,7 @@ public class LessonService {
     }
 
     @Async
-    public CompletableFuture<ServiceResult<List<LessonReadDto>>> findByLogopedId(Long logopedId) {
+    public CompletableFuture<ServiceResult<List<LessonReadDto>>> findByLogopedId(UUID logopedId) {
         var data = repository.findByLogopedId(logopedId);
         List<LessonReadDto> lessons = data.stream().map(this::toReadDto).toList();
         return AsyncResult.success(lessons);
@@ -122,6 +120,35 @@ public class LessonService {
             if (dto.logopedId() != null) {
                 var logoped = ResponseHelper.findById(logopedRepository, dto.logopedId(), "Логопед не найден");
                 lesson.setLogoped(logoped);
+            } else {
+                // Получаем всех логопедов
+                List<Logoped> logopeds = logopedRepository.findAll();
+
+                // Подгружаем пациентов и группируем по логопеду
+                List<Patient> allPatients = patientRepository.findAll();
+
+                Map<UUID, Long> logopedPatientCounts = allPatients.stream()
+                        .filter(p -> p.getLogoped() != null)
+                        .collect(Collectors.groupingBy(
+                                p -> p.getLogoped().getId(),
+                                Collectors.counting()
+                        ));
+
+                // Выбираем логопеда с наименьшим количеством пациентов
+                Logoped selectedLogoped = logopeds.stream()
+                        .min(Comparator.comparing(logoped ->
+                                logopedPatientCounts.getOrDefault(logoped.getId(), 0L)))
+                        .orElseThrow(() -> new IllegalStateException("Нет доступных логопедов"));
+
+                lesson.setLogoped(selectedLogoped);
+                // Назначаем логопеда всем пациентам занятия
+                if (dto.patientsId() != null) {
+                    List<Patient> patientsToUpdate = patientRepository.findAllById(dto.patientsId());
+                    for (Patient patient : patientsToUpdate) {
+                        patient.setLogoped(selectedLogoped);
+                    }
+                    patientRepository.saveAll(patientsToUpdate);
+                }
             }
 
             // Создаём Homework
@@ -218,14 +245,14 @@ public class LessonService {
                 lesson.getLogoped() == null ? null :
                         new LogopedDto(
                                 lesson.getLogoped().getFirstName(),
-                                lesson.getLogoped().getSecondName(),
+                                lesson.getLogoped().getLastName(),
                                 lesson.getLogoped().getPhone(),
                                 lesson.getLogoped().getEmail()
                         ),
                 lesson.getHomework() == null ? null :
                         new HomeworkDto(lesson.getHomework().getTask()),
                 lesson.getPatients().stream()
-                        .map(p -> new PatientWithoutFK( p.getFirstName(), p.getSecondName(),p.getDateOfBirth()))
+                        .map(p -> new PatientWithoutFK( p.getFirstName(), p.getLastName(),p.getDateOfBirth()))
                         .toList()
         );
     }

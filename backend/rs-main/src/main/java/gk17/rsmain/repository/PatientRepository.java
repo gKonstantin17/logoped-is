@@ -6,11 +6,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface PatientRepository  extends JpaRepository<Patient,Long> {
-    List<Patient> findByUserId(Long id);
+    List<Patient> findByUserId(UUID id);
 
-    List<Patient> findByLogopedId(Long id);
+    List<Patient> findByLogopedId(UUID id);
 
     // есть ли у пациента речевая карта
     @Query("SELECT CASE WHEN COUNT(d) > 0 THEN true ELSE false END " +

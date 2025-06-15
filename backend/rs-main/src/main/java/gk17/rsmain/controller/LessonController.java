@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 @RestController
@@ -32,12 +33,12 @@ public class LessonController {
         return result.get().data();
     }
     @PostMapping("find-by-user")
-    public List<LessonReadDto> findByUserId(@RequestBody Long userId) throws ExecutionException, InterruptedException {
+    public List<LessonReadDto> findByUserId(@RequestBody UUID userId) throws ExecutionException, InterruptedException {
         var result = service.findByUserId(userId);
         return result.get().data();
     }
     @PostMapping("find-by-logoped")
-    public List<LessonReadDto> findByLogopedId(@RequestBody Long logopedId) throws ExecutionException, InterruptedException {
+    public List<LessonReadDto> findByLogopedId(@RequestBody UUID logopedId) throws ExecutionException, InterruptedException {
         var result = service.findByLogopedId(logopedId);
         return result.get().data();
     }
