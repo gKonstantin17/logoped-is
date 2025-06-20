@@ -196,7 +196,7 @@ CREATE TABLE IF NOT EXISTS logoped."Lesson_Patient"
         ON DELETE NO ACTION
         NOT VALID
 )
---
+-- у userdata, patient, logoped
 --		.
 --
 
