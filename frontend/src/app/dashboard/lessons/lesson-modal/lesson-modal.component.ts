@@ -27,7 +27,7 @@ export class LessonModalComponent {
   description = '';
   homework = '';
 
-  timeSlots: string[] = Array.from({length: 12}, (_, i) => `${8 + i}:00`);
+  timeSlots: string[] = Array.from({length: 10}, (_, i) => `${10 + i}:00`);
   minDate = new Date().toISOString().split('T')[0];
 
   proceedToStep2(type: 'diagnostic' | 'lesson') {

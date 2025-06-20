@@ -12,6 +12,27 @@ export interface LessonData {
   homework: string | null,
   patientsId: number[]
 }
+export interface LessonFullData {
+  id: number;
+  type: string;
+  topic: string;
+  description: string;
+  dateOfLesson: string;
+  logoped: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+  } | null;
+  homework: string | null;
+  patients: {
+    id: number;
+    firstName: string;
+    lastName: string;
+    dateOfBirth: string;
+  }[];
+}
+
 @Injectable({
   providedIn: 'root'
 })

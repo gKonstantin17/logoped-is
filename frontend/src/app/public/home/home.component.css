@@ -5,13 +5,26 @@ section {
   align-items: center; /* вертикальное центрирование */
   background-color: #FFEDAC;
 }
+.hero-button-block {
+  width: 100%;
+  text-align: center;
+  margin-top: 20px;
+}
+.button-block {
+  width: 100%;
+  text-align: center;
+  margin-top: 20px;
+}
 
 .container {
-  width: 1180px;
-  max-width: 90%;
-  margin: 0;
-  text-align: left; /* текст по левому краю */
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 20px;
+  box-sizing: border-box;
+  text-align: left;
 }
+
 
 /* --- Секция 1: hero-section --- */
 
@@ -125,4 +138,218 @@ section {
 .white-btn:hover {
   background-color: #f0f0f0;
   color: #333;
+}
+/* Общие стили */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* HERO SECTION */
+.hero-section .container {
+  width: 100%;
+  max-width: 1180px;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.hero-text {
+  flex: 1;
+  min-width: 300px;
+}
+
+.hero-image {
+  flex: 1;
+  min-width: 250px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.hero-image img {
+  max-width: 400px;
+  border-radius: 30px;
+  background: url('/assets/promo/chat.png') no-repeat center/contain; /* Пример оформления как облако */
+  padding: 20px;
+}
+
+/* DIAGNOSTIC SECTION */
+.diagnostic-section {
+  background-color: #EF019B;
+  padding: 80px 0;
+  color: white;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.diagnostic-section .container {
+  width: 100%;
+  max-width: 1180px;
+  padding: 0 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+.diagnostic-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.diagnostic-image {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.diagnostic-image img {
+  max-width: 300px;
+  margin: 0 auto;
+}
+.diagnostic-top {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  align-items: center
+}
+.text-block {
+  flex: 1;
+  min-width: 300px;
+}
+
+.text-block h2 {
+  font-size: 38px;
+  margin-bottom: 20px;
+  color: white;
+  font-family: var(--title-font);
+  font-weight: 400;
+}
+
+.text-block p {
+  font-size: 21px;
+  color: white;
+  margin-bottom: 0;
+  max-width: 600px;
+}
+
+.button-block {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  min-width: 250px;
+  padding-right: 40px; /* ← добавлен отступ от правого края */
+  box-sizing: border-box;
+}
+.white-btn {
+  position: relative;
+  display: inline-block;
+  background-color: white;
+  color: black;
+  padding: 16px 60px;
+  border-radius: 30px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 18px;
+  cursor: pointer;
+  overflow: hidden;
+  border: 2px solid white;
+  transition: color 0.3s ease;
+  z-index: 1;
+}
+
+.white-btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 0;
+  background-color: #f58ed0;
+  border-radius: 30px;
+  transition: width 0.4s ease;
+  z-index: -1; /* ← ключевой момент: фон уходит под текст */
+}
+
+.white-btn:hover::before {
+  width: 100%;
+}
+
+.white-btn:hover {
+  color: black; /* при наведении текст меняет цвет */
+}
+
+
+.white-btn span {
+  position: relative;
+  z-index: 1;
+}
+
+/* Картинка внизу */
+.diagnostic-image {
+  text-align: center;
+}
+
+.diagnostic-image img {
+  max-width: 300px;
+  height: auto;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .diagnostic-top {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .button-block {
+    justify-content: center;
+    text-align: center;
+    margin-top: 20px;
+  }
+
+  .diagnostic-image img {
+    max-width: 200px;
+  }
+}
+/* MEDIA QUERIES */
+@media (max-width: 768px) {
+  .hero-section, .diagnostic-section {
+    height: auto;
+    padding: 40px 0;
+  }
+
+  .hero-section .container,
+  .diagnostic-section .container {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .hero-text,
+  .hero-image,
+  .text-block {
+    width: 100%;
+  }
+
+  .hero-image {
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  .hero-image img,
+  .diagnostic-image img {
+    max-width: 200px;
+  }
+
+  .white-btn,
+  .secondary-btn {
+    width: 100%;
+    text-align: center;
+  }
 }

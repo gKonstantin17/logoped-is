@@ -21,4 +21,19 @@ public interface PatientRepository  extends JpaRepository<Patient,Long> {
             "WHERE p.id = :patientId AND d.speechCard IS NOT NULL")
     boolean existsSpeechCardByPatientId(@Param("patientId") Long patientId);
 
+    @Query("""
+    SELECT DISTINCT p FROM Patient p
+    JOIN FETCH p.lessons l
+    WHERE p.logoped.id = :logopedId
+      AND EXISTS (
+        SELECT d FROM Diagnostic d
+        WHERE d.lesson = l
+          AND d.speechCard IS NOT NULL
+      )
+""")
+    List<Patient> findByLogopedIdWithSpeechCard(@Param("logopedId") UUID logopedId);
+
+
+
+
 }

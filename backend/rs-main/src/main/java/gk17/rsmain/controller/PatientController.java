@@ -54,15 +54,24 @@ public class PatientController {
                 : ResponseEntity.badRequest().body(result.message());
     }
     @PostMapping ("find-by-logoped")
-    public ResponseEntity<?> findByLogopedId(@RequestBody UUID userId) throws ExecutionException, InterruptedException {
-        var result = service.findByLogopegId(userId).get();
+    public ResponseEntity<?> findByLogopedId(@RequestBody UUID logopedId) throws ExecutionException, InterruptedException {
+        var result = service.findByLogopegId(logopedId).get();
         return result.isSuccess()
                 ? ResponseEntity.ok(result.data())
                 : ResponseEntity.badRequest().body(result.message());
     }
+
     @PutMapping("/update/{id}")
     public ResponseEntity<?> update(@PathVariable Long id,@RequestBody PatientDto dto) throws ExecutionException, InterruptedException {
         var future = service.update(id, dto);
+        var result = future.get();
+        return result.isSuccess()
+                ? ResponseEntity.ok(result.data())
+                : ResponseEntity.badRequest().body(result.message());
+    }
+    @PostMapping("/hide/{id}")
+    public ResponseEntity<?> hide(@PathVariable Long id) throws ExecutionException, InterruptedException {
+        var future = service.hide(id);
         var result = future.get();
         return result.isSuccess()
                 ? ResponseEntity.ok(result.data())

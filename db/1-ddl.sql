@@ -3,23 +3,23 @@
 --
 CREATE TABLE IF NOT EXISTS logoped."UserData"
 (
-    "Id" bigint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1 ),
-    "FirstName" text COLLATE pg_catalog."default",
-    "SecondName" text COLLATE pg_catalog."default",
-    "Email" text COLLATE pg_catalog."default",
-    "Phone" text COLLATE pg_catalog."default",
-    CONSTRAINT "User_pkey" PRIMARY KEY ("Id")
+    "Id" uuid NOT NULL,
+    "FirstName" text COLLATE pg_catalog."default" NOT NULL,
+    "LastName" text COLLATE pg_catalog."default" NOT NULL,
+    "Email" text COLLATE pg_catalog."default" NOT NULL,
+    "Phone" text COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT "UserData_pkey" PRIMARY KEY ("Id")
 )
 --
 --		2 Logoped
 --
 CREATE TABLE IF NOT EXISTS logoped."Logoped"
 (
-    "Id" bigint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1 ),
-    "FirstName" text COLLATE pg_catalog."default",
-    "SecondName" text COLLATE pg_catalog."default",
-    "Phone" text COLLATE pg_catalog."default",
-    "Email" text COLLATE pg_catalog."default",
+    "Id" uuid NOT NULL,
+    "FirstName" text COLLATE pg_catalog."default" NOT NULL,
+    "LastName" text COLLATE pg_catalog."default" NOT NULL,
+    "Email" text COLLATE pg_catalog."default" NOT NULL,
+    "Phone" text COLLATE pg_catalog."default" NOT NULL,
     CONSTRAINT "Logoped_pkey" PRIMARY KEY ("Id")
 )
 --
@@ -29,10 +29,10 @@ CREATE TABLE IF NOT EXISTS logoped."Patient"
 (
     "Id" bigint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1 ),
     "FirstName" text COLLATE pg_catalog."default",
-    "SecondName" text COLLATE pg_catalog."default",
+    "LastName" text COLLATE pg_catalog."default",
     "DateOfBirth" timestamp without time zone,
-    "UserId" bigint NOT NULL,
-    "LogopedId" bigint,
+    "UserId" uuid,
+    "LogopedId" uuid,
     CONSTRAINT "Patient_pkey" PRIMARY KEY ("Id"),
     CONSTRAINT "FK_patient_logoped" FOREIGN KEY ("LogopedId")
         REFERENCES logoped."Logoped" ("Id") MATCH SIMPLE
@@ -102,8 +102,8 @@ CREATE TABLE IF NOT EXISTS logoped."Lesson"
     "Topic" text COLLATE pg_catalog."default",
     "Description" text COLLATE pg_catalog."default",
     "DateOfLesson" timestamp without time zone,
-    "LogopedId" bigint,
     "HomeworkId" bigint,
+    "LogopedId" uuid,
     CONSTRAINT "Lesson_pkey" PRIMARY KEY ("Id"),
     CONSTRAINT homework_uniq UNIQUE ("HomeworkId"),
     CONSTRAINT "FK_lesson_homework" FOREIGN KEY ("HomeworkId")
@@ -196,7 +196,7 @@ CREATE TABLE IF NOT EXISTS logoped."Lesson_Patient"
         ON DELETE NO ACTION
         NOT VALID
 )
---
+-- у userdata, patient, logoped
 --		.
 --
 

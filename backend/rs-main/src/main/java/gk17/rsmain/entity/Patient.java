@@ -30,7 +30,7 @@ public class Patient {
     private Timestamp dateOfBirth;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "UserId", nullable = false)
+    @JoinColumn(name = "UserId")
     private UserData user;
 
     @ManyToOne(fetch = FetchType.LAZY)

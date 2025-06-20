@@ -9,7 +9,7 @@ import ruLocale from '@fullcalendar/core/locales/ru';
 import {RouterLink} from '@angular/router';
 import {UserDataService} from '../../utils/services/user-data.service';
 import {PatientService} from '../../utils/services/patient.service';
-import {LessonService} from '../../utils/services/lesson.service';
+import {LessonFullData, LessonService} from '../../utils/services/lesson.service';
 
 interface LessonData {
   id: number;
@@ -34,7 +34,7 @@ export class CalendarComponent implements OnInit {
               private lessonService: LessonService,
               private cdr: ChangeDetectorRef) {
   }
-  lessonDataList: any[] = [];
+  lessonDataList: LessonFullData[] = [];
   currentRole: string | null = null;
   userId: string | null = null;
   ngOnInit(): void {
@@ -89,8 +89,12 @@ export class CalendarComponent implements OnInit {
   }
 
 
-  selectedLesson: LessonData | null = null;
+  selectedLesson: LessonFullData | null = null;
   isModalOpen = false;
+  get logopedFullName(): string {
+    if (!this.selectedLesson?.logoped) return 'не назначен';
+    return `${this.selectedLesson.logoped.firstName} ${this.selectedLesson.logoped.lastName}`;
+  }
 
   handleEventClick(arg: any) {
     const eventId = parseInt(arg.event.id, 10);

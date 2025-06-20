@@ -4,6 +4,7 @@ import gk17.rsmain.dto.homework.HomeworkDto;
 import gk17.rsmain.dto.logoped.LogopedDto;
 import gk17.rsmain.dto.patient.PatientDto;
 import gk17.rsmain.dto.patient.PatientWithoutFK;
+import gk17.rsmain.dto.patient.PatientWithoutFKDto;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -16,5 +17,5 @@ public record LessonWithFKDto(
         Timestamp dateOfLesson,
         LogopedDto logoped,
         HomeworkDto homework,
-        List<PatientWithoutFK> patients
+        List<PatientWithoutFKDto> patients
 ) {}

@@ -35,6 +35,9 @@ export class PatientService {
   findByLogoped(logopedId: string): Observable<any[]> {
     return this.createOperation(HttpMethod.POST, `${this.baseUrl}/find-by-logoped`, logopedId);
   }
+  findByLogopedWithSpeechCard(logopedId: string): Observable<any[]> {
+    return this.createOperation(HttpMethod.POST, `${this.baseUrl}/find-by-logoped`, logopedId);
+  }
 
   create(data: PatientData): Observable<any> {
     return this.createOperation(HttpMethod.POST, `${this.baseUrl}/create`, data);
@@ -45,7 +48,7 @@ export class PatientService {
   }
 
   delete(patientId: number): Observable<any> {
-    return this.createOperation(HttpMethod.DELETE, `${this.baseUrl}/delete/${patientId}`);
+    return this.createOperation(HttpMethod.POST, `${this.baseUrl}/hide/${patientId}`,patientId);
   }
 
   existsSpeechCard(patientId: number): Observable<any> {

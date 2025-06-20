@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-import {RouterLink, RouterOutlet} from '@angular/router';
+import {Router, RouterLink, RouterOutlet} from '@angular/router';
 import {UserData, UserDataService} from '../../utils/services/user-data.service';
 import {KeycloakService} from '../../utils/oauth2/bff/keycloak.service';
 
@@ -19,7 +19,8 @@ export class PrivateLayoutComponent implements OnInit {
   userProfile?: UserData;
 
   constructor(private keycloakService: KeycloakService,
-              private userService:UserDataService) {}
+              private userService:UserDataService,
+              private router:Router,) {}
 
   ngOnInit(): void {
     this.keycloakService.requestUserProfile().subscribe({
@@ -59,6 +60,7 @@ export class PrivateLayoutComponent implements OnInit {
       },
       error: (err) => {
         console.error('Logout failed', err);
+        this.router.navigate(['']);
       }
     });
   }

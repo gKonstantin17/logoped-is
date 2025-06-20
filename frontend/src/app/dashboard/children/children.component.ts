@@ -3,7 +3,9 @@ import {FormsModule} from '@angular/forms';
 import {CommonModule, NgForOf} from '@angular/common';
 import {UserDataService} from '../../utils/services/user-data.service';
 import {PatientService} from '../../utils/services/patient.service';
-import {RouterLink} from '@angular/router';
+import {Router, RouterLink} from '@angular/router';
+import { catchError } from 'rxjs/operators';
+import {of} from 'rxjs';
 
 @Component({
   selector: 'app-children',
@@ -23,8 +25,11 @@ export class ChildrenComponent implements OnInit {
   currentRole: string | null = null;
   userId: string | null = null;
   patientsOfUser: any[] = [];
-  constructor(private userDataService: UserDataService,private patientService: PatientService) {}
-
+  constructor(
+    private userDataService: UserDataService,
+    private patientService: PatientService,
+    private router: Router
+  ) {}
   ngOnInit() {
     this.userDataService.userData$.subscribe(user => {
       this.currentRole = user?.role || null;
@@ -102,6 +107,18 @@ export class ChildrenComponent implements OnInit {
       });
     }
   }
+  goToSpeechCard(patientId: number) {
+    this.patientService.existsSpeechCard(patientId)
+      .subscribe((exists: boolean) => {
+        if (exists) {
+          this.router.navigate(['/dashboard/speechcard'], { queryParams: { id: patientId } });
+        } else {
+          alert('Речевая карта для этого пациента не найдена.');
+        }
+      });
+  }
+
+
 
   sortColumn: 'speechErrors' | 'speechCorrection' | null = null;
   sortDirection: 'asc' | 'desc' = 'asc';
