@@ -8,6 +8,7 @@ import {HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi} from '@ang
 import {provideAnimations} from '@angular/platform-browser/animations';
 import {SpinnerInterceptor} from './utils/oauth2/interceptor/spinner-inceptor.service';
 import {CookiesInterceptorService} from './utils/oauth2/interceptor/cookies-interceptor.service';
+import {AuthInterceptorService} from './utils/oauth2/interceptor/auth-interceptor.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -16,6 +17,7 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptorsFromDi()),
     {provide: HTTP_INTERCEPTORS, useClass: CookiesInterceptorService, multi: true},// Регистрируем интерсептор
     {provide: HTTP_INTERCEPTORS, useClass: SpinnerInterceptor, multi: true},
+    {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptorService, multi:true},
 
     provideAnimations(),
     { provide: LOCALE_ID, useValue: 'ru' },
