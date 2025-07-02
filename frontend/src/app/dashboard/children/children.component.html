@@ -39,27 +39,27 @@
   <!-- Интерфейс для логопеда (роль 'logoped') -->
   <ng-container *ngIf="currentRole === 'logoped'">
     <h2>Список детей</h2>
-<!--    <label for="speechErrorFilter">Фильтр по речевым нарушениям:</label>-->
-<!--    <select id="speechErrorFilter" [(ngModel)]="selectedSpeechError">-->
-<!--      <option [ngValue]="null">&#45;&#45; Показать всех &#45;&#45;</option>-->
-<!--      <option *ngFor="let error of availableSpeechErrors" [ngValue]="error">-->
-<!--        {{ error }}-->
-<!--      </option>-->
-<!--    </select>-->
+    <label for="speechErrorFilter">Фильтр по речевым нарушениям:</label>
+    <select id="speechErrorFilter" [(ngModel)]="selectedSpeechError">
+      <option [ngValue]="null">-- Показать всех --</option>
+      <option *ngFor="let error of availableSpeechErrors" [ngValue]="error">
+        {{ error }}
+      </option>
+    </select>
     <table class="logoped-table">
       <thead>
       <tr>
         <th>Имя</th>
         <th>Фамилия</th>
         <th>Дата рождения</th>
-<!--        <th (click)="toggleSort('speechErrors')">-->
-<!--          Речевые нарушения-->
-<!--          <span *ngIf="sortColumn === 'speechErrors'">({{ sortDirection === 'asc' ? '↑' : '↓' }})</span>-->
-<!--        </th>-->
-<!--        <th (click)="toggleSort('speechCorrection')">-->
-<!--          Направления коррекции-->
-<!--          <span *ngIf="sortColumn === 'speechCorrection'">({{ sortDirection === 'asc' ? '↑' : '↓' }})</span>-->
-<!--        </th>-->
+        <th (click)="toggleSort('speechErrors')">
+          Речевые нарушения
+          <span *ngIf="sortColumn === 'speechErrors'">({{ sortDirection === 'asc' ? '↑' : '↓' }})</span>
+        </th>
+        <th (click)="toggleSort('speechCorrection')">
+          Направления коррекции
+          <span *ngIf="sortColumn === 'speechCorrection'">({{ sortDirection === 'asc' ? '↑' : '↓' }})</span>
+        </th>
         <th>О пациенте</th>
       </tr>
       </thead>
@@ -68,8 +68,8 @@
         <td>{{ child.firstName }}</td>
         <td>{{ child.lastName }}</td>
         <td>{{ child.dateOfBirth | date }}</td>
-<!--        <td>{{child.speechErrors}}</td>-->
-<!--        <td>{{child.speechCorrection}}</td>-->
+        <td>{{child.speechErrors}}</td>
+        <td>{{child.speechCorrection}}</td>
         <td><p>
           <button (click)="goToSpeechCard(child.id)">Речевая карта</button>
         </p>
