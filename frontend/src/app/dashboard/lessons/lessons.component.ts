@@ -17,63 +17,30 @@ import {LessonData, LessonService} from '../../utils/services/lesson.service';
 export class LessonsComponent implements OnInit {
   selectedChildId: number = 0; // отображать занятия у всех пациентов
 
-  childrenData: any[] = [];
+
   constructor(private userDataService: UserDataService,
               private patientService: PatientService,
               private lessonService: LessonService) {}
   currentRole: string | null = null;
   userId: string | null = null;
   lessonDataList: any[] = [];
+  childrenData: any[] = [];
+
+  // TODO нужен ли userDataService?
   ngOnInit() {
     this.userDataService.userData$.subscribe(user => {
       this.currentRole = user?.role || null;
       this.userId = user?.id || null;
 
-      if (this.userId !== null) {
-        if (this.currentRole === 'user') {
-          this.patientService.findByUser(this.userId).subscribe({
-            next: (data) => {
-              this.childrenData = data;
-              console.log('Полученные дети:', this.childrenData);
-            },
-            error: (err) => {
-              console.error('Ошибка при получении детей:', err);
-            }
-          });
-          this.lessonService.findByUser(this.userId).subscribe({
-            next: (data) => {
-              this.lessonDataList = data;
-              console.log('Полученные дети:', this.lessonDataList);
-            },
-            error: (err) => {
-              console.error('Ошибка при получении детей:', err);
-            }
-          });
+      this.userDataService.patients$.subscribe(data => {
+        this.childrenData = data;
+      });
 
-        }
-        if (this.currentRole === 'logoped') {
-          this.patientService.findByLogoped(this.userId).subscribe({
-            next: (data) => {
-              this.childrenData = data;
-              console.log('Полученные дети:', this.childrenData);
-            },
-            error: (err) => {
-              console.error('Ошибка при получении детей:', err);
-            }
-          })
-          this.lessonService.findByLogoped(this.userId).subscribe({
-            next: (data) => {
-              this.lessonDataList = data;
-              console.log('Полученные дети:', this.lessonDataList);
-            },
-            error: (err) => {
-              console.error('Ошибка при получении детей:', err);
-            }
-          });
+      this.userDataService.lessons$.subscribe(data => {
+        this.lessonDataList = data;
+      });
 
 
-        }
-      }
     });
   }
 

@@ -30,35 +30,19 @@ export class ChildrenComponent implements OnInit {
     private patientService: PatientService,
     private router: Router
   ) {}
+  // TODO нужен ли userDataService?
+  // TODO косяк с данными для логопеда
   ngOnInit() {
     this.userDataService.userData$.subscribe(user => {
       this.currentRole = user?.role || null;
       this.userId = user?.id || null;
 
-      if (this.userId !== null) {
-        if (this.currentRole === 'user') {
-          this.patientService.findByUser(this.userId).subscribe({
-            next: (data) => {
-              this.patientsOfUser = data;
-              console.log('Полученные дети:', this.patientsOfUser);
-            },
-            error: (err) => {
-              console.error('Ошибка при получении детей:', err);
-            }
-          });
-        }
-        if (this.currentRole === 'logoped') {
-          this.patientService.findByLogoped(this.userId).subscribe({
-            next: (data) => {
-              this.addedChildren = data;
-              console.log('Полученные дети:', this.patientsOfUser);
-            },
-            error: (err) => {
-              console.error('Ошибка при получении детей:', err);
-            }
-          })
-        }
-      }
+      this.userDataService.patients$.subscribe(data => {
+        this.patientsOfUser = data;
+        if (this.currentRole === 'logoped')
+          this.addedChildren = data;
+      });
+
     });
   }
   addForm() {

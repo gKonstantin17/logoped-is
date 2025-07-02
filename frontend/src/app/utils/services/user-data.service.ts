@@ -25,13 +25,24 @@ export class UserDataService {
   private userDataSubject = new BehaviorSubject<UserData | null>(null);
   userData$ = this.userDataSubject.asObservable();
 
+  private patientsSubject = new BehaviorSubject<any[]>([]);
+  patients$ = this.patientsSubject.asObservable();
+
+  private lessonsSubject = new BehaviorSubject<any[]>([]);
+  lessons$ = this.lessonsSubject.asObservable();
+
   setUserData(data: UserData) {
     this.userDataSubject.next(data);
   }
 
-  getUserData(): UserData | null {
-    return this.userDataSubject.getValue();
+  setPatients(patients: any[]) {
+    this.patientsSubject.next(patients);
   }
+
+  setLessons(lessons: any[]) {
+    this.lessonsSubject.next(lessons);
+  }
+
 
   private createOperation(method: HttpMethod, url: string, body?: any): Observable<any> {
     const operation = new Operation(method, url, body ? JSON.stringify(body) : null);

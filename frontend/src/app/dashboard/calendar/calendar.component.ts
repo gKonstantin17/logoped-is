@@ -37,38 +37,16 @@ export class CalendarComponent implements OnInit {
   lessonDataList: LessonFullData[] = [];
   currentRole: string | null = null;
   userId: string | null = null;
+
+  // TODO нужен ли userDataService?
   ngOnInit(): void {
     this.userDataService.userData$.subscribe(user => {
       this.currentRole = user?.role || null;
       this.userId = user?.id || null;
 
-      if (this.userId !== null) {
-        if (this.currentRole === 'user') {
-          this.lessonService.findByUser(this.userId).subscribe({
-            next: (data) => {
-              this.lessonDataList = data;
-              console.log('Полученные дети:', this.lessonDataList);
-              this.updateCalendarEvents();
-            },
-            error: (err) => {
-              console.error('Ошибка при получении детей:', err);
-            }
-          });
-        }
-
-        if (this.currentRole === 'logoped') {
-          this.lessonService.findByLogoped(this.userId).subscribe({
-            next: (data) => {
-              this.lessonDataList = data;
-              console.log('Полученные дети:', this.lessonDataList);
-              this.updateCalendarEvents();
-            },
-            error: (err) => {
-              console.error('Ошибка при получении детей:', err);
-            }
-          });
-        }
-      }
+      this.userDataService.lessons$.subscribe(data => {
+        this.lessonDataList = data;
+      });
     });
 
     this.calendarOptions.events = this.lessonDataList.map(lesson => {
