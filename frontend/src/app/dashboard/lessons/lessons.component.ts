@@ -42,6 +42,7 @@ export class LessonsComponent implements OnInit {
 
 
     });
+    this.userDataService.refreshLessons(this.userId!, this.currentRole!);
   }
 
   get upcomingLessons() {
@@ -120,6 +121,7 @@ export class LessonsComponent implements OnInit {
       next: () => {
         this.showToast('Занятие успешно добавлено');
         this.showModal = false;
+        this.userDataService.refreshLessons(this.userId!, this.currentRole!);
       },
       error: () => this.showToast('Ошибка при создании занятия')
     });

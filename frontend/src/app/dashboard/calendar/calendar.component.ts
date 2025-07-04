@@ -64,6 +64,7 @@ export class CalendarComponent implements OnInit {
 
     // нужно вызвать detectChanges, если Angular не отследит изменения
     this.cdr.detectChanges();
+    this.userDataService.refreshLessons(this.userId!, this.currentRole!);
   }
 
 

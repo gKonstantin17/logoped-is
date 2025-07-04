@@ -3,6 +3,8 @@ import {BehaviorSubject, Observable} from 'rxjs';
 import {environment} from '../../../environments/environment';
 import {HttpClient} from '@angular/common/http';
 import {HttpMethod, Operation} from '../oauth2/model/RequestBFF';
+import {LessonService} from './lesson.service';
+import {PatientService} from './patient.service';
 
 export interface UserData {
   id: string;
@@ -20,7 +22,9 @@ export class UserDataService {
   private baseUrl = `${environment.RESOURSE_URL}/user`;
   private bffUrl = `${environment.BFF_URI}/bff/operation`;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient,
+              private lessonService:LessonService,
+              private patientService:PatientService) { }
 
   private userDataSubject = new BehaviorSubject<UserData | null>(null);
   userData$ = this.userDataSubject.asObservable();
@@ -43,7 +47,26 @@ export class UserDataService {
     this.lessonsSubject.next(lessons);
   }
 
+  refreshLessons(userId: string, role: string): void {
+    const obs = role === 'logoped' ?
+      this.lessonService.findByLogoped(userId) :
+      this.lessonService.findByUser(userId);
 
+    obs.subscribe({
+      next: lessons => this.setLessons(lessons),
+      error: err => console.error('Ошибка при обновлении занятий:', err)
+    });
+  }
+  refreshPatients(userId: string, role: string): void {
+    const obs = role === 'logoped' ?
+      this.patientService.findByLogoped(userId) :
+      this.patientService.findByUser(userId);
+
+    obs.subscribe({
+      next: patients => this.setPatients(patients),
+      error: err => console.error('Ошибка при обновлении занятий:', err)
+    });
+  }
   private createOperation(method: HttpMethod, url: string, body?: any): Observable<any> {
     const operation = new Operation(method, url, body ? JSON.stringify(body) : null);
     return this.http.post<any>(this.bffUrl, JSON.stringify(operation));
