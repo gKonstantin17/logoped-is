@@ -1,4 +1,4 @@
-<div *ngIf="speechCardData">
+<div *ngIf="speechCardData$ | async as speechCardData">
   <h2 style="text-align: center;">
     Речевая карта «{{ speechCardData.diagnosticDate | date:'dd' }}»
     {{ speechCardData.diagnosticDate | date:'MMMM' }}

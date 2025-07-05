@@ -9,8 +9,14 @@ import {LessonData, LessonService} from '../services/lesson.service';
 export class LessonStore {
   constructor(private lessonService:LessonService) { }
 
+
+  // список занятий у пациентов пользователя
   private lessonsSubject = new BehaviorSubject<any[]>([]);
   lessons$ = this.lessonsSubject.asObservable();
+
+  // занятие в details
+  private currentLessonSubject = new BehaviorSubject<any | null>(null);
+  currentLesson$ = this.currentLessonSubject.asObservable();
 
   setLessons(lessons: any[]) {
     this.lessonsSubject.next(lessons);
@@ -35,8 +41,11 @@ export class LessonStore {
       })
     );
   }
-  findWithFk(id: number) {
-    return this.lessonService.findWithFk(id);
+  loadLesson(id: number) {
+    this.lessonService.findWithFk(id).subscribe({
+      next: lesson => this.currentLessonSubject.next(lesson),
+      error: err => console.error('Ошибка при загрузке урока:', err)
+    });
   }
 
 }

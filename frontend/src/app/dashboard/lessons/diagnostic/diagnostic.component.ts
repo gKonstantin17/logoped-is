@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {NgForOf, NgIf} from '@angular/common';
+import {CommonModule, NgForOf, NgIf} from '@angular/common';
 import {
   trigger,
   transition,
@@ -9,6 +9,7 @@ import {
 } from '@angular/animations';
 import {Router} from '@angular/router';
 import {SpeechCardStore} from '../../../utils/stores/speechCard.store';
+import {Observable} from 'rxjs';
 @Component({
   selector: 'app-session',
   standalone: true,
@@ -16,7 +17,8 @@ import {SpeechCardStore} from '../../../utils/stores/speechCard.store';
   imports: [
     FormsModule,
     NgIf,
-    NgForOf
+    NgForOf,
+    CommonModule
   ],
 
   styleUrls: ['./diagnostic.component.css'],
@@ -64,18 +66,13 @@ export class DiagnosticComponent implements OnInit{
   }
 
 
-  availableSpeechErrors: { id: number; title: string; description: string }[] = [];
+  availableSpeechErrors$!: Observable<{ id: number; title: string; description: string }[]>;
+
   selectedError: { id: number; title: string; description: string } | null = null;
 
   ngOnInit() {
-    this.speechCardStore.findAllError().subscribe({
-      next: (data) => {
-        this.availableSpeechErrors = data;
-      },
-      error: (err) => {
-        console.error('Ошибка при получении речевых нарушений:', err);
-      }
-    });
+    this.availableSpeechErrors$ = this.speechCardStore.speechErrors$;
+    this.speechCardStore.loadSpeechErrors(); // загружаем ошибки в стор
   }
 
   addSpeechError() {
@@ -158,6 +155,5 @@ export class DiagnosticComponent implements OnInit{
       error: (err) => console.error('Ошибка при сохранении карты:', err)
     });
   }
-
 
 }

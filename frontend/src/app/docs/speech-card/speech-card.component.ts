@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import {DatePipe, NgIf} from '@angular/common';
+import {CommonModule, DatePipe, NgIf} from '@angular/common';
 import {SpeechCardStore} from '../../utils/stores/speechCard.store';
+import {Observable} from 'rxjs';
 
 @Component({
   selector: 'app-speech-card',
@@ -10,30 +11,23 @@ import {SpeechCardStore} from '../../utils/stores/speechCard.store';
   styleUrls: ['./speech-card.component.css'],
   imports: [
     DatePipe,
-    NgIf
+    NgIf,
+    CommonModule
   ]
 })
 export class SpeechCardComponent implements OnInit {
-  speechCardData: any;
-
+  speechCardData$!: Observable<any>;
   constructor(
     private route: ActivatedRoute,
     private speechCardStore: SpeechCardStore
   ) {}
 
   ngOnInit() {
+    this.speechCardData$ = this.speechCardStore.currentSpeechCard$;
     this.route.queryParams.subscribe(params => {
       const patientId = +params['id'];
       if (patientId) {
-        this.speechCardStore.findByPatient(patientId).subscribe({
-          next: (data) => {
-            this.speechCardData = data;
-            console.log('Карта речи:', data);
-          },
-          error: (err) => {
-            console.error('Ошибка при получении речевой карты:', err);
-          }
-        });
+        this.speechCardStore.loadSpeechCard(patientId).subscribe();
       }
     });
   }

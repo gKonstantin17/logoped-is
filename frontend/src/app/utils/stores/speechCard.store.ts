@@ -9,12 +9,30 @@ import {SpeechCardService} from '../services/speech-card.service';
 export class SpeechCardStore {
   constructor(private speechCardService:SpeechCardService) { }
 
-  private speechCardSubject = new BehaviorSubject<any[]>([]);
-  speechCards$ = this.speechCardSubject.asObservable();
+  private currentSpeechCardSubject = new BehaviorSubject<any | null>(null);
+  currentSpeechCard$ = this.currentSpeechCardSubject.asObservable();
 
-  setLessons(lessons: any[]) {
-    this.speechCardSubject.next(lessons);
+  private speechErrorsSubject = new BehaviorSubject<{ id: number; title: string; description: string }[]>([]);
+  speechErrors$ = this.speechErrorsSubject.asObservable();
+
+  // Метод загрузки речевой карты и обновления BehaviorSubject
+  loadSpeechCard(patientId: number) {
+    return this.speechCardService.findByPatient(patientId).pipe(
+      tap({
+        next: data => this.currentSpeechCardSubject.next(data),
+        error: () => this.currentSpeechCardSubject.next(null)
+      })
+    );
   }
+  loadSpeechErrors() {
+    return this.speechCardService.findAllError().pipe(
+      tap({
+        next: data => this.speechErrorsSubject.next(data),
+        error: () => this.speechErrorsSubject.next([])
+      })
+    ).subscribe(); // или возвращай Observable и подписывайся из компонента
+  }
+
   findAllError() {
     return this.speechCardService.findAllError();
   }

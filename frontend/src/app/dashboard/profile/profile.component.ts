@@ -26,31 +26,11 @@ export class ProfileComponent implements OnInit {
   }
   saveChanges() {
     if (!this.data) return;
-    if (this.data.role === 'user') {
-      this.userDataStore.update(this.data).subscribe({
-        next: (res) => {
-          console.log('Данные успешно обновлены:', res);
-          this.userDataStore.setUserData(this.data!); // обновим BehaviorSubject
-          alert('Данные профиля сохранены!');
-        },
-        error: (err) => {
-          console.error('Ошибка при обновлении данных:', err);
-          alert('Ошибка при сохранении. Попробуйте позже.');
-        }
-      });
-    }
-    if (this.data.role === 'logoped') {
-      this.userDataStore.updateLogoped(this.data).subscribe({
-        next: (res) => {
-          console.log('Данные успешно обновлены:', res);
-          this.userDataStore.setUserData(this.data!); // обновим BehaviorSubject
-          alert('Данные профиля сохранены!');
-        },
-        error: (err) => {
-          console.error('Ошибка при обновлении данных:', err);
-          alert('Ошибка при сохранении. Попробуйте позже.');
-        }
-      });
+    try {
+      this.userDataStore.setUserData(this.data!);
+      alert('Данные профиля сохранены!');
+    } catch (err) {
+      alert('Ошибка при сохранении. Попробуйте позже.');
     }
   }
 

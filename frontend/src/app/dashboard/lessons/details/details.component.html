@@ -4,7 +4,7 @@
     <button [class.active]="selectedTab === 'description'" (click)="selectedTab = 'description'">Описание</button>
   </div>
 
-  <div class="tab-content" *ngIf="lesson">
+  <div class="tab-content" *ngIf="lesson$ | async as lesson">
     <!-- Вкладка: Занятие -->
     <ng-container *ngIf="selectedTab === 'lesson'">
       <p>

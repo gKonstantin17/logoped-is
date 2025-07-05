@@ -43,6 +43,7 @@ export class LessonsComponent implements OnInit {
 
 
     });
+    // занятия могут создать как User так и Logoped, нужны актуальные данные
     this.lessonStore.refresh(this.userId!, this.currentRole!);
   }
 

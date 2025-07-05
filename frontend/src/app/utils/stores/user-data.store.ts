@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {BehaviorSubject, Observable} from 'rxjs';
+import {BehaviorSubject, Observable, tap, throwError} from 'rxjs';
 import {environment} from '../../../environments/environment';
 import {UserDataService} from '../services/user-data.service';
 
@@ -29,11 +29,21 @@ export class UserDataStore {
   }
 
   update(data: UserData): Observable<any> {
-    return this.userDataService.update(data);
-  }
+    let update$;
 
-  updateLogoped(data: UserData): Observable<any> {
-    return this.userDataService.updateLogoped(data)
+    if (data.role === 'user') {
+      update$ = this.userDataService.update(data);
+    } else if (data.role === 'logoped') {
+      update$ = this.userDataService.updateLogoped(data);
+    } else {
+      return throwError(() => new Error('Unknown user role'));
+    }
+
+    return update$.pipe(
+      tap(() => {
+        this.setUserData(data); // Обновляем состояние после успешного запроса
+      })
+    );
   }
 }
 
