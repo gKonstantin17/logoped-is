@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { SpeechCardService } from '../../utils/services/speech-card.service';
 import {DatePipe, NgIf} from '@angular/common';
+import {SpeechCardStore} from '../../utils/stores/speechCard.store';
 
 @Component({
   selector: 'app-speech-card',
@@ -18,14 +18,14 @@ export class SpeechCardComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private speechCardService: SpeechCardService
+    private speechCardStore: SpeechCardStore
   ) {}
 
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
       const patientId = +params['id'];
       if (patientId) {
-        this.speechCardService.findByPatient(patientId).subscribe({
+        this.speechCardStore.findByPatient(patientId).subscribe({
           next: (data) => {
             this.speechCardData = data;
             console.log('Карта речи:', data);

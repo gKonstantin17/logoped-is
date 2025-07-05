@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
-import {BehaviorSubject} from 'rxjs';
-import {LessonService} from '../services/lesson.service';
+import {BehaviorSubject, tap} from 'rxjs';
+import {LessonData, LessonService} from '../services/lesson.service';
 
 
 @Injectable({
-  providedIn: 'root' // сервис будет синглтоном на всё приложение
+  providedIn: 'root'
 })
 export class LessonStore {
   constructor(private lessonService:LessonService) { }
@@ -16,15 +16,27 @@ export class LessonStore {
     this.lessonsSubject.next(lessons);
   }
 
-  refreshLessons(userId: string, role: string): void {
-    const obs = role === 'logoped' ?
+  refresh(userId: string, role: string): void {
+    const result = role === 'logoped' ?
       this.lessonService.findByLogoped(userId) :
       this.lessonService.findByUser(userId);
 
-    obs.subscribe({
+    result.subscribe({
       next: lessons => this.setLessons(lessons),
       error: err => console.error('Ошибка при обновлении занятий:', err)
     });
+  }
+
+  create(data: LessonData) {
+    return this.lessonService.createLesson(data).pipe(
+      tap(newLesson => {
+        const currentLessons = this.lessonsSubject.getValue();
+        this.setLessons([...currentLessons, newLesson]);
+      })
+    );
+  }
+  findWithFk(id: number) {
+    return this.lessonService.findWithFk(id);
   }
 
 }

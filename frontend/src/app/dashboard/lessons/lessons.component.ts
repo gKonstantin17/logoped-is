@@ -3,8 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {RouterLink} from "@angular/router";
 import {LessonModalComponent} from './lesson-modal/lesson-modal.component';
-import {UserDataService} from '../../utils/services/user-data.service';
-import {PatientService} from '../../utils/services/patient.service';
 import {LessonData, LessonService} from '../../utils/services/lesson.service';
 import {UserDataStore} from '../../utils/stores/user-data.store';
 import {PatientStore} from '../../utils/stores/patient.store';
@@ -23,9 +21,7 @@ export class LessonsComponent implements OnInit {
 
   constructor(private userDataStore: UserDataStore,
               private patientStore: PatientStore,
-              private lessonStore:LessonStore,
-              private patientService: PatientService,
-              private lessonService: LessonService) {}
+              private lessonStore:LessonStore) {}
   currentRole: string | null = null;
   userId: string | null = null;
   lessonDataList: any[] = [];
@@ -47,7 +43,7 @@ export class LessonsComponent implements OnInit {
 
 
     });
-    this.lessonStore.refreshLessons(this.userId!, this.currentRole!);
+    this.lessonStore.refresh(this.userId!, this.currentRole!);
   }
 
   get upcomingLessons() {
@@ -86,7 +82,7 @@ export class LessonsComponent implements OnInit {
       return;
     }
 
-    this.patientService.existsSpeechCard(this.selectedChildId).subscribe({
+    this.patientStore.existsSpeechCard(this.selectedChildId).subscribe({
       next: (result) => {
         this.showModal = true;
         this.hasSpeechCard = result; // true или false
@@ -122,11 +118,10 @@ export class LessonsComponent implements OnInit {
     };
 
 
-    this.lessonService.createLesson(lessonData).subscribe({
+    this.lessonStore.create(lessonData).subscribe({
       next: () => {
         this.showToast('Занятие успешно добавлено');
         this.showModal = false;
-        this.lessonStore.refreshLessons(this.userId!, this.currentRole!);
       },
       error: () => this.showToast('Ошибка при создании занятия')
     });

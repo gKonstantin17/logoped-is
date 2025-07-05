@@ -7,9 +7,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import ruLocale from '@fullcalendar/core/locales/ru';
 import {RouterLink} from '@angular/router';
-import {UserDataService} from '../../utils/services/user-data.service';
-import {PatientService} from '../../utils/services/patient.service';
-import {LessonFullData, LessonService} from '../../utils/services/lesson.service';
+import {LessonFullData} from '../../utils/services/lesson.service';
 import {UserDataStore} from '../../utils/stores/user-data.store';
 import {LessonStore} from '../../utils/stores/lesson.store';
 
@@ -34,7 +32,6 @@ interface LessonData {
 export class CalendarComponent implements OnInit {
   constructor(private userDataStore: UserDataStore,
               private lessonStore: LessonStore,
-              private lessonService: LessonService,
               private cdr: ChangeDetectorRef) {
   }
   lessonDataList: LessonFullData[] = [];
@@ -67,7 +64,7 @@ export class CalendarComponent implements OnInit {
 
     // нужно вызвать detectChanges, если Angular не отследит изменения
     this.cdr.detectChanges();
-    this.lessonStore.refreshLessons(this.userId!, this.currentRole!);
+    this.lessonStore.refresh(this.userId!, this.currentRole!);
   }
 
 

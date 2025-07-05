@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import {BehaviorSubject, Observable} from 'rxjs';
 import {environment} from '../../../environments/environment';
-import {HttpMethod, Operation} from '../oauth2/model/RequestBFF';
+import {HttpMethod} from '../oauth2/model/RequestBFF';
 import {BackendService} from '../oauth2/backend/backend.service';
 
 export interface UserData {

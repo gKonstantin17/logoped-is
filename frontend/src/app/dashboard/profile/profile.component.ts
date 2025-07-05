@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import {UserData, UserDataService} from '../../utils/services/user-data.service';
+import {UserData} from '../../utils/services/user-data.service';
 import {UserDataStore} from '../../utils/stores/user-data.store';
 
 @Component({

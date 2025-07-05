@@ -1,9 +1,8 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {DatePipe, NgForOf, NgIf} from '@angular/common';
-import {UserDataService} from '../../../utils/services/user-data.service';
-import {LessonService} from '../../../utils/services/lesson.service';
 import {UserDataStore} from '../../../utils/stores/user-data.store';
+import {LessonStore} from '../../../utils/stores/lesson.store';
 
 @Component({
   selector: 'app-details',
@@ -23,9 +22,10 @@ export class DetailsComponent implements OnInit {
 
   lesson: any|null;
   constructor(private userDataStore: UserDataStore,
+              private lessonStore: LessonStore,
               private route: ActivatedRoute,
-              private router: Router,
-              private lessonService:LessonService) {}
+              private router: Router) {}
+
   currentRole: string | null = null;
   ngOnInit() {
     this.lessonId = +this.route.snapshot.paramMap.get('id')!;
@@ -33,7 +33,7 @@ export class DetailsComponent implements OnInit {
       this.currentRole = user?.role || null;
     });
 
-    this.lessonService.findWithFk(this.lessonId).subscribe({
+    this.lessonStore.findWithFk(this.lessonId).subscribe({
       next: (data) => {
         this.lesson = data;
         console.log('Полученное занятие:', this.lesson);

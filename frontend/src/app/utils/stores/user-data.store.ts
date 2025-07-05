@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 import {BehaviorSubject, Observable} from 'rxjs';
 import {environment} from '../../../environments/environment';
-import {HttpMethod} from '../oauth2/model/RequestBFF';
-import {BackendService} from '../oauth2/backend/backend.service';
+import {UserDataService} from '../services/user-data.service';
 
 
 export interface UserData {
@@ -20,7 +19,7 @@ export interface UserData {
 export class UserDataStore {
   private baseUrl = `${environment.RESOURSE_URL}/user`;
 
-  constructor(private backend: BackendService) { }
+  constructor(private userDataService: UserDataService) { }
 
   private userDataSubject = new BehaviorSubject<UserData | null>(null);
   userData$ = this.userDataSubject.asObservable();
@@ -30,11 +29,11 @@ export class UserDataStore {
   }
 
   update(data: UserData): Observable<any> {
-    return this.backend.createOperation(HttpMethod.PUT, `${this.baseUrl}/update/${data.id}`, data);
+    return this.userDataService.update(data);
   }
 
   updateLogoped(data: UserData): Observable<any> {
-    return this.backend.createOperation(HttpMethod.PUT, `${environment.RESOURSE_URL}/logoped/update/${data.id}`, data);
+    return this.userDataService.updateLogoped(data)
   }
 }
 

@@ -1,10 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 
 import {Router, RouterLink, RouterOutlet} from '@angular/router';
-import {UserData, UserDataService} from '../../utils/services/user-data.service';
+import {UserData} from '../../utils/services/user-data.service';
 import {KeycloakService} from '../../utils/oauth2/bff/keycloak.service';
-import {PatientService} from '../../utils/services/patient.service';
-import {LessonService} from '../../utils/services/lesson.service';
 import {UserDataStore} from '../../utils/stores/user-data.store';
 import {PatientStore} from '../../utils/stores/patient.store';
 import {LessonStore} from '../../utils/stores/lesson.store';
@@ -24,10 +22,6 @@ export class PrivateLayoutComponent implements OnInit {
   userProfile?: UserData;
 
   constructor(private keycloakService: KeycloakService,
-
-              private userService:UserDataService,
-              private patientService: PatientService,
-              private lessonService: LessonService,
 
               private userDataStore: UserDataStore,
               private patientStore: PatientStore,
@@ -70,45 +64,8 @@ export class PrivateLayoutComponent implements OnInit {
   }
 
   private loadInitialData(userId: string, role: string) {
-    if (role === 'user') {
-      this.patientService.findByUser(userId).subscribe({
-        next: patients => {
-          this.patientStore.setPatients(patients);
-        },
-        error: err => {
-          console.error('Ошибка при загрузке пациентов пользователя:', err);
-        }
-      });
-
-      this.lessonService.findByUser(userId).subscribe({
-        next: lessons => {
-          this.lessonStore.setLessons(lessons);
-        },
-        error: err => {
-          console.error('Ошибка при загрузке занятий пользователя:', err);
-        }
-      });
-    }
-
-    if (role === 'logoped') {
-      this.patientService.findByLogoped(userId).subscribe({
-        next: patients => {
-          this.patientStore.setPatients(patients);
-        },
-        error: err => {
-          console.error('Ошибка при загрузке пациентов логопеда:', err);
-        }
-      });
-
-      this.lessonService.findByLogoped(userId).subscribe({
-        next: lessons => {
-          this.lessonStore.setLessons(lessons);
-        },
-        error: err => {
-          console.error('Ошибка при загрузке занятий логопеда:', err);
-        }
-      });
-    }
+    this.patientStore.refresh(userId, role);
+    this.lessonStore.refresh(userId, role);
   }
 
 

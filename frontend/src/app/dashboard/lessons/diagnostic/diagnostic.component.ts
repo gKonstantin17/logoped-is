@@ -8,7 +8,7 @@ import {
   animate
 } from '@angular/animations';
 import {Router} from '@angular/router';
-import {SpeechCardService} from '../../../utils/services/speech-card.service';
+import {SpeechCardStore} from '../../../utils/stores/speechCard.store';
 @Component({
   selector: 'app-session',
   standalone: true,
@@ -35,7 +35,7 @@ import {SpeechCardService} from '../../../utils/services/speech-card.service';
 export class DiagnosticComponent implements OnInit{
   lessonId!: number;
   logopedId!: number;
-  constructor(private router: Router, private speechCardService: SpeechCardService) {
+  constructor(private router: Router, private speechCardStore: SpeechCardStore) {
     const nav = this.router.getCurrentNavigation();
     const state = nav?.extras?.state as any;
 
@@ -68,7 +68,7 @@ export class DiagnosticComponent implements OnInit{
   selectedError: { id: number; title: string; description: string } | null = null;
 
   ngOnInit() {
-    this.speechCardService.findAllError().subscribe({
+    this.speechCardStore.findAllError().subscribe({
       next: (data) => {
         this.availableSpeechErrors = data;
       },
@@ -153,10 +153,11 @@ export class DiagnosticComponent implements OnInit{
       logopedId: this.logopedId
     };
 
-    this.speechCardService.createWithDiagnostic(payload).subscribe({
+    this.speechCardStore.createWithDiagnostic(payload).subscribe({
       next: () => alert('Речевая карта сохранена успешно!'),
       error: (err) => console.error('Ошибка при сохранении карты:', err)
     });
   }
+
 
 }

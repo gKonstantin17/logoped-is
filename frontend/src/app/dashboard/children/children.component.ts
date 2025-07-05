@@ -1,11 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {CommonModule, NgForOf} from '@angular/common';
-import {UserDataService} from '../../utils/services/user-data.service';
-import {PatientService} from '../../utils/services/patient.service';
 import {Router, RouterLink} from '@angular/router';
-import { catchError } from 'rxjs/operators';
-import {of} from 'rxjs';
 import {UserDataStore} from '../../utils/stores/user-data.store';
 import {PatientStore} from '../../utils/stores/patient.store';
 
@@ -30,7 +26,6 @@ export class ChildrenComponent implements OnInit {
   constructor(
     private userDataStore: UserDataStore,
     private patientStore: PatientStore,
-    private patientService: PatientService,
     private router: Router
   ) {}
   // TODO нужен ли userDataService?
@@ -62,15 +57,7 @@ export class ChildrenComponent implements OnInit {
       userId: this.userId
     };
 
-    this.patientService.create(payload).subscribe({
-      next: (createdPatient) => {
-        this.patientsOfUser.push(createdPatient); // теперь сразу добавляется в карточки
-        this.childrenForms.splice(index, 1); // удалить форму
-      },
-      error: (err) => {
-        console.error('Ошибка при добавлении ребёнка:', err);
-      }
-    });
+    this.patientStore.create(payload);
   }
 
   removeForm(index: number) {
@@ -83,19 +70,11 @@ export class ChildrenComponent implements OnInit {
 
     const confirmed = confirm(`Вы уверены, что хотите удалить ${patient.firstName} ${patient.lastName}?`);
     if (confirmed) {
-      this.patientService.delete(patient.id).subscribe({
-        next: () => {
-          this.patientsOfUser.splice(index, 1);
-          console.log('Пациент удалён');
-        },
-        error: (err) => {
-          console.error('Ошибка при удалении пациента:', err);
-        }
-      });
+      this.patientStore.delete(patient.id);
     }
   }
   goToSpeechCard(patientId: number) {
-    this.patientService.existsSpeechCard(patientId)
+    this.patientStore.existsSpeechCard(patientId)
       .subscribe((exists: boolean) => {
         if (exists) {
           this.router.navigate(['/dashboard/speechcard'], { queryParams: { id: patientId } });
@@ -104,8 +83,6 @@ export class ChildrenComponent implements OnInit {
         }
       });
   }
-
-
 
   sortColumn: 'speechErrors' | 'speechCorrection' | null = null;
   sortDirection: 'asc' | 'desc' = 'asc';
@@ -175,15 +152,7 @@ export class ChildrenComponent implements OnInit {
   }
   saveEdit() {
     if (this.editingPatient && this.editingPatient.id) {
-      this.patientService.update(this.editFormData, this.editingPatient.id).subscribe({
-        next: (updated) => {
-          Object.assign(this.editingPatient, updated);
-          this.editingPatient = null;
-        },
-        error: (err) => {
-          console.error('Ошибка при обновлении ребёнка:', err);
-        }
-      });
+      this.patientStore.update(this.editFormData, this.editingPatient.id);
     }
   }
 
