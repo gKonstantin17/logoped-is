@@ -48,6 +48,7 @@ export class PrivateLayoutComponent implements OnInit {
 
         this.keycloakService.isUserExist(this.userProfile).subscribe({
           next: exists => {
+            // TODO логика когда найден или нет. Или зачем тогда?
             console.log('User exists:', exists);
           },
           error: err => {
