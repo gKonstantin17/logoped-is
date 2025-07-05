@@ -5,6 +5,9 @@ import {UserData, UserDataService} from '../../utils/services/user-data.service'
 import {KeycloakService} from '../../utils/oauth2/bff/keycloak.service';
 import {PatientService} from '../../utils/services/patient.service';
 import {LessonService} from '../../utils/services/lesson.service';
+import {UserDataStore} from '../../utils/stores/user-data.store';
+import {PatientStore} from '../../utils/stores/patient.store';
+import {LessonStore} from '../../utils/stores/lesson.store';
 
 
 @Component({
@@ -21,9 +24,15 @@ export class PrivateLayoutComponent implements OnInit {
   userProfile?: UserData;
 
   constructor(private keycloakService: KeycloakService,
+
               private userService:UserDataService,
               private patientService: PatientService,
               private lessonService: LessonService,
+
+              private userDataStore: UserDataStore,
+              private patientStore: PatientStore,
+              private lessonStore:LessonStore,
+
               private router:Router,) {}
 
   // после авторизации получение профиля, синхронизация с бд,
@@ -41,7 +50,7 @@ export class PrivateLayoutComponent implements OnInit {
         };
 
         console.log('User profile loaded', this.userProfile);
-        this.userService.setUserData(this.userProfile);
+        this.userDataStore.setUserData(this.userProfile);
 
         this.keycloakService.isUserExist(this.userProfile).subscribe({
           next: exists => {
@@ -64,7 +73,7 @@ export class PrivateLayoutComponent implements OnInit {
     if (role === 'user') {
       this.patientService.findByUser(userId).subscribe({
         next: patients => {
-          this.userService.setPatients(patients); // новый метод
+          this.patientStore.setPatients(patients);
         },
         error: err => {
           console.error('Ошибка при загрузке пациентов пользователя:', err);
@@ -73,7 +82,7 @@ export class PrivateLayoutComponent implements OnInit {
 
       this.lessonService.findByUser(userId).subscribe({
         next: lessons => {
-          this.userService.setLessons(lessons); // новый метод
+          this.lessonStore.setLessons(lessons);
         },
         error: err => {
           console.error('Ошибка при загрузке занятий пользователя:', err);
@@ -84,7 +93,7 @@ export class PrivateLayoutComponent implements OnInit {
     if (role === 'logoped') {
       this.patientService.findByLogoped(userId).subscribe({
         next: patients => {
-          this.userService.setPatients(patients);
+          this.patientStore.setPatients(patients);
         },
         error: err => {
           console.error('Ошибка при загрузке пациентов логопеда:', err);
@@ -93,7 +102,7 @@ export class PrivateLayoutComponent implements OnInit {
 
       this.lessonService.findByLogoped(userId).subscribe({
         next: lessons => {
-          this.userService.setLessons(lessons);
+          this.lessonStore.setLessons(lessons);
         },
         error: err => {
           console.error('Ошибка при загрузке занятий логопеда:', err);

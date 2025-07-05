@@ -10,6 +10,8 @@ import {RouterLink} from '@angular/router';
 import {UserDataService} from '../../utils/services/user-data.service';
 import {PatientService} from '../../utils/services/patient.service';
 import {LessonFullData, LessonService} from '../../utils/services/lesson.service';
+import {UserDataStore} from '../../utils/stores/user-data.store';
+import {LessonStore} from '../../utils/stores/lesson.store';
 
 interface LessonData {
   id: number;
@@ -30,7 +32,8 @@ interface LessonData {
   styleUrls: ['./calendar.component.css']
 })
 export class CalendarComponent implements OnInit {
-  constructor(private userDataService: UserDataService,
+  constructor(private userDataStore: UserDataStore,
+              private lessonStore: LessonStore,
               private lessonService: LessonService,
               private cdr: ChangeDetectorRef) {
   }
@@ -40,11 +43,11 @@ export class CalendarComponent implements OnInit {
 
   // TODO нужен ли userDataService?
   ngOnInit(): void {
-    this.userDataService.userData$.subscribe(user => {
+    this.userDataStore.userData$.subscribe(user => {
       this.currentRole = user?.role || null;
       this.userId = user?.id || null;
 
-      this.userDataService.lessons$.subscribe(data => {
+      this.lessonStore.lessons$.subscribe(data => {
         this.lessonDataList = data;
       });
     });
@@ -64,7 +67,7 @@ export class CalendarComponent implements OnInit {
 
     // нужно вызвать detectChanges, если Angular не отследит изменения
     this.cdr.detectChanges();
-    this.userDataService.refreshLessons(this.userId!, this.currentRole!);
+    this.lessonStore.refreshLessons(this.userId!, this.currentRole!);
   }
 
 

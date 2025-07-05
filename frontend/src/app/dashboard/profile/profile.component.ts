@@ -2,6 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {UserData, UserDataService} from '../../utils/services/user-data.service';
+import {UserDataStore} from '../../utils/stores/user-data.store';
 
 @Component({
   selector: 'app-profile',
@@ -12,12 +13,12 @@ import {UserData, UserDataService} from '../../utils/services/user-data.service'
 })
 export class ProfileComponent implements OnInit {
   activeTab: 'account' | 'help' = 'account';
-  constructor(private userService: UserDataService) {
+  constructor( private userDataStore: UserDataStore,) {
   }
 
   data: UserData | null = null;
   ngOnInit() {
-    this.userService.userData$.subscribe(user => {
+    this.userDataStore.userData$.subscribe(user => {
       if (user) {
         this.data = user;
       }
@@ -26,10 +27,10 @@ export class ProfileComponent implements OnInit {
   saveChanges() {
     if (!this.data) return;
     if (this.data.role === 'user') {
-      this.userService.update(this.data).subscribe({
+      this.userDataStore.update(this.data).subscribe({
         next: (res) => {
           console.log('Данные успешно обновлены:', res);
-          this.userService.setUserData(this.data!); // обновим BehaviorSubject
+          this.userDataStore.setUserData(this.data!); // обновим BehaviorSubject
           alert('Данные профиля сохранены!');
         },
         error: (err) => {
@@ -39,10 +40,10 @@ export class ProfileComponent implements OnInit {
       });
     }
     if (this.data.role === 'logoped') {
-      this.userService.updateLogoped(this.data).subscribe({
+      this.userDataStore.updateLogoped(this.data).subscribe({
         next: (res) => {
           console.log('Данные успешно обновлены:', res);
-          this.userService.setUserData(this.data!); // обновим BehaviorSubject
+          this.userDataStore.setUserData(this.data!); // обновим BehaviorSubject
           alert('Данные профиля сохранены!');
         },
         error: (err) => {
@@ -51,9 +52,7 @@ export class ProfileComponent implements OnInit {
         }
       });
     }
-
   }
-
 
   changeLogoped() {
     alert('Форма смены логопеда откроется здесь');

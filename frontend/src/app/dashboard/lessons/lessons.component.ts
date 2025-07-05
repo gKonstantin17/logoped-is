@@ -6,6 +6,9 @@ import {LessonModalComponent} from './lesson-modal/lesson-modal.component';
 import {UserDataService} from '../../utils/services/user-data.service';
 import {PatientService} from '../../utils/services/patient.service';
 import {LessonData, LessonService} from '../../utils/services/lesson.service';
+import {UserDataStore} from '../../utils/stores/user-data.store';
+import {PatientStore} from '../../utils/stores/patient.store';
+import {LessonStore} from '../../utils/stores/lesson.store';
 
 @Component({
   selector: 'app-lessons',
@@ -18,7 +21,9 @@ export class LessonsComponent implements OnInit {
   selectedChildId: number = 0; // отображать занятия у всех пациентов
 
 
-  constructor(private userDataService: UserDataService,
+  constructor(private userDataStore: UserDataStore,
+              private patientStore: PatientStore,
+              private lessonStore:LessonStore,
               private patientService: PatientService,
               private lessonService: LessonService) {}
   currentRole: string | null = null;
@@ -28,21 +33,21 @@ export class LessonsComponent implements OnInit {
 
   // TODO нужен ли userDataService?
   ngOnInit() {
-    this.userDataService.userData$.subscribe(user => {
+    this.userDataStore.userData$.subscribe(user => {
       this.currentRole = user?.role || null;
       this.userId = user?.id || null;
 
-      this.userDataService.patients$.subscribe(data => {
+      this.patientStore.patients$.subscribe(data => {
         this.childrenData = data;
       });
 
-      this.userDataService.lessons$.subscribe(data => {
+      this.lessonStore.lessons$.subscribe(data => {
         this.lessonDataList = data;
       });
 
 
     });
-    this.userDataService.refreshLessons(this.userId!, this.currentRole!);
+    this.lessonStore.refreshLessons(this.userId!, this.currentRole!);
   }
 
   get upcomingLessons() {
@@ -121,7 +126,7 @@ export class LessonsComponent implements OnInit {
       next: () => {
         this.showToast('Занятие успешно добавлено');
         this.showModal = false;
-        this.userDataService.refreshLessons(this.userId!, this.currentRole!);
+        this.lessonStore.refreshLessons(this.userId!, this.currentRole!);
       },
       error: () => this.showToast('Ошибка при создании занятия')
     });

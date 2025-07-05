@@ -6,6 +6,8 @@ import {PatientService} from '../../utils/services/patient.service';
 import {Router, RouterLink} from '@angular/router';
 import { catchError } from 'rxjs/operators';
 import {of} from 'rxjs';
+import {UserDataStore} from '../../utils/stores/user-data.store';
+import {PatientStore} from '../../utils/stores/patient.store';
 
 @Component({
   selector: 'app-children',
@@ -26,18 +28,19 @@ export class ChildrenComponent implements OnInit {
   userId: string | null = null;
   patientsOfUser: any[] = [];
   constructor(
-    private userDataService: UserDataService,
+    private userDataStore: UserDataStore,
+    private patientStore: PatientStore,
     private patientService: PatientService,
     private router: Router
   ) {}
   // TODO нужен ли userDataService?
   // TODO косяк с данными для логопеда
   ngOnInit() {
-    this.userDataService.userData$.subscribe(user => {
+    this.userDataStore.userData$.subscribe(user => {
       this.currentRole = user?.role || null;
       this.userId = user?.id || null;
 
-      this.userDataService.patients$.subscribe(data => {
+      this.patientStore.patients$.subscribe(data => {
         this.patientsOfUser = data;
         if (this.currentRole === 'logoped')
           this.addedChildren = data;

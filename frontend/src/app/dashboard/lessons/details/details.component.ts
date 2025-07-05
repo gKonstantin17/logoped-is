@@ -3,6 +3,7 @@ import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {DatePipe, NgForOf, NgIf} from '@angular/common';
 import {UserDataService} from '../../../utils/services/user-data.service';
 import {LessonService} from '../../../utils/services/lesson.service';
+import {UserDataStore} from '../../../utils/stores/user-data.store';
 
 @Component({
   selector: 'app-details',
@@ -21,14 +22,14 @@ export class DetailsComponent implements OnInit {
   selectedTab: 'lesson' | 'about' | 'description' = 'lesson';
 
   lesson: any|null;
-  constructor(private userDataService: UserDataService,
+  constructor(private userDataStore: UserDataStore,
               private route: ActivatedRoute,
               private router: Router,
               private lessonService:LessonService) {}
   currentRole: string | null = null;
   ngOnInit() {
     this.lessonId = +this.route.snapshot.paramMap.get('id')!;
-    this.userDataService.userData$.subscribe(user => {
+    this.userDataStore.userData$.subscribe(user => {
       this.currentRole = user?.role || null;
     });
 
