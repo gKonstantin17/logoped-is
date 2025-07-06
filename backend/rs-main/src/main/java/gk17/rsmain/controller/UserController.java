@@ -28,7 +28,6 @@ public class UserController {
     public ResponseEntity<?> createIfNotExists(@RequestBody UserWithIdDto dto) throws ExecutionException, InterruptedException {
         var future = service.createIfNotExists(dto);
         var result = future.get();
-
         return result.isSuccess()
                 ? ResponseEntity.ok(result.data())
                 : ResponseEntity.badRequest().body(result.message());

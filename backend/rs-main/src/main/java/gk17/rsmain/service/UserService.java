@@ -6,7 +6,6 @@ import gk17.rsmain.dto.user.UserDto;
 import gk17.rsmain.dto.user.UserWithIdDto;
 import gk17.rsmain.entity.Logoped;
 import gk17.rsmain.entity.UserData;
-import gk17.rsmain.repository.LogopedRepository;
 import gk17.rsmain.repository.UserRepository;
 import gk17.rsmain.utils.hibernate.ResponseHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -20,10 +19,10 @@ import java.util.concurrent.CompletableFuture;
 @Service
 public class UserService {
     private final UserRepository repository;
-    private final LogopedRepository logopedRepository;
-    public UserService(UserRepository repository, LogopedRepository logopedRepository) {
+    private final LogopedService logopedService;
+    public UserService(UserRepository repository,LogopedService logopedService) {
         this.repository = repository;
-        this.logopedRepository = logopedRepository;
+        this.logopedService = logopedService;
     }
 
     @Async
@@ -35,67 +34,44 @@ public class UserService {
     @Async
     public CompletableFuture<ServiceResult<UserData>> create(UserWithIdDto dto) {
         try {
-            UserData user = new UserData();
-            user.setId(dto.id());
-            user.setFirstName(dto.firstName());
-            user.setLastName(dto.lastName());
-            user.setEmail(dto.email());
-            user.setPhone(dto.phone());
-
+            UserData user = userFromDto(dto);
             UserData result = repository.save(user);
             return AsyncResult.success(result);
         } catch (Exception ex) {
             return AsyncResult.error(ex.getMessage());
         }
     }
+
     @Async
-    public CompletableFuture<ServiceResult<UserData>> createIfNotExists(UserWithIdDto dto) {
+    public CompletableFuture<ServiceResult<Boolean>> createIfNotExists(UserWithIdDto dto) {
         try {
             if ("user".equalsIgnoreCase(dto.role())) {
                 Optional<UserData> existing = repository.findById(dto.id());
 
-                if (existing.isPresent()) {
-                    return CompletableFuture.completedFuture(ServiceResult.success(existing.get()));
-                }
+                if (existing.isPresent())
+                    return AsyncResult.success(true);
 
-                UserData user = new UserData();
-                user.setId(dto.id());
-                user.setFirstName(dto.firstName());
-                user.setLastName(dto.lastName());
-                user.setEmail(dto.email());
-                user.setPhone(dto.phone());
+                UserData user = userFromDto(dto);
 
-                UserData saved = repository.save(user);
-                return CompletableFuture.completedFuture(ServiceResult.success(saved));
+                repository.save(user);
+                return AsyncResult.success(true);
             }
 
             if ("logoped".equalsIgnoreCase(dto.role())) {
-                Optional<UserData> existingUser = repository.findById(dto.id());
-
-                existingUser.ifPresent(repository::delete); // удаляем UserData, если есть
-
-                // Проверка: существует ли логопед уже
-                Optional<Logoped> existingLogoped = logopedRepository.findById(dto.id());
+                Optional<Logoped> existingLogoped = logopedService.findById(dto.id());
                 if (existingLogoped.isPresent()) {
-                    return CompletableFuture.completedFuture(ServiceResult.error("Логопед с таким ID уже существует"));
+                    return AsyncResult.success(true); //Логопед с таким ID уже существует
                 }
+                repository.findById(dto.id()).ifPresent(repository::delete); // удаляем из UserData, если есть
 
-                // Создаём логопеда
-                Logoped logoped = new Logoped();
-                logoped.setId(dto.id());
-                logoped.setFirstName(dto.firstName());
-                logoped.setLastName(dto.lastName());
-                logoped.setEmail(dto.email());
-                logoped.setPhone(dto.phone());
-
-                logopedRepository.save(logoped);
-                return CompletableFuture.completedFuture(ServiceResult.success(null)); // или вернуть logoped, если нужно
+                logopedService.create(dto);
+                return AsyncResult.success(true); // или вернуть logoped, если нужно
             }
 
-            return CompletableFuture.completedFuture(ServiceResult.error("Неизвестная роль: " + dto.role()));
+            return AsyncResult.error("Неизвестная роль: " + dto.role());
 
         } catch (Exception e) {
-            return CompletableFuture.completedFuture(ServiceResult.error("Ошибка создания пользователя: " + e.getMessage()));
+            return AsyncResult.error("Ошибка создания пользователя: " + e.getMessage());
         }
     }
 
@@ -125,5 +101,15 @@ public class UserService {
             return AsyncResult.error(ex.getMessage());
         }
 
+    }
+
+    private UserData userFromDto(UserWithIdDto dto) {
+        UserData user = new UserData();
+        user.setId(dto.id());
+        user.setFirstName(dto.firstName());
+        user.setLastName(dto.lastName());
+        user.setEmail(dto.email());
+        user.setPhone(dto.phone());
+        return user;
     }
 }

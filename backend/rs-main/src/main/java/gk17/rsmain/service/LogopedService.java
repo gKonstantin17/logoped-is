@@ -3,6 +3,8 @@ package gk17.rsmain.service;
 import gk17.rsmain.dto.logoped.LogopedDto;
 import gk17.rsmain.dto.responseWrapper.AsyncResult;
 import gk17.rsmain.dto.responseWrapper.ServiceResult;
+import gk17.rsmain.dto.user.BaseUserDto;
+import gk17.rsmain.dto.user.UserWithIdDto;
 import gk17.rsmain.entity.Logoped;
 import gk17.rsmain.repository.LogopedRepository;
 import gk17.rsmain.utils.hibernate.ResponseHelper;
@@ -10,6 +12,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -27,14 +30,14 @@ public class LogopedService {
         return AsyncResult.success(data);
     }
 
+    public Optional<Logoped> findById(UUID id) {
+        return repository.findById(id);
+    }
+
     @Async
-    public CompletableFuture<ServiceResult<Logoped>> create(LogopedDto dto) {
+    public CompletableFuture<ServiceResult<Logoped>> create(BaseUserDto dto) {
         try {
-            Logoped logoped = new Logoped();
-            logoped.setFirstName(dto.firstName());
-            logoped.setLastName(dto.lastName());
-            logoped.setEmail(dto.email());
-            logoped.setPhone(dto.phone());
+            Logoped logoped = logopedFromDto(dto);
 
             Logoped result = repository.save(logoped);
             return AsyncResult.success(result);
@@ -69,5 +72,16 @@ public class LogopedService {
             return AsyncResult.error(ex.getMessage());
         }
     }
+
+    private Logoped logopedFromDto(BaseUserDto dto) {
+        Logoped logoped = new Logoped();
+        logoped.setFirstName(dto.firstName());
+        logoped.setLastName(dto.lastName());
+        logoped.setEmail(dto.email());
+        logoped.setPhone(dto.phone());
+        return logoped;
+    }
+
+
 
 }
