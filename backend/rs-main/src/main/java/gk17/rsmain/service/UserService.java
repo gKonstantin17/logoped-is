@@ -31,6 +31,10 @@ public class UserService {
         return AsyncResult.success(data);
     }
 
+    public Optional<UserData> findById(UUID id) {
+        return repository.findById(id);
+
+    }
     @Async
     public CompletableFuture<ServiceResult<UserData>> create(UserWithIdDto dto) {
         try {

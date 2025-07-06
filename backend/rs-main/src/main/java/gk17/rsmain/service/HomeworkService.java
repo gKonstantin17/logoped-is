@@ -10,6 +10,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -26,6 +27,9 @@ public class HomeworkService {
         return AsyncResult.success(data);
     }
 
+    public Optional<Homework> findById(Long id) {
+        return repository.findById(id);
+    }
     @Async
     public CompletableFuture<ServiceResult<Homework>> create(HomeworkDto dto) {
         try {
@@ -38,6 +42,11 @@ public class HomeworkService {
             return AsyncResult.error(ex.getMessage());
         }
 
+    }
+    public Homework create(String task) {
+        Homework homework = new Homework();
+        homework.setTask(task);
+        return repository.save(homework);
     }
     @Async
     public CompletableFuture<ServiceResult<Homework>> update(Long id, HomeworkDto dto) {

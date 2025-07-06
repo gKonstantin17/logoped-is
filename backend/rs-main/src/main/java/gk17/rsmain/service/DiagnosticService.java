@@ -6,8 +6,6 @@ import gk17.rsmain.dto.responseWrapper.AsyncResult;
 import gk17.rsmain.dto.responseWrapper.ServiceResult;
 import gk17.rsmain.entity.Diagnostic;
 import gk17.rsmain.repository.DiagnosticRepository;
-import gk17.rsmain.repository.LessonRepository;
-import gk17.rsmain.repository.SpeechCardRepository;
 import gk17.rsmain.utils.hibernate.ResponseHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -18,13 +16,13 @@ import java.util.concurrent.CompletableFuture;
 @Service
 public class DiagnosticService {
     private final DiagnosticRepository repository;
-    private final LessonRepository lessonRepository;
-    private final SpeechCardRepository speechCardRepository;
+    private final LessonService lessonService;
+    private final SpeechCardService speechCardService;
 
-    public DiagnosticService(DiagnosticRepository repository, LessonRepository lessonRepository, SpeechCardRepository speechCardRepository) {
+    public DiagnosticService(DiagnosticRepository repository, LessonService lessonService, SpeechCardService speechCardService) {
         this.repository = repository;
-        this.lessonRepository = lessonRepository;
-        this.speechCardRepository = speechCardRepository;
+        this.lessonService = lessonService;
+        this.speechCardService = speechCardService;
     }
 
     @Async
@@ -41,11 +39,11 @@ public class DiagnosticService {
             diagnostic.setDate(dto.date());
 
             if (dto.lessonId() != null) {
-                var lesson = ResponseHelper.findById(lessonRepository,dto.lessonId(),"Урок не найден");
+                var lesson = lessonService.findById(dto.lessonId());
                 diagnostic.setLesson(lesson);
             }
             if (dto.speechCardId() != null) {
-                var speechCard = ResponseHelper.findById(speechCardRepository,dto.speechCardId(),"Речевая карта не найдена");
+                var speechCard = speechCardService.findById(dto.speechCardId());
                 diagnostic.setSpeechCard(speechCard);
             }
 
@@ -65,11 +63,11 @@ public class DiagnosticService {
             if (dto.date() != null) updated.setDate(dto.date());
 
             if (dto.lessonId() != null) {
-                var lesson = ResponseHelper.findById(lessonRepository,dto.lessonId(),"Урок не найден");
+                var lesson = lessonService.findById(dto.lessonId());
                 updated.setLesson(lesson);
             }
             if (dto.speechCardId() != null) {
-                var speechCard = ResponseHelper.findById(speechCardRepository,dto.speechCardId(),"Речевая карта не найдена");
+                var speechCard = speechCardService.findById(dto.speechCardId());
                 updated.setSpeechCard(speechCard);
             }
             repository.save(updated);

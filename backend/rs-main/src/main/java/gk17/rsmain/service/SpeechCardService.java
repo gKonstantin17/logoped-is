@@ -45,6 +45,9 @@ public class SpeechCardService {
         var result = data.stream().map(this::toReadDto).toList();
         return AsyncResult.success(result);
     }
+    public SpeechCard findById(Long id) {
+        return repository.findById(id).get();
+    }
     @Async
     public CompletableFuture<ServiceResult<SpeechCardFullDto>> findByPatientId(Long patientId) throws ChangeSetPersister.NotFoundException {
         SpeechCard card = repository.findDetailedByPatientId(patientId)

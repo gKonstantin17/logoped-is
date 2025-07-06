@@ -6,8 +6,7 @@ import gk17.rsmain.dto.lesson.LessonReadDto;
 import gk17.rsmain.dto.lesson.LessonWithFKDto;
 import gk17.rsmain.dto.lesson.LessonWithHomeworkDto;
 import gk17.rsmain.dto.logoped.LogopedDto;
-import gk17.rsmain.dto.patient.PatientDto;
-import gk17.rsmain.dto.patient.PatientWithoutFK;
+import gk17.rsmain.dto.patient.PatientReadDto;
 import gk17.rsmain.dto.patient.PatientWithoutFKDto;
 import gk17.rsmain.dto.responseWrapper.AsyncResult;
 import gk17.rsmain.dto.responseWrapper.ServiceResult;
@@ -27,15 +26,15 @@ import java.util.stream.Collectors;
 @Service
 public class LessonService {
     private final LessonRepository repository;
-    private final LogopedRepository logopedRepository;
-    private final HomeworkRepository homeworkRepository;
-    private final PatientRepository patientRepository;
+    private final LogopedService logopedService;
+    private final HomeworkService homeworkService;
+    private final PatientService patientService;
 
-    public LessonService(LessonRepository repository, LogopedRepository logopedRepository, HomeworkRepository homeworkRepository, PatientRepository patientRepository) {
+    public LessonService(LessonRepository repository, LogopedService logopedService, HomeworkService homeworkService,PatientService patientService) {
         this.repository = repository;
-        this.logopedRepository = logopedRepository;
-        this.homeworkRepository = homeworkRepository;
-        this.patientRepository = patientRepository;
+        this.logopedService = logopedService;
+        this.homeworkService = homeworkService;
+        this.patientService = patientService;
     }
 
     @Async
@@ -44,18 +43,21 @@ public class LessonService {
         List<LessonReadDto> lessons = data.stream().map(this::toReadDto).toList();
         return AsyncResult.success(lessons);
     }
+
+    public Lesson findById(Long id) {
+        return repository.findById(id).get();
+    }
     @Async
     public CompletableFuture<ServiceResult<List<LessonWithFKDto>>> findByUserId(UUID userId) {
-        var patients = patientRepository.findByUserId(userId);
-
+        List<PatientReadDto> patients = patientService.findByUserId(userId).join().data();
         if (patients == null || patients.isEmpty()) {
             return AsyncResult.error("Пациенты не найдены");
         }
 
         List<Lesson> allLessons = new ArrayList<>();
 
-        for (Patient patient : patients) {
-            List<Lesson> lessons = repository.findByPatientsId(patient.getId());
+        for (PatientReadDto patient : patients) {
+            List<Lesson> lessons = repository.findByPatientsId(patient.id());
             allLessons.addAll(lessons);
         }
 
@@ -88,17 +90,19 @@ public class LessonService {
             lesson.setDateOfLesson(dto.dateOfLesson());
 
             if (dto.logopedId() != null) {
-                var logoped = ResponseHelper.findById(logopedRepository,dto.logopedId(),"Логопед не найден");
+                var logoped = logopedService.findById(dto.logopedId()).get();
                 lesson.setLogoped(logoped);
             }
 
             if (dto.homeworkId() != null) {
-                var homework = ResponseHelper.findById(homeworkRepository,dto.homeworkId(),"Домашнее задание не найдено");
+                var homework = homeworkService.findById(dto.homeworkId()).get();
                 lesson.setHomework(homework);
             }
             Set<Patient> patients = dto.patientsId() == null
                     ? Set.of()
-                    : new HashSet<>(patientRepository.findAllById(dto.patientsId()));
+                    : new HashSet<>(patientService.findAllById(dto.patientsId()));
+
+
 
             lesson.setPatients(patients);
             repository.save(lesson);
@@ -119,19 +123,21 @@ public class LessonService {
             lesson.setDateOfLesson(dto.dateOfLesson());
 
             if (dto.logopedId() != null) {
-                var logoped = ResponseHelper.findById(logopedRepository, dto.logopedId(), "Логопед не найден");
+                var logoped = logopedService.findById(dto.logopedId()).get();
                 lesson.setLogoped(logoped);
             } else {
                 // Получаем всех логопедов
-                List<Logoped> logopeds = logopedRepository.findAll();
+                List<Logoped> logopeds = logopedService.findall()
+                        .join()
+                        .data();
 
                 // Подгружаем пациентов и группируем по логопеду
-                List<Patient> allPatients = patientRepository.findAll();
+                List<PatientReadDto> allPatients = patientService.findall().join().data();
 
                 Map<UUID, Long> logopedPatientCounts = allPatients.stream()
-                        .filter(p -> p.getLogoped() != null)
+                        .filter(p -> p.logopedId() != null)
                         .collect(Collectors.groupingBy(
-                                p -> p.getLogoped().getId(),
+                                PatientReadDto::logopedId,
                                 Collectors.counting()
                         ));
 
@@ -144,25 +150,22 @@ public class LessonService {
                 lesson.setLogoped(selectedLogoped);
                 // Назначаем логопеда всем пациентам занятия
                 if (dto.patientsId() != null) {
-                    List<Patient> patientsToUpdate = patientRepository.findAllById(dto.patientsId());
+                    List<Patient> patientsToUpdate = patientService.findAllById(dto.patientsId());
                     for (Patient patient : patientsToUpdate) {
                         patient.setLogoped(selectedLogoped);
                     }
-                    patientRepository.saveAll(patientsToUpdate);
+                    patientService.createAll(patientsToUpdate);
                 }
             }
 
-            // Создаём Homework
             if (dto.homework() != null && !dto.homework().isBlank()) {
-                Homework homework = new Homework();
-                homework.setTask(dto.homework());
-                homeworkRepository.save(homework);
+                Homework homework = homeworkService.create(dto.homework());
                 lesson.setHomework(homework);
             }
 
             Set<Patient> patients = dto.patientsId() == null
                     ? Set.of()
-                    : new HashSet<>(patientRepository.findAllById(dto.patientsId()));
+                    : new HashSet<>(patientService.findAllById(dto.patientsId()));
             lesson.setPatients(patients);
 
             repository.save(lesson);
@@ -188,16 +191,16 @@ public class LessonService {
             if (dto.dateOfLesson() != null) updated.setDateOfLesson(dto.dateOfLesson());
 
             if (dto.logopedId() != null) {
-                var logoped = ResponseHelper.findById(logopedRepository,dto.logopedId(),"Логопед не найден");
+               var logoped = logopedService.findById(dto.logopedId()).get();
                 updated.setLogoped(logoped);
             }
 
             if (dto.homeworkId() != null) {
-                var homework = ResponseHelper.findById(homeworkRepository,dto.homeworkId(),"Домашнее задание не найдено");
+                var homework = homeworkService.findById(dto.homeworkId()).get();
                 updated.setHomework(homework);
             }
             if (dto.patientsId() != null) {
-                Set<Patient> patients  = new HashSet<>(patientRepository.findAllById(dto.patientsId()));
+                Set<Patient> patients  = new HashSet<>(patientService.findAllById(dto.patientsId()));
                 if (patients.size() != dto.patientsId().size()) {
                     return AsyncResult.error("Некоторые пациенты не найдены");
                 }
