@@ -43,6 +43,7 @@ public class PatientService {
             patient.setFirstName(dto.firstName());
             patient.setLastName(dto.lastName());
             patient.setDateOfBirth(dto.dateOfBirth());
+            patient.setHidden(false);
             patient.setUser(user);
 
             Patient createdPatient = repository.save(patient);
