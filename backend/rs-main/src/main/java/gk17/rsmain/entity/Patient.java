@@ -29,6 +29,9 @@ public class Patient {
     @Column(name = "DateOfBirth")
     private Timestamp dateOfBirth;
 
+    @Column(name = "IsHidden")
+    private boolean isHidden;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "UserId")
     private UserData user;

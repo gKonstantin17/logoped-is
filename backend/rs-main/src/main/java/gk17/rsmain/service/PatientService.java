@@ -12,7 +12,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -110,8 +109,18 @@ public class PatientService {
     public CompletableFuture<ServiceResult<PatientReadDto>> hide(Long id) {
         try {
             var dataForHide = ResponseHelper.findById(repository,id,"Пациент не найден");
-            dataForHide.setUser(null);
-            dataForHide.setLogoped(null);
+            dataForHide.setHidden(true);
+            var hiddenData =  toReadDto(repository.save(dataForHide));
+            return AsyncResult.success(hiddenData);
+        } catch (Exception ex) {
+            return AsyncResult.error(ex.getMessage());
+        }
+    }
+    @Async
+    public CompletableFuture<ServiceResult<PatientReadDto>> restore(Long id) {
+        try {
+            var dataForHide = ResponseHelper.findById(repository,id,"Пациент не найден");
+            dataForHide.setHidden(false);
             var hiddenData =  toReadDto(repository.save(dataForHide));
             return AsyncResult.success(hiddenData);
         } catch (Exception ex) {
@@ -145,7 +154,8 @@ public class PatientService {
                 entity.getLastName(),
                 entity.getDateOfBirth(),
                 entity.getUser() != null ? entity.getUser().getId() : null,
-                entity.getLogoped() != null ? entity.getLogoped().getId() : null
+                entity.getLogoped() != null ? entity.getLogoped().getId() : null,
+                entity.isHidden()
         );
     }
 }

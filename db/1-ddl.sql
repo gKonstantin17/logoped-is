@@ -51,6 +51,7 @@ CREATE TABLE IF NOT EXISTS logoped."Patient"
     "DateOfBirth" timestamp without time zone,
     "UserId" uuid,
     "LogopedId" uuid,
+    "IsHidden" boolean,
     CONSTRAINT "Patient_pkey" PRIMARY KEY ("Id"),
     CONSTRAINT "FK_patient_logoped" FOREIGN KEY ("LogopedId")
         REFERENCES logoped."Logoped" ("Id") MATCH SIMPLE
