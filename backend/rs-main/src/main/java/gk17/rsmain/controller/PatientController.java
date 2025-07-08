@@ -77,6 +77,14 @@ public class PatientController {
                 ? ResponseEntity.ok(result.data())
                 : ResponseEntity.badRequest().body(result.message());
     }
+    @PostMapping("/restore/{id}")
+    public ResponseEntity<?> restore(@PathVariable Long id) throws ExecutionException, InterruptedException {
+        var future = service.restore(id);
+        var result = future.get();
+        return result.isSuccess()
+                ? ResponseEntity.ok(result.data())
+                : ResponseEntity.badRequest().body(result.message());
+    }
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) throws ExecutionException, InterruptedException {
         var future = service.delete(id);

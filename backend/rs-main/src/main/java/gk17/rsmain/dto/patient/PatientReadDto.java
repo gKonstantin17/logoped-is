@@ -9,5 +9,6 @@ public record PatientReadDto(
         String lastName,
         Timestamp dateOfBirth,
         UUID userId,
-        UUID logopedId
+        UUID logopedId,
+        boolean isHidden
 ){}

@@ -13,19 +13,40 @@ export class PatientStore {
   private patientsSubject = new BehaviorSubject<any[]>([]);
   patients$ = this.patientsSubject.asObservable();
 
+  private hiddenPatientsSubject = new BehaviorSubject<any[]>([]);
+  hiddenPatients$ = this.hiddenPatientsSubject.asObservable();
+
+  private lastUserId: string | null = null;
+  private lastRole: string | null = null;
   setPatients(patients: any[]) {
     this.patientsSubject.next(patients);
   }
+  setHiddenPatients(patients: any[]) {
+    this.hiddenPatientsSubject.next(patients);
+  }
 
   refresh(userId: string, role: string): void {
+    this.lastUserId = userId;
+    this.lastRole = role;
     const result = role === 'logoped' ?
       this.patientService.findByLogoped(userId) :
       this.patientService.findByUser(userId);
 
     result.subscribe({
-      next: patients => this.setPatients(patients),
+      next: patients => {
+        const visible = patients.filter(p => !p.isHidden);
+        const hidden = patients.filter(p => p.isHidden);
+
+        this.setPatients(visible);
+        this.setHiddenPatients(hidden);
+      },
       error: err => console.error('Ошибка при обновлении занятий:', err)
     });
+  }
+  refreshCached(): void {
+    if (this.lastUserId && this.lastRole) {
+      this.refresh(this.lastUserId, this.lastRole);
+    }
   }
   create(data: any) {
     this.patientService.create(data).subscribe({
@@ -54,18 +75,20 @@ export class PatientStore {
     });
   }
 
-  delete(patientId: number) {
-    this.patientService.delete(patientId).subscribe({
-      next: () => {
-        const current = this.patientsSubject.getValue();
-        const updatedList = current.filter(p => p.id !== patientId);
-        this.patientsSubject.next(updatedList);
-      },
-      error: err => {
-        console.error('Ошибка при удалении пациента:', err);
-      }
+  hide(patientId: number) {
+    this.patientService.hide(patientId).subscribe({
+      next: () => this.refreshCached(),
+      error: err => console.error('Ошибка при удалении пациента:', err)
     });
   }
+
+  restore(patientId: number) {
+    this.patientService.restore(patientId).subscribe({
+      next: () => this.refreshCached(),
+      error: err => console.error('Ошибка при восстановлении пациента:', err)
+    });
+  }
+
   existsSpeechCard(patientId: number): Observable<boolean> {
     return this.patientService.existsSpeechCard(patientId);
   }

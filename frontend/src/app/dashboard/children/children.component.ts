@@ -23,6 +23,7 @@ export class ChildrenComponent implements OnInit {
   currentRole: string | null = null;
   userId: string | null = null;
   patientsOfUser: any[] = [];
+  hiddenPatients: any[] = [];
   constructor(
     private userDataStore: UserDataStore,
     private patientStore: PatientStore,
@@ -40,6 +41,13 @@ export class ChildrenComponent implements OnInit {
         if (this.currentRole === 'logoped')
           this.addedChildren = data;
       });
+      this.patientStore.hiddenPatients$.subscribe(hidden => {
+        this.hiddenPatients = hidden;
+      });
+
+      if (this.userId && this.currentRole) {
+        this.patientStore.refresh(this.userId, this.currentRole);
+      }
 
     });
   }
@@ -70,7 +78,7 @@ export class ChildrenComponent implements OnInit {
 
     const confirmed = confirm(`Вы уверены, что хотите удалить ${patient.firstName} ${patient.lastName}?`);
     if (confirmed) {
-      this.patientStore.delete(patient.id);
+      this.patientStore.hide(patient.id);
     }
   }
   goToSpeechCard(patientId: number) {
@@ -156,4 +164,21 @@ export class ChildrenComponent implements OnInit {
     }
   }
 
+  showRestoreModal = false;
+
+  openRestoreModal() {
+    this.showRestoreModal = true;
+  }
+
+  closeRestoreModal() {
+    this.showRestoreModal = false;
+  }
+
+  restorePatient(patientId: number) {
+    this.patientStore.restore(patientId);
+    // Обновим список скрытых пациентов, если нужно
+    if (this.userId && this.currentRole) {
+      this.patientStore.refresh(this.userId, this.currentRole);
+    }
+  }
 }

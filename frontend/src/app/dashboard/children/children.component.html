@@ -98,4 +98,31 @@
       </form>
     </div>
   </div>
+  <!-- Восстановление -->
+  <div style="margin-top: 30px;">
+    <button (click)="openRestoreModal()">Показать скрытых детей</button>
+  </div>
+  <!-- Модальное окно восстановления -->
+  <div class="modal-backdrop" *ngIf="showRestoreModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Скрытые дети</h3>
+        <button class="close-btn" (click)="closeRestoreModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="hiddenPatients.length === 0">
+          Нет скрытых детей
+        </div>
+        <div *ngFor="let patient of hiddenPatients" class="hidden-patient-item">
+          <div class="patient-info">
+            {{ patient.firstName }} {{ patient.lastName }} {{ patient.dateOfBirth | date }}
+          </div>
+          <button (click)="restorePatient(patient.id)">Восстановить</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
 </div>

@@ -41,10 +41,12 @@ export class PatientService {
     return this.backend.createOperation(HttpMethod.PUT, `${this.baseUrl}/update/${id}`, data);
   }
 
-  delete(patientId: number): Observable<any> {
+  hide(patientId: number): Observable<any> {
     return this.backend.createOperation(HttpMethod.POST, `${this.baseUrl}/hide/${patientId}`,patientId);
   }
-
+  restore(patientId: number): Observable<any> {
+    return this.backend.createOperation(HttpMethod.POST, `${this.baseUrl}/restore/${patientId}`,patientId);
+  }
   existsSpeechCard(patientId: number): Observable<any> {
     return this.backend.createOperation(HttpMethod.POST, `${this.baseUrl}/exists-speechcard`, patientId);
   }
