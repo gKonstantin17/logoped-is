@@ -49,14 +49,20 @@ export class LessonsComponent implements OnInit {
 
   get upcomingLessons() {
     const now = new Date();
-    return this.selectedChildLessons.filter(lesson => new Date(lesson.dateOfLesson) >= now);
+    return this.selectedChildLessons.filter(
+      lesson => lesson.status !== 'Отменено' && new Date(lesson.dateOfLesson) >= now
+    );
   }
 
   get pastLessons() {
     const now = new Date();
-    return this.selectedChildLessons.filter(lesson => new Date(lesson.dateOfLesson) < now);
+    return this.selectedChildLessons.filter(
+      lesson => lesson.status !== 'Отменено' && new Date(lesson.dateOfLesson) < now
+    );
   }
-
+  get cancelledLessons() {
+    return this.selectedChildLessons.filter(lesson => lesson.status === 'Отменено');
+  }
 
   get selectedChildLessons() {
     if (this.selectedChildId === 0) {
@@ -127,6 +133,7 @@ export class LessonsComponent implements OnInit {
       error: () => this.showToast('Ошибка при создании занятия')
     });
   }
+
 
 
 

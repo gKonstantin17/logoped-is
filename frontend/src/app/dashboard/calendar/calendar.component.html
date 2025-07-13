@@ -5,6 +5,7 @@
     <h2>Детали занятия</h2>
     <p><strong>Тип:</strong> {{ selectedLesson?.type }}</p>
     <p><strong>Тема:</strong> {{ selectedLesson?.topic }}</p>
+    <p><strong>Статус:</strong> {{ selectedLesson?.status }}</p>
     <p><strong>Описание:</strong> {{ selectedLesson?.description }}</p>
     <p><strong>Дата:</strong> {{ selectedLesson?.dateOfLesson | date: 'EEEE, d MMMM y г., HH:mm:ss' }}</p>
     <p><strong>Логопед:</strong> {{ logopedFullName }}</p>

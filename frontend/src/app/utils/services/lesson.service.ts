@@ -18,6 +18,7 @@ export interface LessonFullData {
   topic: string;
   description: string;
   dateOfLesson: string;
+  status:string;
   logoped: {
     firstName: string;
     lastName: string;

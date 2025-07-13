@@ -46,26 +46,14 @@ export class CalendarComponent implements OnInit {
 
       this.lessonStore.lessons$.subscribe(data => {
         this.lessonDataList = data;
+        console.log(this.lessonDataList);
+        this.updateCalendarEvents();
       });
     });
 
-    this.calendarOptions.events = this.lessonDataList.map(lesson => {
-      const start = new Date(lesson.dateOfLesson);
-      const end = new Date(start);
-      end.setHours(start.getHours() + 1); // по умолчанию +1 час
-
-      return {
-        id: String(lesson.id),
-        title: lesson.topic,
-        start: start.toISOString(),
-        end: end.toISOString()
-      } as EventInput;
-    });
-
-    // нужно вызвать detectChanges, если Angular не отследит изменения
-    this.cdr.detectChanges();
     this.lessonStore.refresh(this.userId!, this.currentRole!);
   }
+
 
 
   selectedLesson: LessonFullData | null = null;
@@ -81,22 +69,28 @@ export class CalendarComponent implements OnInit {
     this.isModalOpen = true;
   }
   updateCalendarEvents() {
-    this.calendarOptions.events = this.lessonDataList.map(lesson => {
+    this.calendarOptions.events = this.getCalendarEvents();
+    this.cdr.detectChanges();
+  }
+  getCalendarEvents(): EventInput[] {
+    return this.lessonDataList.map(lesson => {
       const start = new Date(lesson.dateOfLesson);
       const end = new Date(start);
-      end.setHours(start.getHours() + 1); // длительность 1 час
+      end.setHours(start.getHours() + 1);
+
+      const isCancelled = lesson.status === 'Отменено';
 
       return {
         id: String(lesson.id),
         title: lesson.topic,
         start: start.toISOString(),
-        end: end.toISOString()
-      } as EventInput;
+        end: end.toISOString(),
+        backgroundColor: isCancelled ? '#807d7d' : undefined,
+      };
     });
-
-    // Явно детектим изменения
-    this.cdr.detectChanges();
   }
+
+
 
 
   calendarOptions: CalendarOptions = {
