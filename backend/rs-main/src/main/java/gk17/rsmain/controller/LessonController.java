@@ -65,7 +65,14 @@ public class LessonController {
                 ? ResponseEntity.ok(result.data())
                 : ResponseEntity.badRequest().body(result.message());
     }
-
+    @PutMapping("cancel/{id}")
+    public ResponseEntity<?> cansel(@PathVariable Long id) throws ExecutionException, InterruptedException {
+        var future = service.canselLesson(id);
+        var result = future.get();
+        return result.isSuccess()
+                ? ResponseEntity.ok(result.data())
+                : ResponseEntity.badRequest().body(result.message());
+    }
     @PutMapping("/update/{id}")
     public ResponseEntity<?> update(@PathVariable Long id,@RequestBody LessonDto dto) throws ExecutionException, InterruptedException {
         var future = service.update(id, dto);

@@ -121,6 +121,7 @@ public class LessonService {
             lesson.setTopic(dto.topic());
             lesson.setDescription(dto.description());
             lesson.setDateOfLesson(dto.dateOfLesson());
+            lesson.setStatus("Активно");
 
             if (dto.logopedId() != null) {
                 var logoped = logopedService.findById(dto.logopedId()).get();
@@ -160,7 +161,17 @@ public class LessonService {
             return AsyncResult.error("Ошибка при создании урока: " + ex.getMessage());
         }
     }
-
+    @Async
+    public CompletableFuture<ServiceResult<Lesson>> canselLesson(Long id) {
+        try {
+            var lesson = repository.findById(id).get();
+            lesson.setStatus("Отменено");
+            repository.save(lesson);
+            return AsyncResult.success(lesson);
+        } catch (Exception ex) {
+            return AsyncResult.error(ex.getMessage());
+        }
+    }
 
     @Async
     public CompletableFuture<ServiceResult<LessonReadDto>> update(Long id, LessonDto dto) {
