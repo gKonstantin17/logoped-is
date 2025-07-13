@@ -31,6 +31,8 @@ public class Lesson {
 
     @Column(name = "DateOfLesson")
     private Timestamp dateOfLesson;
+    @Column(name = "Status")
+    private String status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "LogopedId")

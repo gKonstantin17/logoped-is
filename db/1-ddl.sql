@@ -121,6 +121,7 @@ CREATE TABLE IF NOT EXISTS logoped."Lesson"
     "Topic" text COLLATE pg_catalog."default",
     "Description" text COLLATE pg_catalog."default",
     "DateOfLesson" timestamp without time zone,
+    "Status" text COLLATE pg_catalog."default",
     "HomeworkId" bigint,
     "LogopedId" uuid,
     CONSTRAINT "Lesson_pkey" PRIMARY KEY ("Id"),
