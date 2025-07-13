@@ -57,4 +57,13 @@ export class DetailsComponent implements OnInit {
       });
     }).unsubscribe();  // Не забудь отписаться или использовать async pipe в шаблоне!
   }
+
+  cancelLesson() {
+    const confirmed = confirm('Отменить занятие?');
+    if (!confirmed) return;
+
+    this.lessonStore.cancel(this.lessonId);
+    this.lessonStore.loadLesson(this.lessonId);
+  }
+
 }

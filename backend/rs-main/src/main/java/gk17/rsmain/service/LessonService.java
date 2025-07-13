@@ -226,6 +226,7 @@ public class LessonService {
           entity.getTopic(),
           entity.getDescription(),
           entity.getDateOfLesson(),
+          entity.getStatus(),
           entity.getLogoped() != null ? entity.getLogoped().getId() : null,
           entity.getHomework() != null ? entity.getHomework().getId() : null,
           entity.getPatients() != null ? entity.getPatients().stream().map(Patient::getId).toList()
@@ -239,6 +240,7 @@ public class LessonService {
                 lesson.getTopic(),
                 lesson.getDescription(),
                 lesson.getDateOfLesson(),
+                lesson.getStatus(),
                 lesson.getLogoped() == null ? null :
                         new LogopedDto(
                                 lesson.getLogoped().getFirstName(),

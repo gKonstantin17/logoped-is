@@ -47,6 +47,11 @@ export class LessonStore {
       error: err => console.error('Ошибка при загрузке урока:', err)
     });
   }
-
+  cancel(id: number) {
+    this.lessonService.cancelLesson(id).subscribe({
+      next: lesson => this.currentLessonSubject.next(lesson),
+      error: err => console.error('Ошибка при загрузке урока:', err)
+    });
+  }
 }
 

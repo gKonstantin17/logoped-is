@@ -56,4 +56,8 @@ export class LessonService {
   createLesson(data: LessonData): Observable<any> {
     return this.backend.createOperation(HttpMethod.POST, `${this.baseUrl}/create`, data);
   }
+
+  cancelLesson(lessonId:number): Observable<any> {
+    return this.backend.createOperation(HttpMethod.PUT, `${this.baseUrl}/cancel/${lessonId}`,);
+  }
 }

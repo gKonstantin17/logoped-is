@@ -13,8 +13,10 @@
       </p>
       <p><strong>Тип:</strong> {{ lesson.type }}</p>
       <p><strong>Тема:</strong> {{ lesson.topic }}</p>
+      <p><strong>Статус:</strong> {{ lesson.status }}</p>
 <!--      <button>Перенести занятие</button>-->
       <button class="btn" (click)="openSession()">Открыть виртуальный урок</button>
+      <button class="btn" (click)="cancelLesson()">Отменить занятие</button>
       <button class="btn" *ngIf="currentRole === 'logoped'" (click)="openDiagnostic()">Открыть диагностику</button>
     </ng-container>
 

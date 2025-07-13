@@ -15,6 +15,7 @@ public record LessonWithFKDto(
         String topic,
         String description,
         Timestamp dateOfLesson,
+        String status,
         LogopedDto logoped,
         HomeworkDto homework,
         List<PatientWithoutFKDto> patients
