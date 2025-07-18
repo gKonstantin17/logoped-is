@@ -1,0 +1,22 @@
+<div class="modal-overlay" *ngIf="visible">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Перенос занятия</h2>
+      <button class="close-btn" (click)="cancel()">×</button>
+    </div>
+
+    <label>Выберите дату:</label>
+    <input type="date" [(ngModel)]="selectedDate" [min]="minDate" />
+
+    <label>Выберите время:</label>
+    <div class="time-slots">
+      <button *ngFor="let slot of timeSlots"
+              [class.selected]="selectedTime === slot"
+              (click)="selectedTime = slot">
+        {{ slot }}
+      </button>
+    </div>
+
+    <button class="btn" [disabled]="!selectedDate || !selectedTime" (click)="confirm()">Сохранить</button>
+  </div>
+</div>
