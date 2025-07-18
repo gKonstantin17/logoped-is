@@ -20,19 +20,19 @@
     <div *ngIf="currentRole === 'logoped'" class="add-lessons-btn-container">
       <button class="add-lessons-btn" (click)="openModal()">Подобрать занятия</button>
     </div>
-    <ng-container *ngIf="selectedChildLessons.length === 0; else showLessons">
-      <div class="add-lessons-btn-container">
+
+      <div class="add-lessons-btn-container" *ngIf="upcomingLessons.length === 0">
         <button class="add-lessons-btn" (click)="openModal()">Подобрать занятия</button>
       </div>
 
-    </ng-container>
+
     <app-lesson-modal
       *ngIf="showModal"
       [hasSpeechCard]="hasSpeechCard"
       (closeModal)="showModal = false"
       (confirmBooking)="handleBooking($event)">
     </app-lesson-modal>
-    <ng-template #showLessons>
+
       <div *ngIf="upcomingLessons.length > 0">
         <h2>Предстоящие занятия</h2>
         <div class="lesson-cards">
@@ -85,7 +85,7 @@
         </div>
       </div>
 
-    </ng-template>
+
 
     <div *ngIf="toastMessage" class="toast">
       {{ toastMessage }}

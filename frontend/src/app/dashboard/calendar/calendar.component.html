@@ -1,4 +1,4 @@
-<full-calendar [options]="calendarOptions"></full-calendar>
+<full-calendar *ngIf="calendarOptions" [options]="calendarOptions"></full-calendar>
 <!-- Простое модальное окно -->
 <div class="modal-overlay" *ngIf="isModalOpen" (click)="isModalOpen = false">
   <div class="modal-content" (click)="$event.stopPropagation()">

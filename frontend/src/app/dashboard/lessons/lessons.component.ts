@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import {RouterLink} from "@angular/router";
+import {Router, RouterLink} from "@angular/router";
 import {LessonModalComponent} from './lesson-modal/lesson-modal.component';
 import {LessonData, LessonService} from '../../utils/services/lesson.service';
 import {UserDataStore} from '../../utils/stores/user-data.store';
@@ -19,7 +19,8 @@ export class LessonsComponent implements OnInit {
   selectedChildId: number = 0; // отображать занятия у всех пациентов
 
 
-  constructor(private userDataStore: UserDataStore,
+  constructor(private router: Router,
+              private userDataStore: UserDataStore,
               private patientStore: PatientStore,
               private lessonStore:LessonStore) {}
   currentRole: string | null = null;
@@ -116,11 +117,12 @@ export class LessonsComponent implements OnInit {
       this.showToast('Пожалуйста, выберите ребёнка перед записью занятия.');
       return;
     }
-
+    const patient = this.childrenData.find(child => child.id === this.selectedChildId);
+    const logopedId = data.type === "Диагностика" ? null : patient?.logopedId || null;
     const lessonData: LessonData = {
       ...data,
       dateOfLesson: new Date(data.dateOfLesson).toISOString(),
-      logopedId: data.type === "Диагностика" ? null : this.userId,
+      logopedId: logopedId,
       patientsId: [this.selectedChildId]
     };
 
@@ -129,6 +131,7 @@ export class LessonsComponent implements OnInit {
       next: () => {
         this.showToast('Занятие успешно добавлено');
         this.showModal = false;
+        this.router.navigate(['dashboard/calendar'], { queryParams: { date: lessonData.dateOfLesson } });
       },
       error: () => this.showToast('Ошибка при создании занятия')
     });
