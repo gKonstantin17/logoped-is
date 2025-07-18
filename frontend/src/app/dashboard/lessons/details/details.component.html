@@ -16,8 +16,14 @@
       <p><strong>Статус:</strong> {{ lesson.status }}</p>
 <!--      <button>Перенести занятие</button>-->
       <button class="btn" (click)="openSession()">Открыть виртуальный урок</button>
+      <button class="btn" (click)="showRescheduleModal = true">Перенести занятие</button>
       <button class="btn" (click)="cancelLesson()">Отменить занятие</button>
       <button class="btn" *ngIf="currentRole === 'logoped'" (click)="openDiagnostic()">Открыть диагностику</button>
+      <app-change-date-modal
+        [visible]="showRescheduleModal"
+        (close)="showRescheduleModal = false"
+        (submit)="onReschedule($event)">
+      </app-change-date-modal>
     </ng-container>
 
     <!-- Вкладка: О занятии -->

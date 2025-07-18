@@ -19,6 +19,7 @@ import gk17.rsmain.utils.hibernate.ResponseHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -166,6 +167,17 @@ public class LessonService {
         try {
             var lesson = repository.findById(id).get();
             lesson.setStatus("Отменено");
+            repository.save(lesson);
+            return AsyncResult.success(lesson);
+        } catch (Exception ex) {
+            return AsyncResult.error(ex.getMessage());
+        }
+    }
+    @Async
+    public CompletableFuture<ServiceResult<Lesson>> changeDate(Long id, Timestamp newDate) {
+        try {
+            var lesson = repository.findById(id).get();
+            lesson.setDateOfLesson(newDate);
             repository.save(lesson);
             return AsyncResult.success(lesson);
         } catch (Exception ex) {

@@ -50,8 +50,14 @@ export class LessonStore {
   cancel(id: number) {
     this.lessonService.cancelLesson(id).subscribe({
       next: lesson => this.currentLessonSubject.next(lesson),
-      error: err => console.error('Ошибка при загрузке урока:', err)
+      error: err => console.error('Ошибка при отмене урока:', err)
     });
+  }
+  changeDate(lessonId:number, newDate:Date) {
+    this.lessonService.changeDateLesson(lessonId,newDate).subscribe({
+      next: lesson => this.currentLessonSubject.next(lesson),
+      error: err => console.error('Ошибка при переносе урока:', err)
+    })
   }
 }
 

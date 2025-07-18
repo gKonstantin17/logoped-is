@@ -4,6 +4,7 @@ import {AsyncPipe, DatePipe, NgForOf, NgIf} from '@angular/common';
 import {UserDataStore} from '../../../utils/stores/user-data.store';
 import {LessonStore} from '../../../utils/stores/lesson.store';
 import {Observable} from 'rxjs';
+import {ChangeDateModalComponent} from './change-date-modal/change-date-modal.component';
 
 @Component({
   selector: 'app-details',
@@ -13,7 +14,8 @@ import {Observable} from 'rxjs';
     RouterLink,
     DatePipe,
     NgForOf,
-    AsyncPipe
+    AsyncPipe,
+    ChangeDateModalComponent
   ],
   templateUrl: './details.component.html',
   styleUrl: './details.component.css'
@@ -29,6 +31,7 @@ export class DetailsComponent implements OnInit {
 
   currentRole: string | null = null;
   lesson$!: Observable<any>;
+  showRescheduleModal = false;
 
   ngOnInit() {
     this.lesson$ = this.lessonStore.currentLesson$;
@@ -66,4 +69,19 @@ export class DetailsComponent implements OnInit {
     this.lessonStore.loadLesson(this.lessonId);
   }
 
+  onReschedule(newDate: Date) {
+    this.lessonStore.changeDate(this.lessonId, newDate);
+    this.showRescheduleModal = false;
+
+    this.lessonStore.loadLesson(this.lessonId);
+
+    // Перенаправление на календарь с нужной датой
+    this.router.navigate(['/dashboard/calendar'], {
+      queryParams: {
+        date: newDate.toISOString()  // Преобразуем дату в формат ISO
+      }
+    });
+
+
+  }
 }

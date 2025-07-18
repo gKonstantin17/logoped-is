@@ -61,4 +61,7 @@ export class LessonService {
   cancelLesson(lessonId:number): Observable<any> {
     return this.backend.createOperation(HttpMethod.PUT, `${this.baseUrl}/cancel/${lessonId}`,);
   }
+  changeDateLesson(lessonId:number, newDate:Date): Observable<any> {
+    return this.backend.createOperation(HttpMethod.PUT, `${this.baseUrl}/changeDate/${lessonId}`,newDate);
+  }
 }

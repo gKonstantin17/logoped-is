@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -68,6 +69,14 @@ public class LessonController {
     @PutMapping("cancel/{id}")
     public ResponseEntity<?> cansel(@PathVariable Long id) throws ExecutionException, InterruptedException {
         var future = service.canselLesson(id);
+        var result = future.get();
+        return result.isSuccess()
+                ? ResponseEntity.ok(result.data())
+                : ResponseEntity.badRequest().body(result.message());
+    }
+    @PutMapping("changeDate/{id}")
+    public ResponseEntity<?> changeDate(@PathVariable Long id, @RequestBody Timestamp newDate) throws ExecutionException, InterruptedException {
+        var future = service.changeDate(id,newDate);
         var result = future.get();
         return result.isSuccess()
                 ? ResponseEntity.ok(result.data())
