@@ -4,10 +4,11 @@ import gk17.rsmain.dto.logoped.LogopedDto;
 import gk17.rsmain.dto.responseWrapper.AsyncResult;
 import gk17.rsmain.dto.responseWrapper.ServiceResult;
 import gk17.rsmain.dto.user.BaseUserDto;
-import gk17.rsmain.dto.user.UserWithIdDto;
 import gk17.rsmain.entity.Logoped;
+import gk17.rsmain.entity.UserData;
 import gk17.rsmain.repository.LogopedRepository;
 import gk17.rsmain.utils.hibernate.ResponseHelper;
+import gk17.rsmain.utils.keycloak.KeycloakAdminService;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -19,8 +20,10 @@ import java.util.concurrent.CompletableFuture;
 @Service
 public class LogopedService {
     private final LogopedRepository repository;
-    public LogopedService(LogopedRepository repository) {
+    private final KeycloakAdminService kcService;
+    public LogopedService(LogopedRepository repository, KeycloakAdminService kcService) {
         this.repository = repository;
+        this.kcService = kcService;
     }
 
 
@@ -56,7 +59,14 @@ public class LogopedService {
             if (dto.email() != null)         updated.setEmail(dto.email());
             if (dto.phone() != null)         updated.setPhone(dto.phone());
 
-            return AsyncResult.success(repository.save(updated));
+            Logoped saved = repository.save(updated);
+
+            // Обновляем Keycloak
+            if (saved.getId() != null) {
+                kcService.updateUserInKeycloak(saved.getId(), dto);
+            }
+
+            return AsyncResult.success(repository.save(saved));
         } catch (Exception ex) {
             return AsyncResult.error(ex.getMessage());
         }

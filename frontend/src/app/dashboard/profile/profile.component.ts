@@ -26,13 +26,12 @@ export class ProfileComponent implements OnInit {
   }
   saveChanges() {
     if (!this.data) return;
-    try {
-      this.userDataStore.setUserData(this.data!);
-      alert('Данные профиля сохранены!');
-    } catch (err) {
-      alert('Ошибка при сохранении. Попробуйте позже.');
-    }
+    this.userDataStore.update(this.data!).subscribe({
+      next: () => alert('Данные профиля сохранены!'),
+      error: () => alert('Ошибка при сохранении. Попробуйте позже.')
+    });
   }
+
 
   changeLogoped() {
     alert('Форма смены логопеда откроется здесь');

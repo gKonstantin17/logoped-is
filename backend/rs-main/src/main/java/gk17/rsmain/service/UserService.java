@@ -8,6 +8,7 @@ import gk17.rsmain.entity.Logoped;
 import gk17.rsmain.entity.UserData;
 import gk17.rsmain.repository.UserRepository;
 import gk17.rsmain.utils.hibernate.ResponseHelper;
+import gk17.rsmain.utils.keycloak.KeycloakAdminService;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -20,9 +21,11 @@ import java.util.concurrent.CompletableFuture;
 public class UserService {
     private final UserRepository repository;
     private final LogopedService logopedService;
-    public UserService(UserRepository repository,LogopedService logopedService) {
+    private final KeycloakAdminService kcService;
+    public UserService(UserRepository repository, LogopedService logopedService, KeycloakAdminService kcService) {
         this.repository = repository;
         this.logopedService = logopedService;
+        this.kcService = kcService;
     }
 
     @Async
@@ -89,7 +92,14 @@ public class UserService {
             if (dto.email() != null)         result.setEmail(dto.email());
             if (dto.phone() != null)         result.setPhone(dto.phone());
 
-            return AsyncResult.success(repository.save(result));
+            UserData saved = repository.save(result);
+
+            // Обновляем Keycloak
+            if (saved.getId() != null) {
+                kcService.updateUserInKeycloak(saved.getId(), dto);
+            }
+
+            return AsyncResult.success(saved);
         } catch (Exception ex) {
             return AsyncResult.error(ex.getMessage());
         }
