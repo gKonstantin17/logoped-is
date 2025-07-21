@@ -30,8 +30,8 @@
 }
 
 .nav-item img {
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   margin-bottom: 6px;
 }
 
@@ -40,10 +40,10 @@
   color: #EF019B; /* или любой акцентный цвет */
 }
 
-.nav-item:hover img,
-.nav-item.active img {
-  filter: brightness(0.8);
-}
+/*.nav-item:hover img,*/
+/*.nav-item.active img {*/
+/*  filter: brightness(0.8);*/
+/*}*/
 .header-content {
   display: flex;
   align-items: center;
@@ -60,4 +60,20 @@
   align-items: center;
   flex-grow: 1; /* занимает всё свободное пространство */
   margin-left: 20px; /* небольшой отступ от логотипа */
+}
+
+.nav-item:hover .children-img {
+  content: url('/assets/header/children.gif');
+}
+.nav-item:hover .lesson-img {
+  content: url('/assets/header/lessons.gif');
+}
+.nav-item:hover .calendar-img {
+  content: url('/assets/header/calendar.gif');
+}
+.nav-item:hover .profile-img {
+  content: url('/assets/header/profile.gif');
+}
+.nav-item:hover .logout-img {
+  content: url('/assets/header/logout.gif');
 }

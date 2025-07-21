@@ -12,27 +12,34 @@
         </div>
         <nav class="dashboard-nav">
           <a routerLink="children" class="nav-item">
-            <img src="assets/header/children.png" alt="Children">
+            <img class="children-img" src="assets/header/children_static.png" alt="Children">
             <span>Пациенты</span>
           </a>
           <a routerLink="lessons" class="nav-item">
-            <img src="assets/header/lessons.png" alt="Lessons">
+            <img class="lesson-img" src="assets/header/lessons_static.png" alt="Lessons">
             <span>Занятие</span>
           </a>
           <a routerLink="calendar" class="nav-item">
-            <img src="assets/header/calendar.png" alt="Calendar">
+            <img class="calendar-img" src="assets/header/calendar_static.png" alt="Calendar">
             <span>Расписание</span>
           </a>
           <a routerLink="profile" class="nav-item">
-            <img src="assets/header/profile.png" alt="Profile">
+            <img class="profile-img" src="assets/header/profile_static.png" alt="Profile">
             <span>Профиль</span>
           </a>
-          <button (click)="logout()" class="nav-item logout-link button-link">
-            Выйти
-          </button>
+          <div (click)="logout()" class="nav-item">
+            <img class="logout-img" src="assets/header/logout_static.png" alt="Logout">
+            <span>Выйти</span>
+          </div>
         </nav>
       </div>
     </div>
+  <!--  Предзагрузка анимаций  -->
+    <img src="assets/header/children.gif" style="display: none;" />
+    <img src="assets/header/lessons.gif" style="display: none;" />
+    <img src="assets/header/calendar.gif" style="display: none;" />
+    <img src="assets/header/profile.gif" style="display: none;" />
+    <img src="assets/header/logout.gif" style="display: none;" />
   </header>
   <main>
     <router-outlet></router-outlet>

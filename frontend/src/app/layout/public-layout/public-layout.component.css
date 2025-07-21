@@ -57,6 +57,13 @@ nav {
   color: #333;
   font-size: 14px;
   gap: 5px;
+  padding: 8px;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.login-btn:hover {
+  background-color: #DDD;
 }
 
 .login-btn img {
