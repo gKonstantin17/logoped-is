@@ -80,10 +80,12 @@ export class ChildrenComponent implements OnInit {
     const patient = this.patientsOfUser[index];
     if (!patient || !patient.id) return;
 
-    const confirmed = confirm(`Вы уверены, что хотите удалить ${patient.firstName} ${patient.lastName}?`);
+    const confirmed = confirm(`Вы уверены, что хотите скрыть ${patient.firstName} ${patient.lastName}?`);
     if (confirmed) {
       this.patientStore.hide(patient.id);
     }
+    this.editingPatient = null;
+    this.editingPatientIndex = null;
   }
   goToSpeechCard(patientId: number) {
     this.patientStore.existsSpeechCard(patientId)
