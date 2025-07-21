@@ -4,6 +4,8 @@ import {CommonModule, NgForOf} from '@angular/common';
 import {Router, RouterLink} from '@angular/router';
 import {UserDataStore} from '../../utils/stores/user-data.store';
 import {PatientStore} from '../../utils/stores/patient.store';
+import {ChangePatientComponent} from './change-patient/change-patient.component';
+import {ChangeDateModalComponent} from '../lessons/details/change-date-modal/change-date-modal.component';
 
 @Component({
   selector: 'app-children',
@@ -15,6 +17,8 @@ import {PatientStore} from '../../utils/stores/patient.store';
     NgForOf,
     CommonModule,
     RouterLink,
+    ChangePatientComponent,
+    ChangeDateModalComponent,
   ]
 })
 export class ChildrenComponent implements OnInit {
@@ -139,9 +143,12 @@ export class ChildrenComponent implements OnInit {
     lastName: '',
     dateOfBirth: ''
   };
-  startEdit(patient: any) {
+  editingPatientIndex: number | null = null;
+
+  startEdit(patient: any, index: number) {
     const formattedDate = this.formatDateForInput(patient.dateOfBirth);
     this.editingPatient = patient;
+    this.editingPatientIndex = index;
     this.editFormData = {
       firstName: patient.firstName,
       lastName: patient.lastName,
@@ -157,12 +164,17 @@ export class ChildrenComponent implements OnInit {
   }
   cancelEdit() {
     this.editingPatient = null;
+    this.editingPatientIndex = null;
   }
+
   saveEdit() {
     if (this.editingPatient && this.editingPatient.id) {
       this.patientStore.update(this.editFormData, this.editingPatient.id);
     }
+    this.editingPatient = null;
+    this.editingPatientIndex = null;
   }
+
 
   showRestoreModal = false;
 
@@ -181,4 +193,26 @@ export class ChildrenComponent implements OnInit {
       this.patientStore.refresh(this.userId, this.currentRole);
     }
   }
+
+  getAge(birthDateStr: string): string {
+    const birthDate = new Date(birthDateStr);
+    const now = new Date();
+
+    let years = now.getFullYear() - birthDate.getFullYear();
+    let months = now.getMonth() - birthDate.getMonth();
+    let days = now.getDate() - birthDate.getDate();
+
+    if (days < 0) months--;
+    if (months < 0) {
+      years--;
+      months += 12;
+    }
+
+    return `${years} лет ${months} мес.`;
+  }
+
+  goToLesson(patientId: number) {
+    this.router.navigate(['/dashboard/lessons'], { queryParams: { childId: patientId } });
+  }
+
 }
