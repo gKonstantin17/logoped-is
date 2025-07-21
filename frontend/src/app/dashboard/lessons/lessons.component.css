@@ -74,3 +74,40 @@ h1 {
   from {opacity: 1; transform: translateY(0);}
   to {opacity: 0; transform: translateY(20px);}
 }
+.sidebar {
+  min-width: 200px;
+  padding: 16px;
+  background-color: #f3f3f3;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+label[for="childSelect"] {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  font-size: 16px;
+  color: #333;
+}
+
+#childSelect {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+  background-color: #fff;
+  appearance: none;
+  outline: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+#childSelect:focus {
+  border-color: #ef019b;
+  box-shadow: 0 0 0 3px rgba(239, 1, 155, 0.2);
+}
+#childSelect {
+  background-image: url('data:image/svg+xml;utf8,<svg fill="%23777" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 20px;
+}

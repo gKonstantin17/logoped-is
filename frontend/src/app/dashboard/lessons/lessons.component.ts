@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import {Router, RouterLink} from "@angular/router";
+import {ActivatedRoute, Router, RouterLink} from "@angular/router";
 import {LessonModalComponent} from './lesson-modal/lesson-modal.component';
 import {LessonData, LessonService} from '../../utils/services/lesson.service';
 import {UserDataStore} from '../../utils/stores/user-data.store';
@@ -20,6 +20,7 @@ export class LessonsComponent implements OnInit {
 
 
   constructor(private router: Router,
+              private route: ActivatedRoute,
               private userDataStore: UserDataStore,
               private patientStore: PatientStore,
               private lessonStore:LessonStore) {}
@@ -30,6 +31,13 @@ export class LessonsComponent implements OnInit {
 
   // TODO нужен ли userDataService?
   ngOnInit() {
+    this.route.queryParams.subscribe(params => {
+      const paramId = parseInt(params['childId'], 10);
+      if (!isNaN(paramId)) {
+        this.selectedChildId = paramId; // 👈 установить выбранного ребёнка
+      }
+    });
+
     this.userDataStore.userData$.subscribe(user => {
       this.currentRole = user?.role || null;
       this.userId = user?.id || null;
@@ -81,6 +89,7 @@ export class LessonsComponent implements OnInit {
   get selectedChild() {
     return this.childrenData.find(child => child.id === this.selectedChildId);
   }
+
 
   showModal = false;
   hasSpeechCard: boolean | null = null;
