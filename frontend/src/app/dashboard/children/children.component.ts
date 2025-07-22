@@ -4,7 +4,6 @@ import {CommonModule, NgForOf} from '@angular/common';
 import {Router, RouterLink} from '@angular/router';
 import {UserDataStore} from '../../utils/stores/user-data.store';
 import {PatientStore} from '../../utils/stores/patient.store';
-import {ChangePatientComponent} from './change-patient/change-patient.component';
 import {ChangeDateModalComponent} from '../lessons/details/change-date-modal/change-date-modal.component';
 
 @Component({
@@ -17,7 +16,6 @@ import {ChangeDateModalComponent} from '../lessons/details/change-date-modal/cha
     NgForOf,
     CommonModule,
     RouterLink,
-    ChangePatientComponent,
     ChangeDateModalComponent,
   ]
 })
