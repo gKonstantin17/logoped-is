@@ -28,6 +28,7 @@
     <app-lesson-modal
       *ngIf="showModal"
       [hasSpeechCard]="hasSpeechCard"
+      [currentRole]="currentRole"
       (closeModal)="showModal = false"
       (confirmBooking)="handleBooking($event)">
     </app-lesson-modal>

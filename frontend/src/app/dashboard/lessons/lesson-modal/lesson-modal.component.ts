@@ -14,6 +14,8 @@ import {LessonData} from '../../../utils/services/lesson.service';
 })
 export class LessonModalComponent {
   @Input() hasSpeechCard: boolean | null = null;
+  @Input() currentRole: string | null = null;
+
 
   @Output() closeModal = new EventEmitter<void>();
   @Output() confirmBooking = new EventEmitter<LessonData>();
@@ -54,9 +56,9 @@ export class LessonModalComponent {
       });
     } else {
       this.confirmBooking.emit({
-        type: this.lessonType,
-        topic: this.topic || '',
-        description: this.description || '',
+        type: this.lessonType || 'Коррекция речи',
+        topic: this.topic || 'Занятие с логопедом',
+        description: this.description || 'Скоро появится',
         dateOfLesson: dateTime,
         logopedId: null,
         homework: this.homework || null,

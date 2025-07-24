@@ -7,14 +7,20 @@
 
     <div *ngIf="step === 1">
       <h2>Выберите тип записи</h2>
-      <!-- Выполняется проверка наличия речевой карты -->
-      <!-- Если есть -->
-      <button *ngIf="hasSpeechCard === false" (click)="proceedToStep2('diagnostic')">
+
+      <!-- Если нет речевой карты -->
+      <button
+        *ngIf="hasSpeechCard === false"
+        class="modal-step1-btn"
+        (click)="proceedToStep2('diagnostic')">
         Записаться на диагностику
       </button>
 
-      <!-- Если нет -->
-      <button *ngIf="hasSpeechCard === true" (click)="proceedToStep2('lesson')">
+      <!-- Если есть -->
+      <button
+        *ngIf="hasSpeechCard === true"
+        class="modal-step1-btn"
+        (click)="proceedToStep2('lesson')">
         Записаться на занятие
       </button>
 
@@ -32,8 +38,16 @@
           {{ slot }}
         </button>
       </div>
-      <button *ngIf="choice === 'lesson'" (click)="proceedToStep3()">Далее</button>
-      <button *ngIf="choice === 'diagnostic'" [disabled]="!selectedDate || !selectedTime" (click)="submit()">Записаться</button>
+      <button class="modal-step1-btn"
+              *ngIf="choice === 'lesson' && currentRole === 'logoped'"
+              (click)="proceedToStep3()">
+        Далее
+      </button>
+      <button class="modal-step1-btn"
+              *ngIf="choice === 'diagnostic'|| currentRole === 'user'" [disabled]="!selectedDate || !selectedTime"
+              (click)="submit()">
+        Записаться
+      </button>
     </div>
 
     <!-- Шаг 3: Ввод данных для занятия -->
@@ -58,7 +72,12 @@
       <label>Домашнее задание:</label>
       <input type="text" [(ngModel)]="homework">
 
-      <button [disabled]="!lessonType" (click)="submit()">Сохранить</button>
+      <button
+        class="modal-submit-btn"
+        [disabled]="!lessonType"
+        (click)="submit()">
+        Сохранить
+      </button>
     </div>
 
 
