@@ -7,28 +7,44 @@ import {catchError} from 'rxjs/operators';
 
 @Injectable()
 export class AuthInterceptorService implements HttpInterceptor {
+  private isRefreshing = false;
+
   constructor(private keycloakService: KeycloakService, private router: Router) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return next.handle(req).pipe(
       catchError((error: HttpErrorResponse) => {
-        if (error.status === 401) {
-          // Попробовать обновить токен
+        console.log('Intercepted error:', error.status);
+
+        // Предотвращаем повторную попытку обновления токена
+        if ((error.status === 401 || error.status === 403) && !this.isRefreshing) {
+          this.isRefreshing = true;
+          console.log('Attempting to refresh token...');
+
           return this.keycloakService.exchangeRefreshToken().pipe(
             switchMap(() => {
-              // Повторяем исходный запрос
+              console.log('Token refreshed. Retrying request...');
+              this.isRefreshing = false;
               return next.handle(req);
             }),
             catchError(err => {
-              // Если обновление не удалось — отправляем на логин
+              this.isRefreshing = false;
+              console.error('Token refresh failed:', err);
               this.router.navigate(['/login']);
               return throwError(() => err);
             })
           );
-        } else {
-          return throwError(() => error);
         }
+
+        // Если уже пробовали обновить — не зацикливаем
+        if (this.isRefreshing) {
+          console.warn('Already attempted token refresh. Forcing logout.');
+          this.router.navigate(['/login']);
+        }
+
+        return throwError(() => error);
       })
     );
   }
 }
+
