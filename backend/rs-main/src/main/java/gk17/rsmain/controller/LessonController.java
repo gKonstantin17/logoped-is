@@ -64,12 +64,12 @@ public class LessonController {
                 : ResponseEntity.badRequest().body(result.message());
     }
 
-    @PostMapping("check-time/{patientId}")
-//    public ResponseEntity<?> checkTime(@RequestBody CheckAvailableTime dto) throws ExecutionException, InterruptedException {
-    public ResponseEntity<?> checkTime(@PathVariable Long patientId,
-                                       @RequestBody CheckAvailableTime dto) throws ExecutionException, InterruptedException {
+    @PostMapping("check-time")
+    public ResponseEntity<?> checkTime(@RequestBody CheckAvailableTime dto) throws ExecutionException, InterruptedException {
+//    public ResponseEntity<?> checkTime(@PathVariable Long patientId,
+//                                       @RequestBody CheckAvailableTime dto) throws ExecutionException, InterruptedException {
 
-        var future = service.checkTime(patientId,dto.date());
+        var future = service.checkTime(dto.patientId(), dto.date());
         var result = future.get();
         return result.isSuccess()
                 ? ResponseEntity.ok(result.data())

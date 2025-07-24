@@ -63,7 +63,11 @@ export class LessonStore {
   availableTimeSlots$ = this.availableTimeSlotsSubject.asObservable();
 
   checkTime(patientId: number, date: Date): void {
-    this.lessonService.checkTimeLesson(patientId, date).subscribe({
+    const body: CheckAvailableTime = {
+      patientId,
+      date: date.toISOString(),  // преобразуем Date в строку ISO
+    };
+    this.lessonService.checkTimeLesson(body).subscribe({
       next: slots => {
         console.log('Слоты:', slots);
         this.availableTimeSlotsSubject.next(slots.availableTime || []);

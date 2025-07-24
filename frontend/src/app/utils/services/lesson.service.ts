@@ -35,7 +35,7 @@ export interface LessonFullData {
 }
 export interface CheckAvailableTime {
   patientId: number;
-  date: string; // ISO строка, т.к. JS Date сериализуется именно так
+  date: string;
 }
 @Injectable({
   providedIn: 'root'
@@ -67,9 +67,12 @@ export class LessonService {
   changeDateLesson(lessonId:number, newDate:Date): Observable<any> {
     return this.backend.createOperation(HttpMethod.PUT, `${this.baseUrl}/changeDate/${lessonId}`,newDate);
   }
-  checkTimeLesson(patientId: number, date: Date): Observable<any> {
-    const body = { date: date.toISOString() };
-    return this.backend.createOperation(HttpMethod.POST,`${this.baseUrl}/check-time/${patientId}`,body);
+  // checkTimeLesson(patientId: number, date: Date): Observable<any> {
+  //   const body = { date: date.toISOString() };
+  //   return this.backend.createOperation(HttpMethod.POST,`${this.baseUrl}/check-time/${patientId}`,body);
+  // }
+  checkTimeLesson(data: CheckAvailableTime): Observable<any> {
+    return this.backend.createOperation(HttpMethod.POST,`${this.baseUrl}/check-time`,data);
   }
 
 }

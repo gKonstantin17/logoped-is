@@ -257,7 +257,7 @@ public class BFFContoller {
         } else {
             request = new HttpEntity<>(headers);
         }
-
+        System.out.println("REQUEST:"+request);
         ResponseEntity<Object> response = restTemplate.exchange(operation.getUrl(), operation.getHttpMethod(),request, Object.class);
         return response;
     }

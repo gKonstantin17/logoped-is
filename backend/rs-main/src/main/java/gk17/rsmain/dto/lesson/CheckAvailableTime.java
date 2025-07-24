@@ -1,9 +1,10 @@
 package gk17.rsmain.dto.lesson;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 
 // данные чтобы проверить свободное время на дату
 public record CheckAvailableTime (
-//        Long patientId,
-        Timestamp date
+       Long patientId,
+       Timestamp date
 ) { }
