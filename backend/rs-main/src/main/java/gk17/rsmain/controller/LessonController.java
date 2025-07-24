@@ -1,9 +1,6 @@
 package gk17.rsmain.controller;
 
-import gk17.rsmain.dto.lesson.LessonDto;
-import gk17.rsmain.dto.lesson.LessonReadDto;
-import gk17.rsmain.dto.lesson.LessonWithFKDto;
-import gk17.rsmain.dto.lesson.LessonWithHomeworkDto;
+import gk17.rsmain.dto.lesson.*;
 import gk17.rsmain.dto.patient.PatientWithoutFKDto;
 import gk17.rsmain.service.LessonService;
 import org.springframework.http.HttpStatus;
@@ -62,6 +59,18 @@ public class LessonController {
         var future = service.createLessonWithHomework(dto);
         var result = future.get();
 
+        return result.isSuccess()
+                ? ResponseEntity.ok(result.data())
+                : ResponseEntity.badRequest().body(result.message());
+    }
+
+    @PostMapping("check-time/{patientId}")
+//    public ResponseEntity<?> checkTime(@RequestBody CheckAvailableTime dto) throws ExecutionException, InterruptedException {
+    public ResponseEntity<?> checkTime(@PathVariable Long patientId,
+                                       @RequestBody CheckAvailableTime dto) throws ExecutionException, InterruptedException {
+
+        var future = service.checkTime(patientId,dto.date());
+        var result = future.get();
         return result.isSuccess()
                 ? ResponseEntity.ok(result.data())
                 : ResponseEntity.badRequest().body(result.message());

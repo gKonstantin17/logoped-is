@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import {BehaviorSubject, tap} from 'rxjs';
-import {LessonData, LessonService} from '../services/lesson.service';
+import {BehaviorSubject, Observable, tap} from 'rxjs';
+import {CheckAvailableTime, LessonData, LessonService} from '../services/lesson.service';
 
 
 @Injectable({
@@ -59,5 +59,25 @@ export class LessonStore {
       error: err => console.error('Ошибка при переносе урока:', err)
     })
   }
+  private availableTimeSlotsSubject = new BehaviorSubject<string[]>([]);
+  availableTimeSlots$ = this.availableTimeSlotsSubject.asObservable();
+
+  checkTime(patientId: number, date: Date): void {
+    this.lessonService.checkTimeLesson(patientId, date).subscribe({
+      next: slots => {
+        console.log('Слоты:', slots);
+        this.availableTimeSlotsSubject.next(slots.availableTime || []);
+      },
+      error: err => {
+        console.error('Ошибка при проверке времени:', err);
+        alert('Ошибка при получении времени');
+        this.availableTimeSlotsSubject.next([]);
+      }
+    });
+  }
+
+
+
+
 }
 

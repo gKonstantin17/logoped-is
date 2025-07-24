@@ -30,11 +30,18 @@
 
     <div *ngIf="step === 2">
       <h2>Выберите дату и время</h2>
-      <input type="date" [(ngModel)]="selectedDate" [min]="minDate" />
+      <input
+        type="date"
+        [(ngModel)]="selectedDate"
+        [min]="minDate"
+        (ngModelChange)="onDateChange($event)" />
+
       <div class="time-slots">
-        <button *ngFor="let slot of timeSlots"
-                [class.selected]="selectedTime === slot"
-                (click)="selectedTime = slot">
+        <button
+          *ngFor="let slot of allTimeSlots"
+          [disabled]="!availableTimeSlots.includes(slot)"
+          [class.selected]="selectedTime === slot"
+          (click)="selectedTime = slot">
           {{ slot }}
         </button>
       </div>

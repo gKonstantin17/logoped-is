@@ -30,7 +30,9 @@
       [hasSpeechCard]="hasSpeechCard"
       [currentRole]="currentRole"
       (closeModal)="showModal = false"
-      (confirmBooking)="handleBooking($event)">
+      (confirmBooking)="handleBooking($event)"
+      [patientId]="selectedChildId">
+
     </app-lesson-modal>
 
       <div *ngIf="upcomingLessons.length > 0">

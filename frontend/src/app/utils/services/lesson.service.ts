@@ -33,7 +33,10 @@ export interface LessonFullData {
     dateOfBirth: string;
   }[];
 }
-
+export interface CheckAvailableTime {
+  patientId: number;
+  date: string; // ISO строка, т.к. JS Date сериализуется именно так
+}
 @Injectable({
   providedIn: 'root'
 })
@@ -64,4 +67,9 @@ export class LessonService {
   changeDateLesson(lessonId:number, newDate:Date): Observable<any> {
     return this.backend.createOperation(HttpMethod.PUT, `${this.baseUrl}/changeDate/${lessonId}`,newDate);
   }
+  checkTimeLesson(patientId: number, date: Date): Observable<any> {
+    const body = { date: date.toISOString() };
+    return this.backend.createOperation(HttpMethod.POST,`${this.baseUrl}/check-time/${patientId}`,body);
+  }
+
 }

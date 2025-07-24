@@ -5,6 +5,7 @@ import gk17.rsmain.dto.patient.PatientDto;
 import gk17.rsmain.dto.patient.PatientReadDto;
 import gk17.rsmain.dto.responseWrapper.AsyncResult;
 import gk17.rsmain.dto.responseWrapper.ServiceResult;
+import gk17.rsmain.entity.Logoped;
 import gk17.rsmain.entity.Patient;
 import gk17.rsmain.repository.PatientRepository;
 import gk17.rsmain.utils.hibernate.ResponseHelper;
@@ -53,6 +54,10 @@ public class PatientService {
         } catch (Exception ex) {
             return AsyncResult.error(ex.getMessage());
         }
+    }
+    public Logoped findLogoped(Long patientId) {
+        var patient = repository.findById(patientId);
+        return patient.get().getLogoped();
     }
 
     public void createAll(List<Patient> patients) {

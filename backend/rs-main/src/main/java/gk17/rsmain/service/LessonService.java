@@ -1,10 +1,7 @@
 package gk17.rsmain.service;
 
 import gk17.rsmain.dto.homework.HomeworkDto;
-import gk17.rsmain.dto.lesson.LessonDto;
-import gk17.rsmain.dto.lesson.LessonReadDto;
-import gk17.rsmain.dto.lesson.LessonWithFKDto;
-import gk17.rsmain.dto.lesson.LessonWithHomeworkDto;
+import gk17.rsmain.dto.lesson.*;
 import gk17.rsmain.dto.logoped.LogopedDto;
 import gk17.rsmain.dto.patient.PatientReadDto;
 import gk17.rsmain.dto.patient.PatientWithoutFKDto;
@@ -19,10 +16,14 @@ import gk17.rsmain.utils.hibernate.ResponseHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.sql.Time;
 import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 public class LessonService {
@@ -81,39 +82,7 @@ public class LessonService {
         var result = toReadDtoWithFK(lesson);
         return AsyncResult.success(result);
     }
-//    @Async
-//    public CompletableFuture<ServiceResult<LessonReadDto>> create(LessonDto dto) {
-//        try {
-//            Lesson lesson = new Lesson();
-//            lesson.setType(dto.type());
-//            lesson.setTopic(dto.topic());
-//            lesson.setDescription(dto.description());
-//            lesson.setDateOfLesson(dto.dateOfLesson());
-//
-//            if (dto.logopedId() != null) {
-//                var logoped = logopedService.findById(dto.logopedId()).get();
-//                lesson.setLogoped(logoped);
-//            }
-//
-//            if (dto.homeworkId() != null) {
-//                var homework = homeworkService.findById(dto.homeworkId()).get();
-//                lesson.setHomework(homework);
-//            }
-//            Set<Patient> patients = dto.patientsId() == null
-//                    ? Set.of()
-//                    : new HashSet<>(patientService.findAllById(dto.patientsId()));
-//
-//
-//
-//            lesson.setPatients(patients);
-//            repository.save(lesson);
-//            var createdDto = toReadDto(repository.findById(lesson.getId()).get());
-//            return AsyncResult.success(createdDto);
-//
-//        } catch(Exception ex) {
-//            return AsyncResult.error(ex.getMessage());
-//        }
-//    }
+
     @Async
     public CompletableFuture<ServiceResult<LessonReadDto>> createLessonWithHomework(LessonWithHomeworkDto dto) {
         try {
@@ -161,6 +130,44 @@ public class LessonService {
         } catch (Exception ex) {
             return AsyncResult.error("Ошибка при создании урока: " + ex.getMessage());
         }
+    }
+
+    public CompletableFuture<ServiceResult<AvailableTimeDto>>  checkTime(Long patientId,Timestamp currentDate) {
+        try {
+            // по пациенту и дате находить логопеда и его занятия на эту дату
+            // если диагностика и logoped null?
+            List<String> allTimeSlots = IntStream.rangeClosed(10, 19)
+                    .mapToObj(hour -> String.format("%02d:00", hour))
+                    .collect(Collectors.toList());
+
+            Logoped logoped = patientService.findLogoped(patientId);
+            if (logoped == null)
+                logoped = chooseLogoped();
+
+            Timestamp targetDate = currentDate; // Timestamp
+            LocalDate date = targetDate.toLocalDateTime().toLocalDate();
+
+            // Получаем начало и конец дня
+            Timestamp start = Timestamp.valueOf(date.atStartOfDay());
+            Timestamp end = Timestamp.valueOf(date.atTime(LocalTime.MAX));
+            List<Lesson> lessons = repository.findByLogopedIdAndDateRange(logoped.getId(), start, end);
+
+            Set<String> busySlots = lessons.stream()
+                    .map(Lesson::getDateOfLesson)
+                    .map(Timestamp::toLocalDateTime)
+                    .map(dt -> String.format("%02d:00", dt.getHour()))
+                    .collect(Collectors.toSet());
+
+            // Возвращаем только свободные
+            var result = new AvailableTimeDto(allTimeSlots.stream()
+                    .filter(slot -> !busySlots.contains(slot))
+                    .collect(Collectors.toList()));
+            return AsyncResult.success(result);
+        } catch (Exception ex) {
+            return AsyncResult.error("Ошибка при поиске свободного времени: " + ex.getMessage());
+        }
+
+
     }
     @Async
     public CompletableFuture<ServiceResult<Lesson>> canselLesson(Long id) {
@@ -291,4 +298,6 @@ public class LessonService {
                 .orElseThrow(() -> new IllegalStateException("Нет доступных логопедов"));
         return selectedLogoped;
     }
+
+
 }
