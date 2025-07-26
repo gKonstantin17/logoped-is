@@ -55,7 +55,7 @@ export class CalendarComponent implements OnInit {
         locale: ruLocale,
         nowIndicator: true,
         allDaySlot: false,
-        slotMinTime: '09:00:00',
+        slotMinTime: '10:00:00',
         slotMaxTime: '20:00:00',
         headerToolbar: {
           left: 'prev,next today',

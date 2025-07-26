@@ -22,7 +22,13 @@ export class ChangeDateModalComponent {
   selectedTime: string = '';
   minDate: string = new Date().toISOString().split('T')[0];
 
-  timeSlots = ['10:00', '11:00', '12:00', '13:00', '14:00', '15:00'];
+  generateTimeSlots(startHour: number, endHour: number): string[] {
+    return Array.from({ length: endHour - startHour + 1 }, (_, i) =>
+      `${(startHour + i).toString().padStart(2, '0')}:00`
+    );
+  }
+
+  timeSlots = this.generateTimeSlots(10, 19);
 
   confirm() {
     if (this.selectedDate && this.selectedTime) {
