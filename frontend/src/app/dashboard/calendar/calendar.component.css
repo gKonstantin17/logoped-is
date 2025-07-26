@@ -29,4 +29,22 @@ full-calendar {
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
+/* 🟦 Увеличить ширину колонки */
+.fc .fc-timegrid-col {
+  min-width: 120px;
+}
+
+/* 🟦 Увеличить высоту временного слота */
+.fc .fc-timegrid-slot {
+  height: 50px !important;
+}
+
+/* 🟥 Стили для отменённых событий */
+.fc-event.event-cancelled {
+  background-color: #807d7d !important;
+  color: white !important;
+  border: none;
+  opacity: 0.85;
+  font-style: italic;
+}
 
