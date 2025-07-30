@@ -1,20 +1,41 @@
 <full-calendar *ngIf="calendarOptions" [options]="calendarOptions"></full-calendar>
 <!-- Простое модальное окно -->
 <div class="modal-overlay" *ngIf="isModalOpen" (click)="isModalOpen = false">
-  <div class="modal-content" (click)="$event.stopPropagation()">
+  <div class="modal-content redesigned-modal" (click)="$event.stopPropagation()">
     <h2>Детали занятия</h2>
-    <p><strong>Тип:</strong> {{ selectedLesson?.type }}</p>
-    <p><strong>Тема:</strong> {{ selectedLesson?.topic }}</p>
-    <p><strong>Статус:</strong> {{ selectedLesson?.status }}</p>
-    <p><strong>Описание:</strong> {{ selectedLesson?.description }}</p>
-    <p><strong>Дата:</strong> {{ selectedLesson?.dateOfLesson | date: 'EEEE, d MMMM y г., HH:mm:ss' }}</p>
-    <p><strong>Логопед:</strong> {{ logopedFullName }}</p>
-    <p *ngIf="selectedLesson?.homework !== null">
-      <strong>Домашнее задание:</strong>
-      {{ selectedLesson?.homework || 'не задано' }}
-    </p>
-    <p><a [routerLink]="['/dashboard/details', selectedLesson?.id]">Подробнее</a></p>
+    <div class="modal-grid">
+    <div class="modal-row">
+      <span class="label">📝 Тип занятия:</span>
+      <span class="value">{{ selectedLesson?.type }}</span>
+    </div>
+      <div class="modal-row">
+        <span class="label">📚 Тема:</span>
+        <span class="value">{{  selectedLesson?.topic }}</span>
+      </div>
 
-    <button (click)="isModalOpen = false">Закрыть</button>
+    <div class="modal-row">
+      <span class="label">📅 Начало:</span>
+      <span class="value">
+          {{ selectedLesson?.dateOfLesson | date: 'EEEE, d MMMM y г., HH:mm' }}
+        </span>
+    </div>
+    <div class="modal-row">
+      <span class="label">👩‍⚕️ Логопед:</span>
+      <span class="value">{{ logopedFullName }}</span>
+    </div>
+
+    <div class="modal-row">
+      <span class="label">📖 Домашнее задание:</span>
+      <span class="value">
+          {{ selectedLesson?.homework?.task || 'не задано' }}
+        </span>
+    </div>
+
+    <div class="modal-footer">
+      <a [routerLink]="['/dashboard/details', selectedLesson?.id]" class="btn link">Подробнее</a>
+      <button class="btn close" (click)="isModalOpen = false">Закрыть</button>
+    </div>
+    </div>
   </div>
 </div>
+

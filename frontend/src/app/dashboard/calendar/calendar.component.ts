@@ -1,4 +1,4 @@
-import {Component, ChangeDetectorRef, OnInit} from '@angular/core';
+import {Component, ChangeDetectorRef, OnInit, ViewEncapsulation} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import {CalendarOptions, EventApi, EventInput} from '@fullcalendar/core';
@@ -27,7 +27,8 @@ interface LessonData {
   standalone: true,
   imports: [CommonModule, FullCalendarModule, RouterLink],
   templateUrl: './calendar.component.html',
-  styleUrls: ['./calendar.component.css']
+  styleUrls: ['./calendar.component.css'],
+  encapsulation: ViewEncapsulation.None,
 })
 export class CalendarComponent implements OnInit {
   constructor(private userDataStore: UserDataStore,
@@ -80,6 +81,7 @@ export class CalendarComponent implements OnInit {
 
         this.lessonStore.lessons$.subscribe(data => {
           this.lessonDataList = data;
+          console.log(this.lessonDataList);
           this.updateCalendarEvents();
         });
 
@@ -88,6 +90,9 @@ export class CalendarComponent implements OnInit {
     });
   }
 
+  get homeworkTask(): string {
+    return this.selectedLesson?.homework?.task || 'не задано';
+  }
 
 
   selectedLesson: LessonFullData | null = null;
@@ -120,15 +125,21 @@ export class CalendarComponent implements OnInit {
 
       const isCancelled = lesson.status === 'Отменено';
 
+      const patientName = lesson.patients.length > 0
+        ? `${lesson.patients[0].firstName} ${lesson.patients[0].lastName}`
+        : 'Без пациента';
+
       return {
         id: String(lesson.id),
-        title: lesson.topic,
+        title: `${patientName}: ${lesson.topic}`,
         start: start.toISOString(),
         end: end.toISOString(),
-        backgroundColor: isCancelled ? '#807d7d' : undefined,
+        className: isCancelled ? 'event-cancelled' : '',
       };
+
     });
   }
+
 
 
 

@@ -25,7 +25,7 @@ export interface LessonFullData {
     email: string;
     phone: string;
   } | null;
-  homework: string | null;
+  homework: {task:string|null} | null;
   patients: {
     id: number;
     firstName: string;
