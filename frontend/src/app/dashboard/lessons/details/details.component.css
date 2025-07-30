@@ -47,3 +47,96 @@
 .block-row .block {
   flex: 1;
 }
+
+.block-row .results {
+  flex: 2; /* Увеличиваем ширину */
+}
+
+/* Стили для таблицы */
+.results-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  font-size: 14px;
+}
+
+.results-table th,
+.results-table td {
+  border: 1px solid #ddd;
+  padding: 8px 12px;
+  text-align: left;
+}
+
+.results-table thead {
+  background-color: #f0f0f0;
+  font-weight: bold;
+}
+
+.results-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.results-table tr:hover {
+  background-color: #f1f1f1;
+}
+.lesson-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Первый блок занимает 1x2 (две строки), остальные — стандартно */
+.lesson-info {
+  flex: 2;
+}
+
+.lesson-image {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.lesson-image img {
+  max-width: 300px;
+  height: auto;
+  border-radius: 10px;
+}
+
+.lesson-notice {
+  flex: 1.2;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.notice-top,
+.notice-bottom {
+  background-color: #ffe4f0;
+  border: 1px solid #f7c2dc;
+  padding: 1rem;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 14px;
+  color: #444;
+}
+
+.lesson-buttons {
+  margin-top: 1rem;
+}
+.lesson-row {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+.lesson-info,
+.lesson-image,
+.lesson-notice {
+  padding: 0; /* убираем внутренние отступы */
+  margin: 0; /* убираем внешние отступы */
+  border: none; /* убираем рамки */
+  background: none; /* убираем фон, если нужен чистый вид */
+  flex: 1;
+}
+
