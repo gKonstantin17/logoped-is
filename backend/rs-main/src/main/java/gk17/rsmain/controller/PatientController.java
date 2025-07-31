@@ -27,9 +27,9 @@ public class PatientController {
         var result = service.findall();
         return result.get().data();
     }
-    @PostMapping("/findall-with-sc")
-    public List<PatientWithSpeechCard> findAllWithSC() throws ExecutionException, InterruptedException {
-        var result = service.findAllWithSC();
+    @PostMapping("/find-with-sc")
+    public List<PatientWithSpeechCard> findAllWithSC(@RequestBody UUID userId) throws ExecutionException, InterruptedException {
+        var result = service.findAllWithSC(userId);
         return result.get().data();
     }
     @PostMapping("/create")

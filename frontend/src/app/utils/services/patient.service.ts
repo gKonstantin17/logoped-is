@@ -29,8 +29,9 @@ export class PatientService {
   findByLogoped(logopedId: string): Observable<any[]> {
     return this.backend.createOperation(HttpMethod.POST, `${this.baseUrl}/find-by-logoped`, logopedId);
   }
-  findByLogopedWithSpeechCard(logopedId: string): Observable<any[]> {
-    return this.backend.createOperation(HttpMethod.POST, `${this.baseUrl}/find-by-logoped`, logopedId);
+
+  findByLogopedWithSC(logopedId: string): Observable<any[]> {
+    return this.backend.createOperation(HttpMethod.POST, `${this.baseUrl}/findall-with-sc`, logopedId);
   }
 
   create(data: PatientData): Observable<any> {

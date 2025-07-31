@@ -13,6 +13,7 @@ import gk17.rsmain.repository.PatientRepository;
 import gk17.rsmain.utils.hibernate.ResponseHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -34,11 +35,16 @@ public class PatientService {
         return AsyncResult.success(result);
     }
     @Async
-    public CompletableFuture<ServiceResult<List<PatientWithSpeechCard>>> findAllWithSC() {
-        var data = repository.findAllWithSpeechData();
-        List<PatientWithSpeechCard> result = data.stream().map(this::toDtoWithSC).toList();
-        return AsyncResult.success(result);
+    public CompletableFuture<ServiceResult<List<PatientWithSpeechCard>>> findAllWithSC(UUID userId) {
+        try {
+            var data = repository.findAllWithSpeechData(userId);
+            List<PatientWithSpeechCard> result = data.stream().map(this::toDtoWithSC).toList();
+            return AsyncResult.success(result);
+        } catch (Exception ex) {
+            return AsyncResult.error(ex.getMessage());
+        }
     }
+
 
     public List<Patient> findAllById(List<Long> patientsId) {
         return repository.findAllById(patientsId);

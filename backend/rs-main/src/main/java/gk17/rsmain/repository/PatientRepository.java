@@ -32,15 +32,17 @@ public interface PatientRepository  extends JpaRepository<Patient,Long> {
 //      )
 //""")
 //    List<Patient> findByLogopedIdWithSpeechCard(@Param("logopedId") UUID logopedId);
+
     @Query("""
     SELECT DISTINCT p FROM Patient p
     LEFT JOIN FETCH p.lessons l
     LEFT JOIN FETCH l.diagnostic d
     LEFT JOIN FETCH d.speechCard sc
     LEFT JOIN FETCH sc.speechErrors se
-    LEFT JOIN FETCH sc.soundCorrections scorr
-    """)
-    List<Patient> findAllWithSpeechData();
+    LEFT JOIN FETCH sc.soundCorrections corr
+    WHERE p.user.id = :userId
+""")
+    List<Patient> findAllWithSpeechData(@Param("userId") UUID userId);
 
 
 
