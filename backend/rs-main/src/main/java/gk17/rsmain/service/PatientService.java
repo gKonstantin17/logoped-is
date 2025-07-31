@@ -3,17 +3,18 @@ package gk17.rsmain.service;
 import gk17.rsmain.dto.patient.PatientCreateDto;
 import gk17.rsmain.dto.patient.PatientDto;
 import gk17.rsmain.dto.patient.PatientReadDto;
+import gk17.rsmain.dto.patient.PatientWithSpeechCard;
 import gk17.rsmain.dto.responseWrapper.AsyncResult;
 import gk17.rsmain.dto.responseWrapper.ServiceResult;
-import gk17.rsmain.entity.Logoped;
-import gk17.rsmain.entity.Patient;
+import gk17.rsmain.dto.soundCorrection.SoundCorrectionDto;
+import gk17.rsmain.dto.speechError.SpeechErrorDto;
+import gk17.rsmain.entity.*;
 import gk17.rsmain.repository.PatientRepository;
 import gk17.rsmain.utils.hibernate.ResponseHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -30,6 +31,12 @@ public class PatientService {
     public CompletableFuture<ServiceResult<List<PatientReadDto>>> findall() {
         var data = repository.findAll();
         List<PatientReadDto> result = data.stream().map(this::toReadDto).toList();
+        return AsyncResult.success(result);
+    }
+    @Async
+    public CompletableFuture<ServiceResult<List<PatientWithSpeechCard>>> findAllWithSC() {
+        var data = repository.findAllWithSpeechData();
+        List<PatientWithSpeechCard> result = data.stream().map(this::toDtoWithSC).toList();
         return AsyncResult.success(result);
     }
 
@@ -164,4 +171,38 @@ public class PatientService {
                 entity.isHidden()
         );
     }
+
+    private PatientWithSpeechCard toDtoWithSC(Patient patient) {
+        Set<SpeechErrorDto> errors = new HashSet<>();
+        Set<SoundCorrectionDto> corrections = new HashSet<>();
+
+        for (Lesson lesson : patient.getLessons()) {
+            Diagnostic diag = lesson.getDiagnostic();
+            if (diag != null && diag.getSpeechCard() != null) {
+                SpeechCard sc = diag.getSpeechCard();
+
+                if (sc.getSpeechErrors() != null) {
+                    for (SpeechError se : sc.getSpeechErrors()) {
+                        errors.add(new SpeechErrorDto(se.getTitle(), se.getDescription()));
+                    }
+                }
+
+                if (sc.getSoundCorrections() != null) {
+                    for (SoundCorrection corr : sc.getSoundCorrections()) {
+                        corrections.add(new SoundCorrectionDto(corr.getSound(), corr.getCorrection()));
+                    }
+                }
+            }
+        }
+
+        return new PatientWithSpeechCard(
+                patient.getId(),
+                patient.getFirstName(),
+                patient.getLastName(),
+                patient.getDateOfBirth(),
+                new ArrayList<>(errors),
+                new ArrayList<>(corrections)
+        );
+    }
+
 }

@@ -3,6 +3,7 @@ package gk17.rsmain.controller;
 import gk17.rsmain.dto.patient.PatientCreateDto;
 import gk17.rsmain.dto.patient.PatientDto;
 import gk17.rsmain.dto.patient.PatientReadDto;
+import gk17.rsmain.dto.patient.PatientWithSpeechCard;
 import gk17.rsmain.service.PatientService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +25,11 @@ public class PatientController {
     @PostMapping("/findall")
     public List<PatientReadDto> findall() throws ExecutionException, InterruptedException {
         var result = service.findall();
+        return result.get().data();
+    }
+    @PostMapping("/findall-with-sc")
+    public List<PatientWithSpeechCard> findAllWithSC() throws ExecutionException, InterruptedException {
+        var result = service.findAllWithSC();
         return result.get().data();
     }
     @PostMapping("/create")

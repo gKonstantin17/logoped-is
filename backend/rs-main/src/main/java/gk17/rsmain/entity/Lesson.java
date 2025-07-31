@@ -48,4 +48,7 @@ public class Lesson {
             joinColumns = @JoinColumn(name = "LessonId"),
             inverseJoinColumns = @JoinColumn(name = "PatientId"))
     private Set<Patient> patients = new HashSet<>();
+
+    @OneToOne(mappedBy = "lesson", fetch = FetchType.LAZY)
+    private Diagnostic diagnostic;
 }
