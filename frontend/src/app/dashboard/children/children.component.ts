@@ -20,8 +20,22 @@ import {ChangeDateModalComponent} from '../lessons/details/change-date-modal/cha
   ]
 })
 export class ChildrenComponent implements OnInit {
-  childrenForms: { firstName: string; lastName: string; birthDate: string; speechErrors: string[]; speechCorrection: string[] }[] = [];
-  addedChildren: {id:number; firstName: string; lastName: string; dateOfBirth: string; speechErrors: string[]; speechCorrection: string[] }[] = [];
+  childrenForms: {
+    firstName: string;
+    lastName: string;
+    birthDate: string;
+    speechErrors: {title: string; description: string}[];
+    speechCorrection: {sound: string; correction: string}[]
+  }[] = [];
+
+  addedChildren: {
+    id: number;
+    firstName: string;
+    lastName: string;
+    dateOfBirth: string;
+    speechErrors: {title: string; description: string}[];
+    soundCorrections: {sound: string; correction: string}[]
+  }[] = [];
   currentRole: string | null = null;
   userId: string | null = null;
   patientsOfUser: any[] = [];
@@ -43,6 +57,7 @@ export class ChildrenComponent implements OnInit {
         if (this.currentRole === 'logoped')
           this.addedChildren = data;
       });
+
       this.patientStore.hiddenPatients$.subscribe(hidden => {
         this.hiddenPatients = hidden;
       });
@@ -50,7 +65,6 @@ export class ChildrenComponent implements OnInit {
       if (this.userId && this.currentRole) {
         this.patientStore.refresh(this.userId, this.currentRole);
       }
-
     });
   }
   addForm() {
@@ -95,26 +109,25 @@ export class ChildrenComponent implements OnInit {
         }
       });
   }
-
-  sortColumn: 'speechErrors' | 'speechCorrection' | null = null;
+  sortColumn: 'speechErrors' | 'soundCorrections' | null = null;
   sortDirection: 'asc' | 'desc' = 'asc';
 
-  get sortedChildren() {
-    if (!this.sortColumn) return this.addedChildren;
+  // get sortedChildren() {
+  //   if (!this.sortColumn) return this.addedChildren;
+  //
+  //   return [...this.addedChildren].sort((a, b) => {
+  //     const aValue = (a[this.sortColumn!] || []).join(', ');
+  //     const bValue = (b[this.sortColumn!] || []).join(', ');
+  //
+  //     if (this.sortDirection === 'asc') {
+  //       return aValue.localeCompare(bValue);
+  //     } else {
+  //       return bValue.localeCompare(aValue);
+  //     }
+  //   });
+  // }
 
-    return [...this.addedChildren].sort((a, b) => {
-      const aValue = (a[this.sortColumn!] || []).join(', ');
-      const bValue = (b[this.sortColumn!] || []).join(', ');
-
-      if (this.sortDirection === 'asc') {
-        return aValue.localeCompare(bValue);
-      } else {
-        return bValue.localeCompare(aValue);
-      }
-    });
-  }
-
-  toggleSort(column: 'speechErrors' | 'speechCorrection') {
+  toggleSort(column: 'speechErrors' | 'soundCorrections') {
     if (this.sortColumn === column) {
       this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
     } else {
@@ -125,7 +138,8 @@ export class ChildrenComponent implements OnInit {
 
   selectedSpeechError: string | null = null;
   get availableSpeechErrors(): string[] {
-    const allErrors = this.addedChildren.flatMap(child => child.speechErrors);
+    // Собираем все уникальные названия speechErrors
+    const allErrors = this.addedChildren.flatMap(child => child.speechErrors.map(e => e.title));
     return Array.from(new Set(allErrors));
   }
 
@@ -133,7 +147,7 @@ export class ChildrenComponent implements OnInit {
     if (!this.selectedSpeechError) return this.addedChildren;
 
     return this.addedChildren.filter(child =>
-      child.speechErrors.includes(this.selectedSpeechError!)
+      child.speechErrors.some(e => e.title === this.selectedSpeechError)
     );
   }
 

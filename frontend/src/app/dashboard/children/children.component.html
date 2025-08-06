@@ -57,8 +57,10 @@
 
 
   <!-- Интерфейс для логопеда (роль 'logoped') -->
+  <!-- Интерфейс для логопеда (роль 'logoped') -->
   <ng-container *ngIf="currentRole === 'logoped'">
     <h2>Список детей</h2>
+
     <label for="speechErrorFilter">Фильтр по речевым нарушениям:</label>
     <select id="speechErrorFilter" [(ngModel)]="selectedSpeechError">
       <option [ngValue]="null">-- Показать всех --</option>
@@ -66,6 +68,7 @@
         {{ error }}
       </option>
     </select>
+
     <table class="logoped-table">
       <thead>
       <tr>
@@ -76,11 +79,12 @@
           Речевые нарушения
           <span *ngIf="sortColumn === 'speechErrors'">({{ sortDirection === 'asc' ? '↑' : '↓' }})</span>
         </th>
-        <th (click)="toggleSort('speechCorrection')">
+        <th (click)="toggleSort('soundCorrections')">
           Направления коррекции
-          <span *ngIf="sortColumn === 'speechCorrection'">({{ sortDirection === 'asc' ? '↑' : '↓' }})</span>
+          <span *ngIf="sortColumn === 'soundCorrections'">({{ sortDirection === 'asc' ? '↑' : '↓' }})</span>
         </th>
         <th>О пациенте</th>
+        <th>Действия</th>
       </tr>
       </thead>
       <tbody>
@@ -88,21 +92,35 @@
         <td>{{ child.firstName }}</td>
         <td>{{ child.lastName }}</td>
         <td>{{ child.dateOfBirth | date }}</td>
-        <td>{{child.speechErrors}}</td>
-        <td>{{child.speechCorrection}}</td>
-        <td><p>
-          <button (click)="goToSpeechCard(child.id)">Речевая карта</button>
-        </p>
-        </td>
+
         <td>
-          <button (click)="startEdit(child,i)" title="Редактировать" class="edit-btn">
-            ✏️
-          </button>
+          <ul *ngIf="child.speechErrors?.length">
+            <li *ngFor="let error of child.speechErrors">
+              <strong>{{ error.title }}</strong>: {{ error.description }}
+            </li>
+          </ul>
+        </td>
+
+        <td>
+          <ul *ngIf="child.soundCorrections?.length">
+            <li *ngFor="let correction of child.soundCorrections">
+              <strong>{{ correction.sound }}</strong>: {{ correction.correction }}
+            </li>
+          </ul>
+        </td>
+
+        <td>
+          <button (click)="goToSpeechCard(child.id)">Речевая карта</button>
+        </td>
+
+        <td>
+          <button (click)="startEdit(child, i)" title="Редактировать" class="edit-btn">✏️</button>
         </td>
       </tr>
       </tbody>
     </table>
   </ng-container>
+
 
 
 

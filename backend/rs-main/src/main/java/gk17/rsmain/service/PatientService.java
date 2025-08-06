@@ -206,6 +206,7 @@ public class PatientService {
                 patient.getFirstName(),
                 patient.getLastName(),
                 patient.getDateOfBirth(),
+                patient.isHidden(),
                 new ArrayList<>(errors),
                 new ArrayList<>(corrections)
         );

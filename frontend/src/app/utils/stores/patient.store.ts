@@ -29,7 +29,7 @@ export class PatientStore {
     this.lastUserId = userId;
     this.lastRole = role;
     const result = role === 'logoped' ?
-      this.patientService.findByLogoped(userId) :
+      this.patientService.findByLogopedWithSC(userId) :
       this.patientService.findByUser(userId);
 
     result.subscribe({

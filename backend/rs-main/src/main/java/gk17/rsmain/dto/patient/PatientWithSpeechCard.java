@@ -13,6 +13,7 @@ public record PatientWithSpeechCard(
         String firstName,
         String lastName,
         Timestamp dateOfBirth,
+        boolean isHidden,
         List<SpeechErrorDto> speechErrors,
         List<SoundCorrectionDto> soundCorrections
 ){}
