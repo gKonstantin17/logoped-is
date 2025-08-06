@@ -15,10 +15,7 @@
     <h1>Логопедические занятия</h1>
 
 
-    <!-- Кнопка всегда видна, если логопед -->
-    <div *ngIf="currentRole === 'logoped'" class="add-lessons-btn-container">
-      <button class="add-lessons-btn" (click)="openModal()">Подобрать занятия</button>
-    </div>
+
 
       <div class="add-lessons-btn-container" *ngIf="upcomingLessons.length === 0">
         <button class="add-lessons-btn" (click)="openModal()">Подобрать занятия</button>
