@@ -2,6 +2,7 @@ import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {CommonModule} from '@angular/common';
 import {LessonData} from '../../../utils/services/lesson.service';
+import {LessonStore} from '../../../utils/stores/lesson.store';
 
 @Component({
   selector: 'app-lesson-modal',
@@ -13,11 +14,22 @@ import {LessonData} from '../../../utils/services/lesson.service';
   styleUrls: ['./lesson-modal.component.css']
 })
 export class LessonModalComponent {
+  constructor(private lessonStore:LessonStore) {
+  }
+  @Input() patientId!: number;
   @Input() hasSpeechCard: boolean | null = null;
+  @Input() currentRole: string | null = null;
+
 
   @Output() closeModal = new EventEmitter<void>();
   @Output() confirmBooking = new EventEmitter<LessonData>();
 
+  ngOnInit() {
+    this.lessonStore.availableTimeSlots$.subscribe(slots => {
+      this.availableTimeSlots = slots;
+      this.selectedTime = '';
+    });
+  }
   step = 1;
   choice: 'diagnostic' | 'lesson' | null = null;
   selectedDate = '';
@@ -54,9 +66,9 @@ export class LessonModalComponent {
       });
     } else {
       this.confirmBooking.emit({
-        type: this.lessonType,
-        topic: this.topic || '',
-        description: this.description || '',
+        type: this.lessonType || 'Коррекция речи',
+        topic: this.topic || 'Занятие с логопедом',
+        description: this.description || 'Скоро появится',
         dateOfLesson: dateTime,
         logopedId: null,
         homework: this.homework || null,
@@ -64,6 +76,19 @@ export class LessonModalComponent {
       });
     }
   }
+  get allTimeSlots(): string[] {
+    return Array.from({ length: 10 }, (_, i) => `${(10 + i).toString().padStart(2, '0')}:00`);
+  }
+  availableTimeSlots: string[] = [];
+  onDateChange(dateStr: string) {
+    this.selectedDate = dateStr;
+    const date = new Date(dateStr);
+
+    if (!this.patientId) return;
+
+    this.lessonStore.checkTime(this.patientId, date);
+  }
+
 
 
 

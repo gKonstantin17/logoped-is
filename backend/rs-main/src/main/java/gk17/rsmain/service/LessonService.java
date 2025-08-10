@@ -1,13 +1,9 @@
 package gk17.rsmain.service;
 
 import gk17.rsmain.dto.homework.HomeworkDto;
-import gk17.rsmain.dto.lesson.LessonDto;
-import gk17.rsmain.dto.lesson.LessonReadDto;
-import gk17.rsmain.dto.lesson.LessonWithFKDto;
-import gk17.rsmain.dto.lesson.LessonWithHomeworkDto;
+import gk17.rsmain.dto.lesson.*;
 import gk17.rsmain.dto.logoped.LogopedDto;
-import gk17.rsmain.dto.patient.PatientDto;
-import gk17.rsmain.dto.patient.PatientWithoutFK;
+import gk17.rsmain.dto.patient.PatientReadDto;
 import gk17.rsmain.dto.patient.PatientWithoutFKDto;
 import gk17.rsmain.dto.responseWrapper.AsyncResult;
 import gk17.rsmain.dto.responseWrapper.ServiceResult;
@@ -20,22 +16,27 @@ import gk17.rsmain.utils.hibernate.ResponseHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 public class LessonService {
     private final LessonRepository repository;
-    private final LogopedRepository logopedRepository;
-    private final HomeworkRepository homeworkRepository;
-    private final PatientRepository patientRepository;
+    private final LogopedService logopedService;
+    private final HomeworkService homeworkService;
+    private final PatientService patientService;
 
-    public LessonService(LessonRepository repository, LogopedRepository logopedRepository, HomeworkRepository homeworkRepository, PatientRepository patientRepository) {
+    public LessonService(LessonRepository repository, LogopedService logopedService, HomeworkService homeworkService,PatientService patientService) {
         this.repository = repository;
-        this.logopedRepository = logopedRepository;
-        this.homeworkRepository = homeworkRepository;
-        this.patientRepository = patientRepository;
+        this.logopedService = logopedService;
+        this.homeworkService = homeworkService;
+        this.patientService = patientService;
     }
 
     @Async
@@ -44,18 +45,21 @@ public class LessonService {
         List<LessonReadDto> lessons = data.stream().map(this::toReadDto).toList();
         return AsyncResult.success(lessons);
     }
+
+    public Lesson findById(Long id) {
+        return repository.findById(id).get();
+    }
     @Async
     public CompletableFuture<ServiceResult<List<LessonWithFKDto>>> findByUserId(UUID userId) {
-        var patients = patientRepository.findByUserId(userId);
-
+        List<PatientReadDto> patients = patientService.findByUserId(userId).join().data();
         if (patients == null || patients.isEmpty()) {
             return AsyncResult.error("Пациенты не найдены");
         }
 
         List<Lesson> allLessons = new ArrayList<>();
 
-        for (Patient patient : patients) {
-            List<Lesson> lessons = repository.findByPatientsId(patient.getId());
+        for (PatientReadDto patient : patients) {
+            List<Lesson> lessons = repository.findByPatientsId(patient.id());
             allLessons.addAll(lessons);
         }
 
@@ -78,37 +82,7 @@ public class LessonService {
         var result = toReadDtoWithFK(lesson);
         return AsyncResult.success(result);
     }
-    @Async
-    public CompletableFuture<ServiceResult<LessonReadDto>> create(LessonDto dto) {
-        try {
-            Lesson lesson = new Lesson();
-            lesson.setType(dto.type());
-            lesson.setTopic(dto.topic());
-            lesson.setDescription(dto.description());
-            lesson.setDateOfLesson(dto.dateOfLesson());
 
-            if (dto.logopedId() != null) {
-                var logoped = ResponseHelper.findById(logopedRepository,dto.logopedId(),"Логопед не найден");
-                lesson.setLogoped(logoped);
-            }
-
-            if (dto.homeworkId() != null) {
-                var homework = ResponseHelper.findById(homeworkRepository,dto.homeworkId(),"Домашнее задание не найдено");
-                lesson.setHomework(homework);
-            }
-            Set<Patient> patients = dto.patientsId() == null
-                    ? Set.of()
-                    : new HashSet<>(patientRepository.findAllById(dto.patientsId()));
-
-            lesson.setPatients(patients);
-            repository.save(lesson);
-            var createdDto = toReadDto(repository.findById(lesson.getId()).get());
-            return AsyncResult.success(createdDto);
-
-        } catch(Exception ex) {
-            return AsyncResult.error(ex.getMessage());
-        }
-    }
     @Async
     public CompletableFuture<ServiceResult<LessonReadDto>> createLessonWithHomework(LessonWithHomeworkDto dto) {
         try {
@@ -117,52 +91,34 @@ public class LessonService {
             lesson.setTopic(dto.topic());
             lesson.setDescription(dto.description());
             lesson.setDateOfLesson(dto.dateOfLesson());
+            lesson.setStatus("Активно");
 
             if (dto.logopedId() != null) {
-                var logoped = ResponseHelper.findById(logopedRepository, dto.logopedId(), "Логопед не найден");
+                var logoped = logopedService.findById(dto.logopedId()).get();
                 lesson.setLogoped(logoped);
             } else {
-                // Получаем всех логопедов
-                List<Logoped> logopeds = logopedRepository.findAll();
-
-                // Подгружаем пациентов и группируем по логопеду
-                List<Patient> allPatients = patientRepository.findAll();
-
-                Map<UUID, Long> logopedPatientCounts = allPatients.stream()
-                        .filter(p -> p.getLogoped() != null)
-                        .collect(Collectors.groupingBy(
-                                p -> p.getLogoped().getId(),
-                                Collectors.counting()
-                        ));
-
                 // Выбираем логопеда с наименьшим количеством пациентов
-                Logoped selectedLogoped = logopeds.stream()
-                        .min(Comparator.comparing(logoped ->
-                                logopedPatientCounts.getOrDefault(logoped.getId(), 0L)))
-                        .orElseThrow(() -> new IllegalStateException("Нет доступных логопедов"));
+                Logoped selectedLogoped = chooseLogoped();
 
                 lesson.setLogoped(selectedLogoped);
                 // Назначаем логопеда всем пациентам занятия
                 if (dto.patientsId() != null) {
-                    List<Patient> patientsToUpdate = patientRepository.findAllById(dto.patientsId());
+                    List<Patient> patientsToUpdate = patientService.findAllById(dto.patientsId());
                     for (Patient patient : patientsToUpdate) {
                         patient.setLogoped(selectedLogoped);
                     }
-                    patientRepository.saveAll(patientsToUpdate);
+                    patientService.createAll(patientsToUpdate);
                 }
             }
 
-            // Создаём Homework
             if (dto.homework() != null && !dto.homework().isBlank()) {
-                Homework homework = new Homework();
-                homework.setTask(dto.homework());
-                homeworkRepository.save(homework);
+                Homework homework = homeworkService.create(dto.homework());
                 lesson.setHomework(homework);
             }
 
             Set<Patient> patients = dto.patientsId() == null
                     ? Set.of()
-                    : new HashSet<>(patientRepository.findAllById(dto.patientsId()));
+                    : new HashSet<>(patientService.findAllById(dto.patientsId()));
             lesson.setPatients(patients);
 
             repository.save(lesson);
@@ -176,6 +132,65 @@ public class LessonService {
         }
     }
 
+    public CompletableFuture<ServiceResult<AvailableTimeDto>>  checkTime(Long patientId,Timestamp currentDate) {
+        try {
+            // по пациенту и дате находить логопеда и его занятия на эту дату
+            // если диагностика и logoped null?
+            List<String> allTimeSlots = IntStream.rangeClosed(10, 19)
+                    .mapToObj(hour -> String.format("%02d:00", hour))
+                    .collect(Collectors.toList());
+
+            Logoped logoped = patientService.findLogoped(patientId);
+            if (logoped == null)
+                logoped = chooseLogoped();
+
+            Timestamp targetDate = currentDate; // Timestamp
+            LocalDate date = targetDate.toLocalDateTime().toLocalDate();
+
+            // Получаем начало и конец дня
+            Timestamp start = Timestamp.valueOf(date.atStartOfDay());
+            Timestamp end = Timestamp.valueOf(date.atTime(LocalTime.MAX));
+            List<Lesson> lessons = repository.findByLogopedIdAndDateRange(logoped.getId(), start, end);
+
+            Set<String> busySlots = lessons.stream()
+                    .map(Lesson::getDateOfLesson)
+                    .map(Timestamp::toLocalDateTime)
+                    .map(dt -> String.format("%02d:00", dt.getHour()))
+                    .collect(Collectors.toSet());
+
+            // Возвращаем только свободные
+            var result = new AvailableTimeDto(allTimeSlots.stream()
+                    .filter(slot -> !busySlots.contains(slot))
+                    .collect(Collectors.toList()));
+            return AsyncResult.success(result);
+        } catch (Exception ex) {
+            return AsyncResult.error("Ошибка при поиске свободного времени: " + ex.getMessage());
+        }
+
+
+    }
+    @Async
+    public CompletableFuture<ServiceResult<Lesson>> canselLesson(Long id) {
+        try {
+            var lesson = repository.findById(id).get();
+            lesson.setStatus("Отменено");
+            repository.save(lesson);
+            return AsyncResult.success(lesson);
+        } catch (Exception ex) {
+            return AsyncResult.error(ex.getMessage());
+        }
+    }
+    @Async
+    public CompletableFuture<ServiceResult<Lesson>> changeDate(Long id, Timestamp newDate) {
+        try {
+            var lesson = repository.findById(id).get();
+            lesson.setDateOfLesson(newDate);
+            repository.save(lesson);
+            return AsyncResult.success(lesson);
+        } catch (Exception ex) {
+            return AsyncResult.error(ex.getMessage());
+        }
+    }
 
     @Async
     public CompletableFuture<ServiceResult<LessonReadDto>> update(Long id, LessonDto dto) {
@@ -188,16 +203,16 @@ public class LessonService {
             if (dto.dateOfLesson() != null) updated.setDateOfLesson(dto.dateOfLesson());
 
             if (dto.logopedId() != null) {
-                var logoped = ResponseHelper.findById(logopedRepository,dto.logopedId(),"Логопед не найден");
+               var logoped = logopedService.findById(dto.logopedId()).get();
                 updated.setLogoped(logoped);
             }
 
             if (dto.homeworkId() != null) {
-                var homework = ResponseHelper.findById(homeworkRepository,dto.homeworkId(),"Домашнее задание не найдено");
+                var homework = homeworkService.findById(dto.homeworkId()).get();
                 updated.setHomework(homework);
             }
             if (dto.patientsId() != null) {
-                Set<Patient> patients  = new HashSet<>(patientRepository.findAllById(dto.patientsId()));
+                Set<Patient> patients  = new HashSet<>(patientService.findAllById(dto.patientsId()));
                 if (patients.size() != dto.patientsId().size()) {
                     return AsyncResult.error("Некоторые пациенты не найдены");
                 }
@@ -230,6 +245,7 @@ public class LessonService {
           entity.getTopic(),
           entity.getDescription(),
           entity.getDateOfLesson(),
+          entity.getStatus(),
           entity.getLogoped() != null ? entity.getLogoped().getId() : null,
           entity.getHomework() != null ? entity.getHomework().getId() : null,
           entity.getPatients() != null ? entity.getPatients().stream().map(Patient::getId).toList()
@@ -243,6 +259,7 @@ public class LessonService {
                 lesson.getTopic(),
                 lesson.getDescription(),
                 lesson.getDateOfLesson(),
+                lesson.getStatus(),
                 lesson.getLogoped() == null ? null :
                         new LogopedDto(
                                 lesson.getLogoped().getFirstName(),
@@ -257,4 +274,30 @@ public class LessonService {
                         .toList()
         );
     }
+
+    private Logoped chooseLogoped() {
+        // Получаем всех логопедов
+        List<Logoped> logopeds = logopedService.findall()
+                .join()
+                .data();
+
+        // Подгружаем пациентов и группируем по логопеду
+        List<PatientReadDto> allPatients = patientService.findall().join().data();
+
+        Map<UUID, Long> logopedPatientCounts = allPatients.stream()
+                .filter(p -> p.logopedId() != null)
+                .collect(Collectors.groupingBy(
+                        PatientReadDto::logopedId,
+                        Collectors.counting()
+                ));
+
+        // Выбираем логопеда с наименьшим количеством пациентов
+        Logoped selectedLogoped = logopeds.stream()
+                .min(Comparator.comparing(logoped ->
+                        logopedPatientCounts.getOrDefault(logoped.getId(), 0L)))
+                .orElseThrow(() -> new IllegalStateException("Нет доступных логопедов"));
+        return selectedLogoped;
+    }
+
+
 }

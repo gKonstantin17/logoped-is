@@ -1,15 +1,13 @@
 package gk17.rsmain.controller;
 
-import gk17.rsmain.dto.lesson.LessonDto;
-import gk17.rsmain.dto.lesson.LessonReadDto;
-import gk17.rsmain.dto.lesson.LessonWithFKDto;
-import gk17.rsmain.dto.lesson.LessonWithHomeworkDto;
+import gk17.rsmain.dto.lesson.*;
 import gk17.rsmain.dto.patient.PatientWithoutFKDto;
 import gk17.rsmain.service.LessonService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -66,6 +64,33 @@ public class LessonController {
                 : ResponseEntity.badRequest().body(result.message());
     }
 
+    @PostMapping("check-time")
+    public ResponseEntity<?> checkTime(@RequestBody CheckAvailableTime dto) throws ExecutionException, InterruptedException {
+//    public ResponseEntity<?> checkTime(@PathVariable Long patientId,
+//                                       @RequestBody CheckAvailableTime dto) throws ExecutionException, InterruptedException {
+
+        var future = service.checkTime(dto.patientId(), dto.date());
+        var result = future.get();
+        return result.isSuccess()
+                ? ResponseEntity.ok(result.data())
+                : ResponseEntity.badRequest().body(result.message());
+    }
+    @PutMapping("cancel/{id}")
+    public ResponseEntity<?> cansel(@PathVariable Long id) throws ExecutionException, InterruptedException {
+        var future = service.canselLesson(id);
+        var result = future.get();
+        return result.isSuccess()
+                ? ResponseEntity.ok(result.data())
+                : ResponseEntity.badRequest().body(result.message());
+    }
+    @PutMapping("changeDate/{id}")
+    public ResponseEntity<?> changeDate(@PathVariable Long id, @RequestBody Timestamp newDate) throws ExecutionException, InterruptedException {
+        var future = service.changeDate(id,newDate);
+        var result = future.get();
+        return result.isSuccess()
+                ? ResponseEntity.ok(result.data())
+                : ResponseEntity.badRequest().body(result.message());
+    }
     @PutMapping("/update/{id}")
     public ResponseEntity<?> update(@PathVariable Long id,@RequestBody LessonDto dto) throws ExecutionException, InterruptedException {
         var future = service.update(id, dto);

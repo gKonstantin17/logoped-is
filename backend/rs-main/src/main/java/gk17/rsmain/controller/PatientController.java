@@ -3,6 +3,7 @@ package gk17.rsmain.controller;
 import gk17.rsmain.dto.patient.PatientCreateDto;
 import gk17.rsmain.dto.patient.PatientDto;
 import gk17.rsmain.dto.patient.PatientReadDto;
+import gk17.rsmain.dto.patient.PatientWithSpeechCard;
 import gk17.rsmain.service.PatientService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +25,11 @@ public class PatientController {
     @PostMapping("/findall")
     public List<PatientReadDto> findall() throws ExecutionException, InterruptedException {
         var result = service.findall();
+        return result.get().data();
+    }
+    @PostMapping("/find-with-sc")
+    public List<PatientWithSpeechCard> findAllWithSC(@RequestBody UUID userId) throws ExecutionException, InterruptedException {
+        var result = service.findAllWithSC(userId);
         return result.get().data();
     }
     @PostMapping("/create")
@@ -72,6 +78,14 @@ public class PatientController {
     @PostMapping("/hide/{id}")
     public ResponseEntity<?> hide(@PathVariable Long id) throws ExecutionException, InterruptedException {
         var future = service.hide(id);
+        var result = future.get();
+        return result.isSuccess()
+                ? ResponseEntity.ok(result.data())
+                : ResponseEntity.badRequest().body(result.message());
+    }
+    @PostMapping("/restore/{id}")
+    public ResponseEntity<?> restore(@PathVariable Long id) throws ExecutionException, InterruptedException {
+        var future = service.restore(id);
         var result = future.get();
         return result.isSuccess()
                 ? ResponseEntity.ok(result.data())

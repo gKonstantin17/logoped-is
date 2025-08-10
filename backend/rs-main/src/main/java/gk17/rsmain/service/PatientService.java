@@ -7,34 +7,26 @@ import gk17.rsmain.dto.patient.PatientWithSpeechCard;
 import gk17.rsmain.dto.responseWrapper.AsyncResult;
 import gk17.rsmain.dto.responseWrapper.ServiceResult;
 import gk17.rsmain.dto.soundCorrection.SoundCorrectionDto;
-import gk17.rsmain.dto.speechCard.SpeechCardFullDto;
 import gk17.rsmain.dto.speechError.SpeechErrorDto;
-import gk17.rsmain.entity.Patient;
-import gk17.rsmain.repository.DiagnosticRepository;
-import gk17.rsmain.repository.LogopedRepository;
+import gk17.rsmain.entity.*;
 import gk17.rsmain.repository.PatientRepository;
-import gk17.rsmain.repository.UserRepository;
 import gk17.rsmain.utils.hibernate.ResponseHelper;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 @Service
 public class PatientService {
     private final PatientRepository repository;
-    private final UserRepository userRepository;
-    private final LogopedRepository logopedRepository;
-    private final SpeechCardService speechCardService;
-    public PatientService(PatientRepository repository, UserRepository userRepository, LogopedRepository logopedRepository, SpeechCardService speechCardService) {
+    private final UserService userService;
+    private final LogopedService logopedService;
+    public PatientService(PatientRepository repository, UserService userService, LogopedService logopedService) {
         this.repository = repository;
-        this.userRepository = userRepository;
-        this.logopedRepository = logopedRepository;
-        this.speechCardService = speechCardService;
+        this.userService = userService;
+        this.logopedService = logopedService;
     }
     @Async
     public CompletableFuture<ServiceResult<List<PatientReadDto>>> findall() {
@@ -42,16 +34,30 @@ public class PatientService {
         List<PatientReadDto> result = data.stream().map(this::toReadDto).toList();
         return AsyncResult.success(result);
     }
+    @Async
+    public CompletableFuture<ServiceResult<List<PatientWithSpeechCard>>> findAllWithSC(UUID userId) {
+        try {
+            var data = repository.findAllWithSpeechData(userId);
+            List<PatientWithSpeechCard> result = data.stream().map(this::toDtoWithSC).toList();
+            return AsyncResult.success(result);
+        } catch (Exception ex) {
+            return AsyncResult.error(ex.getMessage());
+        }
+    }
 
+
+    public List<Patient> findAllById(List<Long> patientsId) {
+        return repository.findAllById(patientsId);
+    }
     @Async
     public CompletableFuture<ServiceResult<PatientReadDto>> create(PatientCreateDto dto) {
         try {
-            var user = ResponseHelper.findById(userRepository,dto.userId(),"Пользователь не найден");
-
+            var user = userService.findById(dto.userId()).get();
             Patient patient = new Patient();
             patient.setFirstName(dto.firstName());
             patient.setLastName(dto.lastName());
             patient.setDateOfBirth(dto.dateOfBirth());
+            patient.setHidden(false);
             patient.setUser(user);
 
             Patient createdPatient = repository.save(patient);
@@ -61,6 +67,14 @@ public class PatientService {
         } catch (Exception ex) {
             return AsyncResult.error(ex.getMessage());
         }
+    }
+    public Logoped findLogoped(Long patientId) {
+        var patient = repository.findById(patientId);
+        return patient.get().getLogoped();
+    }
+
+    public void createAll(List<Patient> patients) {
+        repository.saveAll(patients);
     }
 
     @Async
@@ -95,11 +109,11 @@ public class PatientService {
             if (dto.lastName() != null)    updated.setLastName(dto.lastName());
             if (dto.dateOfBirth() != null)   updated.setDateOfBirth(dto.dateOfBirth());
             if (dto.userId() != null) {
-                var user = ResponseHelper.findById(userRepository,dto.userId(),"Пользователь не найден");
+                var user = userService.findById(dto.userId()).get();
                 updated.setUser(user);
             }
             if (dto.logopedId() != null) {
-                var logoped = ResponseHelper.findById(logopedRepository,dto.logopedId(),"Логопед не найден");
+               var logoped = logopedService.findById(dto.logopedId()).get();
                 updated.setLogoped(logoped);
             }
 
@@ -114,8 +128,18 @@ public class PatientService {
     public CompletableFuture<ServiceResult<PatientReadDto>> hide(Long id) {
         try {
             var dataForHide = ResponseHelper.findById(repository,id,"Пациент не найден");
-            dataForHide.setUser(null);
-            dataForHide.setLogoped(null);
+            dataForHide.setHidden(true);
+            var hiddenData =  toReadDto(repository.save(dataForHide));
+            return AsyncResult.success(hiddenData);
+        } catch (Exception ex) {
+            return AsyncResult.error(ex.getMessage());
+        }
+    }
+    @Async
+    public CompletableFuture<ServiceResult<PatientReadDto>> restore(Long id) {
+        try {
+            var dataForHide = ResponseHelper.findById(repository,id,"Пациент не найден");
+            dataForHide.setHidden(false);
             var hiddenData =  toReadDto(repository.save(dataForHide));
             return AsyncResult.success(hiddenData);
         } catch (Exception ex) {
@@ -149,7 +173,43 @@ public class PatientService {
                 entity.getLastName(),
                 entity.getDateOfBirth(),
                 entity.getUser() != null ? entity.getUser().getId() : null,
-                entity.getLogoped() != null ? entity.getLogoped().getId() : null
+                entity.getLogoped() != null ? entity.getLogoped().getId() : null,
+                entity.isHidden()
         );
     }
+
+    private PatientWithSpeechCard toDtoWithSC(Patient patient) {
+        Set<SpeechErrorDto> errors = new HashSet<>();
+        Set<SoundCorrectionDto> corrections = new HashSet<>();
+
+        for (Lesson lesson : patient.getLessons()) {
+            Diagnostic diag = lesson.getDiagnostic();
+            if (diag != null && diag.getSpeechCard() != null) {
+                SpeechCard sc = diag.getSpeechCard();
+
+                if (sc.getSpeechErrors() != null) {
+                    for (SpeechError se : sc.getSpeechErrors()) {
+                        errors.add(new SpeechErrorDto(se.getTitle(), se.getDescription()));
+                    }
+                }
+
+                if (sc.getSoundCorrections() != null) {
+                    for (SoundCorrection corr : sc.getSoundCorrections()) {
+                        corrections.add(new SoundCorrectionDto(corr.getSound(), corr.getCorrection()));
+                    }
+                }
+            }
+        }
+
+        return new PatientWithSpeechCard(
+                patient.getId(),
+                patient.getFirstName(),
+                patient.getLastName(),
+                patient.getDateOfBirth(),
+                patient.isHidden(),
+                new ArrayList<>(errors),
+                new ArrayList<>(corrections)
+        );
+    }
+
 }

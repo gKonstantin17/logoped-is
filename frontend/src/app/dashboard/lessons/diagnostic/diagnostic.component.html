@@ -15,7 +15,6 @@
   </button>
 
   <!-- Кнопка открыть/закрыть речевую карту -->
-  <!-- Кнопка открыть/закрыть речевую карту -->
   <button class="toggle-form-btn" (click)="toggleSpeechCard()">
     {{ showSpeechCard ? 'Скрыть речевую карту' : 'Открыть речевую карту' }}
   </button>
@@ -72,7 +71,7 @@
           <!-- Выбор из списка -->
           <select [(ngModel)]="selectedError" name="selectedError">
             <option [ngValue]="null">-- Выберите нарушение --</option>
-            <option *ngFor="let error of availableSpeechErrors" [ngValue]="error">
+            <option *ngFor="let error of availableSpeechErrors$ | async" [ngValue]="error">
               {{ error.title }}
             </option>
           </select>

@@ -17,7 +17,6 @@ import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -26,38 +25,39 @@ import java.util.*;
 @RestController
 @RequestMapping("/bff")
 public class BFFContoller {
+    // для выполнения веб запросов на KeyCloak
+    private static final RestTemplate restTemplate = new RestTemplate();
 
-    private static final RestTemplate restTemplate = new RestTemplate(); // для выполнения веб запросов на KeyCloak
-
+    // названия токенов в cookies
     public static final String IDTOKEN_COOKIE_KEY = "IT";
     public static final String REFRESHTOKEN_COOKIE_KEY = "RT";
     public static final String ACCESSTOKEN_COOKIE_KEY = "AT";
+
+    // роли в системе
     private static final Set<String> ALLOWED_ROLES = Set.of("user", "logoped", "admin");
 
+    // адреса backend и frontend
     @Value("${resourceserver.url}")
     private String resourceServerURL;
-    private String userId;
-
-    @Value("${keycloak.secret}")
-    private String clientSecret;
-
-    @Value("${keycloak.url}")
-    private String keyCloakURI;
-
-
     @Value("${client.url}")
     private String clientURL;
 
+    // настройки keycloak
+    @Value("${keycloak.secret}")
+    private String clientSecret;
+    @Value("${keycloak.url}")
+    private String keyCloakURI;
     @Value("${keycloak.clientid}")
     private String clientId;
-
     @Value("${keycloak.granttype.code}")
     private String grantTypeCode;
-
     @Value("${keycloak.granttype.refresh}")
     private String grantTypeRefresh;
 
-    private final CookieUtils cookieUtils; // класс-утилита для работы с куками
+    // userId будет получен из токенов
+    private String userId;
+    // класс-утилита для работы с куками
+    private final CookieUtils cookieUtils;
 
     // срок годности куков
     private int accessTokenDuration;
@@ -78,8 +78,21 @@ public class BFFContoller {
         this.cookieUtils = cookieUtils;
     }
 
+
+    /**
+     * Обрабатывает запрос на обмен авторизационного кода (auth code) на токены доступа.
+     * <p>
+     * Этот метод вызывается фронтендом после того, как пользователь прошёл авторизацию
+     * в Keycloak, и на фронт вернулся авторизационный код.
+     * Метод формирует запрос к /token endpoint Keycloak, отправляет туда code и получает в ответ access/refresh токены.
+     * <p>
+     * Полученные токены сериализуются, записываются в cookie, и отправляются обратно клиенту.
+     *
+     * @param code авторизационный код, полученный от Keycloak после успешной аутентификации
+     * @return HTTP 200 OK с заголовками Set-Cookie, содержащими AT,RT,IT
+     */
     @PostMapping("/token")
-    public ResponseEntity<String> token(@RequestBody String code) {// получаем auth code, чтобы обменять его на токены
+    public ResponseEntity<String> token(@RequestBody String code) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
@@ -97,11 +110,11 @@ public class BFFContoller {
         // добавляем в запрос заголовки и параметры
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(mapForm, headers);
 
-        // выполняем запрос
+        // запрос
         ResponseEntity<String> response = restTemplate.exchange(keyCloakURI + "/token", HttpMethod.POST, request, String.class);
         // мы получаем JSON в виде текста
 
-        // сам response не нужно возвращать, нужно только оттуда получить токены
+        // достаем токены
         parseResponse(response);
 
         // считать данные из JSON и записать в куки
@@ -111,6 +124,24 @@ public class BFFContoller {
         return ResponseEntity.ok().headers(responseHeaders).build();
     }
 
+    /**
+     * Обрабатывает выход пользователя из системы.
+     * <p>
+     * Выполняются два действия:
+     * <ol>
+     *     <li>Инициируется logout на стороне Keycloak через GET-запрос с параметрами:
+     *         <ul>
+     *             <li>{@code id_token_hint} — указывает, какой пользователь выходит</li>
+     *             <li>{@code post_logout_redirect_uri} — URL, куда будет произведён редирект после выхода</li>
+     *             <li>{@code client_id} — ID клиента</li>
+     *         </ul>
+     *     </li>
+     *     <li>Обнуляются все куки, связанные с сессией, чтобы удалить клиентскую аутентификацию</li>
+     * </ol>
+     * </p>
+     * @param idToken ID Token пользователя, полученный из cookie
+     * @return HTTP 200 OK с cookie с нулевым значением и сроком годности
+     */
     @GetMapping("/logout")
     public ResponseEntity<String> logout(@CookieValue("IT") String idToken) {
         // Не работает с настройкой Consent Required в клиента KeyCloak
@@ -131,7 +162,7 @@ public class BFFContoller {
         params.put("id_token_hint", idToken); // idToken указывает Auth Server, для кого мы хотим "выйти"
         params.put("client_id", clientId);
 
-        // выполняем запрос (результат нам не нужен)
+        //  запрос (результат нам не нужен)
         try {
             restTemplate.getForEntity(
                     urlTemplate, // шаблон GET запроса - туда будут подставляться значения из params
@@ -150,6 +181,16 @@ public class BFFContoller {
         return ResponseEntity.ok().headers(responseHeaders).build();
     }
 
+    /**
+     * Обновляет токены с помощью Refresh Token
+     * <p>
+     * В случае, если срок Access Token истек, токены обновляются.
+     * Формируется запрос в Keycloak и полученные токены упаковываются в cookie.
+     * Случай, когда Refresh Token истек, обработан в frontend
+     * </p>
+     * @param oldRefreshToken Refresh Token пользователя, полученный из cookie
+     * @return HTTP 200 OK с заголовками Set-Cookie, содержащими AT,RT,IT
+     */
     @GetMapping("/exchange")
     public ResponseEntity<String> exchangeRefreshToken(@CookieValue("RT") String oldRefreshToken) {
 
@@ -168,32 +209,28 @@ public class BFFContoller {
 
         ResponseEntity<String> response = restTemplate.exchange(keyCloakURI + "/token", HttpMethod.POST, request, String.class);
 
-        // сам response не нужно возвращать, нужно только оттуда получить токены
+        // получить токены
         parseResponse(response);
 
         // создаем куки для их записи в браузер (frontend)
         HttpHeaders responseHeaders = createCookies();
 
         // отправляем клиенту ответ со всеми куками (которые запишутся в браузер автоматически)
-        // значения куков с новыми токенами перезапишутся в браузер
         return ResponseEntity.ok().headers(responseHeaders).build();
-
-
-    }
-    @PostMapping("/data")
-    public ResponseEntity<DataResult> data(@RequestBody SearchValue searchValue, @CookieValue("AT") String accessToken) {
-        // обязательно нужно добавить заголовок авторизации с access token
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(accessToken); // слово Bearer будет добавлено автоматически
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        HttpEntity<SearchValue> request = new HttpEntity<>(searchValue,headers);
-
-        ResponseEntity<DataResult> response = restTemplate.postForEntity(resourceServerURL+ "/user/data", request, DataResult.class);
-
-        return response;
     }
 
+    /**
+     * Универсальный обработчик запросов в backend, используемый в проекте
+     * <p>
+     * Из полученного JSON в виде строки получает на HTTP метод, маршрут и отправляемые данные.
+     * </p>
+     * <p>
+     * Из этих данных формирует запрос в backend, прикрепляя Access Token.
+     * </p>
+     * @param reqOperation JSON в виде строки, содержащий HTTP метод, маршрут и отправляемые данные
+     * @param accessToken Access Token пользователя, полученный из cookie
+     * @return Ответ от backend (Object)
+     */
     @PostMapping("/operation")
     public ResponseEntity<Object> operation(@RequestBody String reqOperation, @CookieValue("AT") String accessToken) {
         ObjectMapper mapper = new ObjectMapper();
@@ -220,11 +257,52 @@ public class BFFContoller {
         } else {
             request = new HttpEntity<>(headers);
         }
-
+        System.out.println("REQUEST:"+request);
         ResponseEntity<Object> response = restTemplate.exchange(operation.getUrl(), operation.getHttpMethod(),request, Object.class);
         return response;
     }
 
+    /**
+     * Выполняет конкретный запрос в backend (не используется)
+     * <p>
+     * К запросу в backend прикрепляет Access Token и отправляет на конкретный маршрут в backend.
+     * </p>
+     * <p>
+     * Пример промежуточного звена запросов в backend.
+     * </p>
+     * @param searchValue Данные отправляемые POST-запросом
+     * @param accessToken Access Token пользователя, полученный из cookie
+     * @return Ответ от backend (DTO)
+     */
+    @PostMapping("/data")
+    public ResponseEntity<DataResult> data(@RequestBody SearchValue searchValue, @CookieValue("AT") String accessToken) {
+        // обязательно нужно добавить заголовок авторизации с access token
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(accessToken); // слово Bearer будет добавлено автоматически
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<SearchValue> request = new HttpEntity<>(searchValue,headers);
+
+        ResponseEntity<DataResult> response = restTemplate.postForEntity(resourceServerURL+ "/user/data", request, DataResult.class);
+
+        return response;
+    }
+
+
+    /**
+     * Обработчик запросов в backend (не используется)
+     * <p>
+     * Параметры запроса хранятся в отдельном объекте
+     * К запросу в backend прикрепляет Access Token и отправляет в backend.
+     * </p>
+     * <p>
+     * Ещё один вариант взаимодействия с backend
+     * </p>
+     * @param operation Информация о запросе
+     * @param email Отправляемые данные
+     * @param accessToken Access Token пользователя, полученный из cookie
+     * @return Ответ от backend (DTO)
+     */
     @PostMapping("/stat")
     public ResponseEntity<Object> stat(@RequestBody Operation operation, @RequestBody String email, @CookieValue("AT") String accessToken) {
 
@@ -241,6 +319,13 @@ public class BFFContoller {
         return response;
     }
 
+    /**
+     * Отправляет данные из профиля, полученные из ID Token
+     * <p>
+     * Читает ранее полученные данные из токена, упаковывает в объект UserProfile
+     * </p>
+     * @return UserProfile, в котором firstName, lastName, email, phone, role
+     */
     @GetMapping("/profile")
     public ResponseEntity<UserProfile> profile() {
         if (idToken == null){
@@ -249,17 +334,17 @@ public class BFFContoller {
         userId = getPayloadValue("sub"); // payload получили, когда работали с токенами
         UserProfile userProfile = new UserProfile(
                 getPayloadValue("given_name"),                    // firstName
-                getPayloadValue("family_name"),                   // secondName
+                getPayloadValue("family_name"),                   // lastName
                 getPayloadValue("email"),                         // email
                 getPayloadValue("phone_number"),                  // phone
                 extractPrimaryRole(getRolesFromPayload()), // передаем список ролей
                 userId
         );
 
-        System.out.println("ТУТА "+userProfile.toString());
         return ResponseEntity.ok(userProfile);
     }
 
+    // проверяет есть ли роль из ALLOWED_ROLES
     private String extractPrimaryRole(Object rolesObject) {
         if (rolesObject instanceof List<?> roles) {
             for (Object role : roles) {
@@ -270,6 +355,8 @@ public class BFFContoller {
         }
         return "user"; // по умолчанию
     }
+
+    // Извлекает список ролей пользователя из JWT payload.
     private List<String> getRolesFromPayload() {
         try {
             JSONObject realmAccess = payload.getJSONObject("realm_access");

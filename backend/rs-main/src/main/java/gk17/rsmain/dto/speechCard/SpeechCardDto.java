@@ -15,4 +15,4 @@ public record SpeechCardDto(
         String patientChars,
         List<Long> speechErrors,
         List<Long> soundCorrections
-) {}
+) implements BaseSpeechCard {}

@@ -1,11 +1,10 @@
 import {Component, OnInit} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {CommonModule, NgForOf} from '@angular/common';
-import {UserDataService} from '../../utils/services/user-data.service';
-import {PatientService} from '../../utils/services/patient.service';
 import {Router, RouterLink} from '@angular/router';
-import { catchError } from 'rxjs/operators';
-import {of} from 'rxjs';
+import {UserDataStore} from '../../utils/stores/user-data.store';
+import {PatientStore} from '../../utils/stores/patient.store';
+import {ChangeDateModalComponent} from '../lessons/details/change-date-modal/change-date-modal.component';
 
 @Component({
   selector: 'app-children',
@@ -17,47 +16,54 @@ import {of} from 'rxjs';
     NgForOf,
     CommonModule,
     RouterLink,
+    ChangeDateModalComponent,
   ]
 })
 export class ChildrenComponent implements OnInit {
-  childrenForms: { firstName: string; lastName: string; birthDate: string; speechErrors: string[]; speechCorrection: string[] }[] = [];
-  addedChildren: {id:number; firstName: string; lastName: string; dateOfBirth: string; speechErrors: string[]; speechCorrection: string[] }[] = [];
+  childrenForms: {
+    firstName: string;
+    lastName: string;
+    birthDate: string;
+    speechErrors: {title: string; description: string}[];
+    speechCorrection: {sound: string; correction: string}[]
+  }[] = [];
+
+  addedChildren: {
+    id: number;
+    firstName: string;
+    lastName: string;
+    dateOfBirth: string;
+    speechErrors: {title: string; description: string}[];
+    soundCorrections: {sound: string; correction: string}[]
+  }[] = [];
   currentRole: string | null = null;
   userId: string | null = null;
   patientsOfUser: any[] = [];
+  hiddenPatients: any[] = [];
   constructor(
-    private userDataService: UserDataService,
-    private patientService: PatientService,
+    private userDataStore: UserDataStore,
+    private patientStore: PatientStore,
     private router: Router
   ) {}
+  // TODO нужен ли userDataService?
+  // TODO косяк с данными для логопеда
   ngOnInit() {
-    this.userDataService.userData$.subscribe(user => {
+    this.userDataStore.userData$.subscribe(user => {
       this.currentRole = user?.role || null;
       this.userId = user?.id || null;
 
-      if (this.userId !== null) {
-        if (this.currentRole === 'user') {
-          this.patientService.findByUser(this.userId).subscribe({
-            next: (data) => {
-              this.patientsOfUser = data;
-              console.log('Полученные дети:', this.patientsOfUser);
-            },
-            error: (err) => {
-              console.error('Ошибка при получении детей:', err);
-            }
-          });
-        }
-        if (this.currentRole === 'logoped') {
-          this.patientService.findByLogoped(this.userId).subscribe({
-            next: (data) => {
-              this.addedChildren = data;
-              console.log('Полученные дети:', this.patientsOfUser);
-            },
-            error: (err) => {
-              console.error('Ошибка при получении детей:', err);
-            }
-          })
-        }
+      this.patientStore.patients$.subscribe(data => {
+        this.patientsOfUser = data;
+        if (this.currentRole === 'logoped')
+          this.addedChildren = data;
+      });
+
+      this.patientStore.hiddenPatients$.subscribe(hidden => {
+        this.hiddenPatients = hidden;
+      });
+
+      if (this.userId && this.currentRole) {
+        this.patientStore.refresh(this.userId, this.currentRole);
       }
     });
   }
@@ -75,15 +81,7 @@ export class ChildrenComponent implements OnInit {
       userId: this.userId
     };
 
-    this.patientService.create(payload).subscribe({
-      next: (createdPatient) => {
-        this.patientsOfUser.push(createdPatient); // теперь сразу добавляется в карточки
-        this.childrenForms.splice(index, 1); // удалить форму
-      },
-      error: (err) => {
-        console.error('Ошибка при добавлении ребёнка:', err);
-      }
-    });
+    this.patientStore.create(payload);
   }
 
   removeForm(index: number) {
@@ -94,21 +92,15 @@ export class ChildrenComponent implements OnInit {
     const patient = this.patientsOfUser[index];
     if (!patient || !patient.id) return;
 
-    const confirmed = confirm(`Вы уверены, что хотите удалить ${patient.firstName} ${patient.lastName}?`);
+    const confirmed = confirm(`Вы уверены, что хотите скрыть ${patient.firstName} ${patient.lastName}?`);
     if (confirmed) {
-      this.patientService.delete(patient.id).subscribe({
-        next: () => {
-          this.patientsOfUser.splice(index, 1);
-          console.log('Пациент удалён');
-        },
-        error: (err) => {
-          console.error('Ошибка при удалении пациента:', err);
-        }
-      });
+      this.patientStore.hide(patient.id);
     }
+    this.editingPatient = null;
+    this.editingPatientIndex = null;
   }
   goToSpeechCard(patientId: number) {
-    this.patientService.existsSpeechCard(patientId)
+    this.patientStore.existsSpeechCard(patientId)
       .subscribe((exists: boolean) => {
         if (exists) {
           this.router.navigate(['/dashboard/speechcard'], { queryParams: { id: patientId } });
@@ -117,28 +109,25 @@ export class ChildrenComponent implements OnInit {
         }
       });
   }
-
-
-
-  sortColumn: 'speechErrors' | 'speechCorrection' | null = null;
+  sortColumn: 'speechErrors' | 'soundCorrections' | null = null;
   sortDirection: 'asc' | 'desc' = 'asc';
 
-  get sortedChildren() {
-    if (!this.sortColumn) return this.addedChildren;
+  // get sortedChildren() {
+  //   if (!this.sortColumn) return this.addedChildren;
+  //
+  //   return [...this.addedChildren].sort((a, b) => {
+  //     const aValue = (a[this.sortColumn!] || []).join(', ');
+  //     const bValue = (b[this.sortColumn!] || []).join(', ');
+  //
+  //     if (this.sortDirection === 'asc') {
+  //       return aValue.localeCompare(bValue);
+  //     } else {
+  //       return bValue.localeCompare(aValue);
+  //     }
+  //   });
+  // }
 
-    return [...this.addedChildren].sort((a, b) => {
-      const aValue = (a[this.sortColumn!] || []).join(', ');
-      const bValue = (b[this.sortColumn!] || []).join(', ');
-
-      if (this.sortDirection === 'asc') {
-        return aValue.localeCompare(bValue);
-      } else {
-        return bValue.localeCompare(aValue);
-      }
-    });
-  }
-
-  toggleSort(column: 'speechErrors' | 'speechCorrection') {
+  toggleSort(column: 'speechErrors' | 'soundCorrections') {
     if (this.sortColumn === column) {
       this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
     } else {
@@ -149,7 +138,8 @@ export class ChildrenComponent implements OnInit {
 
   selectedSpeechError: string | null = null;
   get availableSpeechErrors(): string[] {
-    const allErrors = this.addedChildren.flatMap(child => child.speechErrors);
+    // Собираем все уникальные названия speechErrors
+    const allErrors = this.addedChildren.flatMap(child => child.speechErrors.map(e => e.title));
     return Array.from(new Set(allErrors));
   }
 
@@ -157,7 +147,7 @@ export class ChildrenComponent implements OnInit {
     if (!this.selectedSpeechError) return this.addedChildren;
 
     return this.addedChildren.filter(child =>
-      child.speechErrors.includes(this.selectedSpeechError!)
+      child.speechErrors.some(e => e.title === this.selectedSpeechError)
     );
   }
 
@@ -167,9 +157,12 @@ export class ChildrenComponent implements OnInit {
     lastName: '',
     dateOfBirth: ''
   };
-  startEdit(patient: any) {
+  editingPatientIndex: number | null = null;
+
+  startEdit(patient: any, index: number) {
     const formattedDate = this.formatDateForInput(patient.dateOfBirth);
     this.editingPatient = patient;
+    this.editingPatientIndex = index;
     this.editFormData = {
       firstName: patient.firstName,
       lastName: patient.lastName,
@@ -185,19 +178,55 @@ export class ChildrenComponent implements OnInit {
   }
   cancelEdit() {
     this.editingPatient = null;
+    this.editingPatientIndex = null;
   }
+
   saveEdit() {
     if (this.editingPatient && this.editingPatient.id) {
-      this.patientService.update(this.editFormData, this.editingPatient.id).subscribe({
-        next: (updated) => {
-          Object.assign(this.editingPatient, updated);
-          this.editingPatient = null;
-        },
-        error: (err) => {
-          console.error('Ошибка при обновлении ребёнка:', err);
-        }
-      });
+      this.patientStore.update(this.editFormData, this.editingPatient.id);
     }
+    this.editingPatient = null;
+    this.editingPatientIndex = null;
+  }
+
+
+  showRestoreModal = false;
+
+  openRestoreModal() {
+    this.showRestoreModal = true;
+  }
+
+  closeRestoreModal() {
+    this.showRestoreModal = false;
+  }
+
+  restorePatient(patientId: number) {
+    this.patientStore.restore(patientId);
+    // Обновим список скрытых пациентов, если нужно
+    if (this.userId && this.currentRole) {
+      this.patientStore.refresh(this.userId, this.currentRole);
+    }
+  }
+
+  getAge(birthDateStr: string): string {
+    const birthDate = new Date(birthDateStr);
+    const now = new Date();
+
+    let years = now.getFullYear() - birthDate.getFullYear();
+    let months = now.getMonth() - birthDate.getMonth();
+    let days = now.getDate() - birthDate.getDate();
+
+    if (days < 0) months--;
+    if (months < 0) {
+      years--;
+      months += 12;
+    }
+
+    return `${years} лет ${months} мес.`;
+  }
+
+  goToLesson(patientId: number) {
+    this.router.navigate(['/dashboard/lessons'], { queryParams: { childId: patientId } });
   }
 
 }

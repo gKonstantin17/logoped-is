@@ -1,8 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 
 import {Router, RouterLink, RouterOutlet} from '@angular/router';
-import {UserData, UserDataService} from '../../utils/services/user-data.service';
+import {UserData} from '../../utils/services/user-data.service';
 import {KeycloakService} from '../../utils/oauth2/bff/keycloak.service';
+import {UserDataStore} from '../../utils/stores/user-data.store';
+import {PatientStore} from '../../utils/stores/patient.store';
+import {LessonStore} from '../../utils/stores/lesson.store';
 
 
 @Component({
@@ -19,12 +22,18 @@ export class PrivateLayoutComponent implements OnInit {
   userProfile?: UserData;
 
   constructor(private keycloakService: KeycloakService,
-              private userService:UserDataService,
+
+              private userDataStore: UserDataStore,
+              private patientStore: PatientStore,
+              private lessonStore:LessonStore,
+
               private router:Router,) {}
 
+  // после авторизации получение профиля, синхронизация с бд,
+  // получение данных о пациентах и занятиях
   ngOnInit(): void {
     this.keycloakService.requestUserProfile().subscribe({
-      next: (profile:any) => {
+      next: (profile: any) => {
         this.userProfile = {
           id: profile.id,
           firstName: profile.given_name,
@@ -33,24 +42,33 @@ export class PrivateLayoutComponent implements OnInit {
           phone: profile.phone,
           role: profile.role
         };
-        console.log('User profile loaded', this.userProfile );
-        this.userService.setUserData(this.userProfile);
 
-        this.keycloakService.isUserExist(this.userProfile ).subscribe({
+        console.log('User profile loaded', this.userProfile);
+        this.userDataStore.setUserData(this.userProfile);
+
+        this.keycloakService.isUserExist(this.userProfile).subscribe({
           next: exists => {
+            // TODO логика когда найден или нет. Или зачем тогда?
             console.log('User exists:', exists);
-            // тут ваша логика: редирект, загрузка, сообщение и т.д.
           },
           error: err => {
             console.error('Error checking if user exists:', err);
           }
         });
+
+        this.loadInitialData(this.userProfile.id, this.userProfile.role);
       },
       error: err => {
-        console.error('Failed to load user profile', err);
+        console.error('Error loading profile:', err);
       }
     });
   }
+
+  private loadInitialData(userId: string, role: string) {
+    this.patientStore.refresh(userId, role);
+    this.lessonStore.refresh(userId, role);
+  }
+
 
   logout(): void {
     this.keycloakService.logoutAction().subscribe({

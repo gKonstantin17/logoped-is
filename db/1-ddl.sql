@@ -1,3 +1,21 @@
+-- Database: Logoped
+-- DROP DATABASE IF EXISTS "Logoped";
+CREATE DATABASE "Logoped"
+    WITH
+    OWNER = postgres
+    ENCODING = 'UTF8'
+    LC_COLLATE = 'English_United States.1252'
+    LC_CTYPE = 'English_United States.1252'
+    LOCALE_PROVIDER = 'libc'
+    TABLESPACE = pg_default
+    CONNECTION LIMIT = -1
+    IS_TEMPLATE = False;
+
+-- SCHEMA: logoped
+-- DROP SCHEMA IF EXISTS logoped ;
+CREATE SCHEMA IF NOT EXISTS logoped
+    AUTHORIZATION postgres;
+
 --
 --		1 USER
 --
@@ -33,6 +51,7 @@ CREATE TABLE IF NOT EXISTS logoped."Patient"
     "DateOfBirth" timestamp without time zone,
     "UserId" uuid,
     "LogopedId" uuid,
+    "IsHidden" boolean,
     CONSTRAINT "Patient_pkey" PRIMARY KEY ("Id"),
     CONSTRAINT "FK_patient_logoped" FOREIGN KEY ("LogopedId")
         REFERENCES logoped."Logoped" ("Id") MATCH SIMPLE
@@ -102,6 +121,7 @@ CREATE TABLE IF NOT EXISTS logoped."Lesson"
     "Topic" text COLLATE pg_catalog."default",
     "Description" text COLLATE pg_catalog."default",
     "DateOfLesson" timestamp without time zone,
+    "Status" text COLLATE pg_catalog."default",
     "HomeworkId" bigint,
     "LogopedId" uuid,
     CONSTRAINT "Lesson_pkey" PRIMARY KEY ("Id"),

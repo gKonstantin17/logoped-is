@@ -1,8 +1,10 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
-import {DatePipe, NgForOf, NgIf} from '@angular/common';
-import {UserDataService} from '../../../utils/services/user-data.service';
-import {LessonService} from '../../../utils/services/lesson.service';
+import {AsyncPipe, DatePipe, NgForOf, NgIf} from '@angular/common';
+import {UserDataStore} from '../../../utils/stores/user-data.store';
+import {LessonStore} from '../../../utils/stores/lesson.store';
+import {Observable} from 'rxjs';
+import {ChangeDateModalComponent} from './change-date-modal/change-date-modal.component';
 
 @Component({
   selector: 'app-details',
@@ -11,7 +13,9 @@ import {LessonService} from '../../../utils/services/lesson.service';
     NgIf,
     RouterLink,
     DatePipe,
-    NgForOf
+    NgForOf,
+    AsyncPipe,
+    ChangeDateModalComponent
   ],
   templateUrl: './details.component.html',
   styleUrl: './details.component.css'
@@ -20,26 +24,21 @@ export class DetailsComponent implements OnInit {
   lessonId!: number;
   selectedTab: 'lesson' | 'about' | 'description' = 'lesson';
 
-  lesson: any|null;
-  constructor(private userDataService: UserDataService,
+  constructor(private userDataStore: UserDataStore,
+              private lessonStore: LessonStore,
               private route: ActivatedRoute,
-              private router: Router,
-              private lessonService:LessonService) {}
-  currentRole: string | null = null;
-  ngOnInit() {
-    this.lessonId = +this.route.snapshot.paramMap.get('id')!;
-    this.userDataService.userData$.subscribe(user => {
-      this.currentRole = user?.role || null;
-    });
+              private router: Router) {}
 
-    this.lessonService.findWithFk(this.lessonId).subscribe({
-      next: (data) => {
-        this.lesson = data;
-        console.log('Полученное занятие:', this.lesson);
-      },
-      error: (err) => {
-        console.error('Ошибка при получении детей:', err);
-      }
+  currentRole: string | null = null;
+  lesson$!: Observable<any>;
+  showRescheduleModal = false;
+
+  ngOnInit() {
+    this.lesson$ = this.lessonStore.currentLesson$;
+    this.lessonId = +this.route.snapshot.paramMap.get('id')!;
+    this.userDataStore.userData$.subscribe(user => {
+      this.currentRole = user?.role || null;
+      this.lessonStore.loadLesson(this.lessonId);
     });
   }
 
@@ -47,18 +46,42 @@ export class DetailsComponent implements OnInit {
     this.router.navigate(['/dashboard/session']);
   }
   openDiagnostic() {
-    const patient = this.lesson?.patients?.[0];
-    if (!patient) return;
+    this.lesson$.subscribe(lesson => {
+      const patient = lesson?.patients?.[0];
+      if (!patient) return;
 
-    this.router.navigate(['/dashboard/diagnostic'], {
-      state: {
-        fullName: `${patient.firstName} ${patient.lastName}`,
-        dateOfBirth: patient.dateOfBirth,
-        lessonId: this.lesson?.id,
-        logopedId: this.lesson?.logoped?.id
-      }
-    });
+      this.router.navigate(['/dashboard/diagnostic'], {
+        state: {
+          fullName: `${patient.firstName} ${patient.lastName}`,
+          dateOfBirth: patient.dateOfBirth,
+          lessonId: lesson?.id,
+          logopedId: lesson?.logoped?.id
+        }
+      });
+    }).unsubscribe();  // Не забудь отписаться или использовать async pipe в шаблоне!
   }
 
+  cancelLesson() {
+    const confirmed = confirm('Отменить занятие?');
+    if (!confirmed) return;
 
+    this.lessonStore.cancel(this.lessonId);
+    this.lessonStore.loadLesson(this.lessonId);
+  }
+
+  onReschedule(newDate: Date) {
+    this.lessonStore.changeDate(this.lessonId, newDate);
+    this.showRescheduleModal = false;
+
+    this.lessonStore.loadLesson(this.lessonId);
+
+    // Перенаправление на календарь с нужной датой
+    this.router.navigate(['/dashboard/calendar'], {
+      queryParams: {
+        date: newDate.toISOString()  // Преобразуем дату в формат ISO
+      }
+    });
+
+
+  }
 }

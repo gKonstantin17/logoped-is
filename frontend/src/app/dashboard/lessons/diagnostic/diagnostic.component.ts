@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {NgForOf, NgIf} from '@angular/common';
+import {CommonModule, NgForOf, NgIf} from '@angular/common';
 import {
   trigger,
   transition,
@@ -8,7 +8,8 @@ import {
   animate
 } from '@angular/animations';
 import {Router} from '@angular/router';
-import {SpeechCardService} from '../../../utils/services/speech-card.service';
+import {SpeechCardStore} from '../../../utils/stores/speechCard.store';
+import {Observable} from 'rxjs';
 @Component({
   selector: 'app-session',
   standalone: true,
@@ -16,7 +17,8 @@ import {SpeechCardService} from '../../../utils/services/speech-card.service';
   imports: [
     FormsModule,
     NgIf,
-    NgForOf
+    NgForOf,
+    CommonModule
   ],
 
   styleUrls: ['./diagnostic.component.css'],
@@ -35,7 +37,7 @@ import {SpeechCardService} from '../../../utils/services/speech-card.service';
 export class DiagnosticComponent implements OnInit{
   lessonId!: number;
   logopedId!: number;
-  constructor(private router: Router, private speechCardService: SpeechCardService) {
+  constructor(private router: Router, private speechCardStore: SpeechCardStore) {
     const nav = this.router.getCurrentNavigation();
     const state = nav?.extras?.state as any;
 
@@ -64,18 +66,13 @@ export class DiagnosticComponent implements OnInit{
   }
 
 
-  availableSpeechErrors: { id: number; title: string; description: string }[] = [];
+  availableSpeechErrors$!: Observable<{ id: number; title: string; description: string }[]>;
+
   selectedError: { id: number; title: string; description: string } | null = null;
 
   ngOnInit() {
-    this.speechCardService.findAllError().subscribe({
-      next: (data) => {
-        this.availableSpeechErrors = data;
-      },
-      error: (err) => {
-        console.error('Ошибка при получении речевых нарушений:', err);
-      }
-    });
+    this.availableSpeechErrors$ = this.speechCardStore.speechErrors$;
+    this.speechCardStore.loadSpeechErrors(); // загружаем ошибки в стор
   }
 
   addSpeechError() {
@@ -153,7 +150,7 @@ export class DiagnosticComponent implements OnInit{
       logopedId: this.logopedId
     };
 
-    this.speechCardService.createWithDiagnostic(payload).subscribe({
+    this.speechCardStore.createWithDiagnostic(payload).subscribe({
       next: () => alert('Речевая карта сохранена успешно!'),
       error: (err) => console.error('Ошибка при сохранении карты:', err)
     });

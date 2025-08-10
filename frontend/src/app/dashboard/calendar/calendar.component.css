@@ -28,3 +28,148 @@ full-calendar {
   width: 100%;
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
+
+/* 🟦 Увеличить ширину колонки */
+.fc .fc-timegrid-col {
+  min-width: 120px;
+}
+
+/* 🟦 Увеличить высоту временного слота */
+.fc .fc-timegrid-slot {
+  height: 50px !important;
+}
+
+/* 🟥 Стили для отменённых событий */
+.fc-event.event-cancelled {
+  background-color: #807d7d !important;
+  color: white !important;
+  border: none;
+  opacity: 0.85;
+  font-style: italic;
+}
+
+.to-details {
+  display: inline-block;
+  padding: 8px 16px;
+  color: white;
+  text-align: center;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+  font-size: 14px;
+  background-color: #528cf3;
+  border: none;
+  margin-top: 0;
+  cursor: pointer; /* Чтобы и ссылки, и кнопки имели курсор "рука" */
+  user-select: none; /* Запрет выделения текста при клике */
+}
+
+/* Чтобы убрать стандартный стиль для кнопок */
+.to-details.button,
+button.to-details {
+  background-color: #528cf3;
+  border: none;
+  height: 36px;
+}
+
+/* Добавим эффект при наведении */
+.to-details:hover {
+  background-color: #3b6adf;
+  text-decoration: none; /* Убирает подчеркивание у ссылок */
+}
+
+.btn-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.redesigned-modal {
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 480px;
+  width: 90%;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.modal-title {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.modal-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modal-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  font-size: 15px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 6px;
+}
+
+.label {
+  color: #555;
+  font-weight: 500;
+  flex: 0 0 150px;
+}
+
+.value {
+  color: #222;
+  text-align: right;
+  flex: 1;
+}
+
+.status {
+  font-weight: 600;
+}
+.status.Запланировано {
+  color: #2a9d8f;
+}
+.status.Проведено {
+  color: #4a8ef0;
+}
+.status.Отменено {
+  color: #b00020;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 24px;
+}
+
+.btn {
+  padding: 10px 18px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  text-decoration: none;
+  text-align: center;
+}
+
+.btn.link {
+  background-color: #528cf3;
+  color: white;
+  border: none;
+}
+
+.btn.close {
+  background-color: #e0e0e0;
+  color: #333;
+  border: none;
+}
+
+.btn:hover {
+  opacity: 0.9;
+}

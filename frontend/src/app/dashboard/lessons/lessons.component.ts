@@ -1,11 +1,12 @@
 import {Component, OnInit} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import {RouterLink} from "@angular/router";
+import {ActivatedRoute, Router, RouterLink} from "@angular/router";
 import {LessonModalComponent} from './lesson-modal/lesson-modal.component';
-import {UserDataService} from '../../utils/services/user-data.service';
-import {PatientService} from '../../utils/services/patient.service';
 import {LessonData, LessonService} from '../../utils/services/lesson.service';
+import {UserDataStore} from '../../utils/stores/user-data.store';
+import {PatientStore} from '../../utils/stores/patient.store';
+import {LessonStore} from '../../utils/stores/lesson.store';
 
 @Component({
   selector: 'app-lessons',
@@ -17,76 +18,60 @@ import {LessonData, LessonService} from '../../utils/services/lesson.service';
 export class LessonsComponent implements OnInit {
   selectedChildId: number = 0; // отображать занятия у всех пациентов
 
-  childrenData: any[] = [];
-  constructor(private userDataService: UserDataService,
-              private patientService: PatientService,
-              private lessonService: LessonService) {}
+
+  constructor(private router: Router,
+              private route: ActivatedRoute,
+              private userDataStore: UserDataStore,
+              private patientStore: PatientStore,
+              private lessonStore:LessonStore) {}
   currentRole: string | null = null;
   userId: string | null = null;
   lessonDataList: any[] = [];
+  childrenData: any[] = [];
+
+  // TODO нужен ли userDataService?
   ngOnInit() {
-    this.userDataService.userData$.subscribe(user => {
+    this.route.queryParams.subscribe(params => {
+      const paramId = parseInt(params['childId'], 10);
+      if (!isNaN(paramId)) {
+        this.selectedChildId = paramId; // 👈 установить выбранного ребёнка
+      }
+    });
+
+    this.userDataStore.userData$.subscribe(user => {
       this.currentRole = user?.role || null;
       this.userId = user?.id || null;
 
-      if (this.userId !== null) {
-        if (this.currentRole === 'user') {
-          this.patientService.findByUser(this.userId).subscribe({
-            next: (data) => {
-              this.childrenData = data;
-              console.log('Полученные дети:', this.childrenData);
-            },
-            error: (err) => {
-              console.error('Ошибка при получении детей:', err);
-            }
-          });
-          this.lessonService.findByUser(this.userId).subscribe({
-            next: (data) => {
-              this.lessonDataList = data;
-              console.log('Полученные дети:', this.lessonDataList);
-            },
-            error: (err) => {
-              console.error('Ошибка при получении детей:', err);
-            }
-          });
+      this.patientStore.patients$.subscribe(data => {
+        this.childrenData = data;
+      });
 
-        }
-        if (this.currentRole === 'logoped') {
-          this.patientService.findByLogoped(this.userId).subscribe({
-            next: (data) => {
-              this.childrenData = data;
-              console.log('Полученные дети:', this.childrenData);
-            },
-            error: (err) => {
-              console.error('Ошибка при получении детей:', err);
-            }
-          })
-          this.lessonService.findByLogoped(this.userId).subscribe({
-            next: (data) => {
-              this.lessonDataList = data;
-              console.log('Полученные дети:', this.lessonDataList);
-            },
-            error: (err) => {
-              console.error('Ошибка при получении детей:', err);
-            }
-          });
+      this.lessonStore.lessons$.subscribe(data => {
+        this.lessonDataList = data;
+      });
 
 
-        }
-      }
     });
+    // занятия могут создать как User так и Logoped, нужны актуальные данные
+    this.lessonStore.refresh(this.userId!, this.currentRole!);
   }
 
   get upcomingLessons() {
     const now = new Date();
-    return this.selectedChildLessons.filter(lesson => new Date(lesson.dateOfLesson) >= now);
+    return this.selectedChildLessons.filter(
+      lesson => lesson.status !== 'Отменено' && new Date(lesson.dateOfLesson) >= now
+    );
   }
 
   get pastLessons() {
     const now = new Date();
-    return this.selectedChildLessons.filter(lesson => new Date(lesson.dateOfLesson) < now);
+    return this.selectedChildLessons.filter(
+      lesson => lesson.status !== 'Отменено' && new Date(lesson.dateOfLesson) < now
+    );
   }
-
+  get cancelledLessons() {
+    return this.selectedChildLessons.filter(lesson => lesson.status === 'Отменено');
+  }
 
   get selectedChildLessons() {
     if (this.selectedChildId === 0) {
@@ -105,6 +90,7 @@ export class LessonsComponent implements OnInit {
     return this.childrenData.find(child => child.id === this.selectedChildId);
   }
 
+
   showModal = false;
   hasSpeechCard: boolean | null = null;
   openModal() {
@@ -113,7 +99,7 @@ export class LessonsComponent implements OnInit {
       return;
     }
 
-    this.patientService.existsSpeechCard(this.selectedChildId).subscribe({
+    this.patientStore.existsSpeechCard(this.selectedChildId).subscribe({
       next: (result) => {
         this.showModal = true;
         this.hasSpeechCard = result; // true или false
@@ -140,23 +126,28 @@ export class LessonsComponent implements OnInit {
       this.showToast('Пожалуйста, выберите ребёнка перед записью занятия.');
       return;
     }
-
+    const patient = this.childrenData.find(child => child.id === this.selectedChildId);
+    const logopedId = data.type === "Диагностика" ? null : patient?.logopedId || null;
     const lessonData: LessonData = {
       ...data,
       dateOfLesson: new Date(data.dateOfLesson).toISOString(),
-      logopedId: data.type === "Диагностика" ? null : this.userId,
+      logopedId: logopedId,
       patientsId: [this.selectedChildId]
     };
 
 
-    this.lessonService.createLesson(lessonData).subscribe({
+    this.lessonStore.create(lessonData).subscribe({
       next: () => {
         this.showToast('Занятие успешно добавлено');
         this.showModal = false;
+        this.router.navigate(['dashboard/calendar'], { queryParams: { date: lessonData.dateOfLesson } });
       },
       error: () => this.showToast('Ошибка при создании занятия')
     });
   }
+
+
+
 
 
 

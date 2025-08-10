@@ -20,4 +20,4 @@ public record SCFromDiagnosticDto(
         List<SoundCorrectionDto> soundCorrections,
         Long lessonId,
         UUID logopedId
-) {}
+) implements BaseSpeechCard {}

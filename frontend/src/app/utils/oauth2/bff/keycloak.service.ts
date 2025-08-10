@@ -1,10 +1,10 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
-import {User} from '../model/User';
 import {environment} from '../../../../environments/environment';
 import {UserData} from '../../services/user-data.service';
 import {HttpMethod, Operation} from '../model/RequestBFF';
+import {BackendService} from '../backend/backend.service';
 
 
 @Injectable({
@@ -13,7 +13,8 @@ import {HttpMethod, Operation} from '../model/RequestBFF';
 
 export class KeycloakService {
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient,
+              private backendService: BackendService) {
   }
 
 
@@ -33,12 +34,9 @@ export class KeycloakService {
   requestUserProfile()  {
     return this.http.get<UserData>(environment.BFF_URI + '/bff/profile');
   }
-  isUserExist(userData: UserData): Observable<any> {
-    const url = 'http://localhost:8280/user/is-exist';
-    const httpMethod = HttpMethod.POST;
-    const body = JSON.stringify(userData);
-    const operation = new Operation(httpMethod, url, body);
-    return this.http.post<boolean>(environment.BFF_URI + '/bff/operation', JSON.stringify(operation));
+  isUserExist(userData: UserData): Observable<boolean> {
+    const url = `${environment.RESOURSE_URL}/user/is-exist`;
+    return this.backendService.createOperation(HttpMethod.POST, url, userData);
   }
 
 

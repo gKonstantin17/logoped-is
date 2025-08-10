@@ -31,6 +31,8 @@ public class Lesson {
 
     @Column(name = "DateOfLesson")
     private Timestamp dateOfLesson;
+    @Column(name = "Status")
+    private String status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "LogopedId")
@@ -46,4 +48,7 @@ public class Lesson {
             joinColumns = @JoinColumn(name = "LessonId"),
             inverseJoinColumns = @JoinColumn(name = "PatientId"))
     private Set<Patient> patients = new HashSet<>();
+
+    @OneToOne(mappedBy = "lesson", fetch = FetchType.LAZY)
+    private Diagnostic diagnostic;
 }

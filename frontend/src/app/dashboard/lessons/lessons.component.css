@@ -19,6 +19,23 @@
   border: none;
   border-radius: 8px;
   cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.add-lessons-btn:hover {
+  animation: pulse-once 0.8s ease;
+}
+
+@keyframes pulse-once {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 .lesson-cards {
@@ -30,14 +47,101 @@
 
 .lesson-card {
   width: 300px;
-  border: 1px solid #ccc;
   border-radius: 12px;
-  padding: 16px;
-  background-color: #f9f9f9;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden; /* чтобы ничего не вылезало */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  transition: transform 0.2s;
+  justify-content: space-between;
+}
+.lesson-card:hover {
+  transform: translateY(-2px);
 }
 
+.lesson-card.upcoming {
+  background-color: #c4e2fc;
+}
+.lesson-card.past {
+  background-color: #d2fde2;
+}
+.lesson-card.cancelled {
+  background-color: #dadada;
+}
 
+.card-top {
+  display: flex;
+  justify-content: center;
+  padding-top: 16px;
+}
+
+.icon-wrapper {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  width: 125px;
+  height: 125px;
+  background-color: white;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.card-bottom {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.card-bottom p {
+  margin: 0;
+
+}
+
+.card-bottom a {
+  display: inline-block;
+  padding: 8px 16px;
+  margin-top: 8px;
+  color: white;
+  text-align: center;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.card-bottom a:hover {
+  text-decoration: none;
+}
+.lesson-card.upcoming .card-bottom a {
+  background-color: #528cf3;
+}
+
+.lesson-card.upcoming .card-bottom a:hover {
+  /*background-color: #125ecf;*/
+  background-color: #1d7af5;;
+}
+
+/* 🟩 Для past (зелёный фон) */
+.lesson-card.past .card-bottom a {
+  background-color: #55d97c;
+}
+
+.lesson-card.past .card-bottom a:hover {
+  background-color: #20cb50;
+}
+
+/* ⚫ Для cancelled (серый фон) */
+.lesson-card.cancelled .card-bottom a {
+  background-color: #86929b;
+}
+
+.lesson-card.cancelled .card-bottom a:hover {
+  background-color: #5a6268;
+}
 h1 {
   text-align:center;
   margin-top: 20px;
@@ -74,3 +178,41 @@ h1 {
   from {opacity: 1; transform: translateY(0);}
   to {opacity: 0; transform: translateY(20px);}
 }
+.sidebar {
+  min-width: 200px;
+  padding: 16px;
+  background-color: #f3f3f3;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+label[for="childSelect"] {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  font-size: 16px;
+  color: #333;
+}
+
+#childSelect {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+  background-color: #fff;
+  appearance: none;
+  outline: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+#childSelect:focus {
+  border-color: #ef019b;
+  box-shadow: 0 0 0 3px rgba(239, 1, 155, 0.2);
+}
+#childSelect {
+  background-image: url('data:image/svg+xml;utf8,<svg fill="%23777" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 20px;
+}
+

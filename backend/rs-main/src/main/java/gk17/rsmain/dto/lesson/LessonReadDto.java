@@ -10,6 +10,7 @@ public record LessonReadDto(
         String topic,
         String description,
         Timestamp dateOfLesson,
+        String status,
         UUID logopedId,
         Long homeworkId,
         List<Long> patientsId

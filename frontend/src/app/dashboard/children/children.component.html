@@ -1,16 +1,31 @@
 <div class="children-container">
+
+
   <!-- Интерфейс для пользователя (роль 'user') -->
   <ng-container *ngIf="currentRole === 'user'">
     <div class="card-list">
       <!-- Карточки добавленных детей -->
       <div *ngFor="let patient of patientsOfUser; let i = index" class="child-card filled-card">
         <strong>{{ patient.firstName }} {{ patient.lastName }}</strong>
-        <p>Дата рождения: {{ patient.dateOfBirth | date }}</p>
-
-        <div class="card-button-group">
-          <button (click)="goToSpeechCard(patient.id)">Речевая карта</button>
-          <button (click)="startEdit(patient)">Изменить</button>
-          <button (click)="removeChild(i)">Убрать</button>
+        <p> Возраст: {{ getAge(patient.dateOfBirth ) }}</p>
+        <div class="card-buttons">
+          <div class="card-button">
+            <svg xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 24 24">
+              <path d="m14.5,0H2v3H0v1h2v3.5H0v1h2v3H0v1h2v3H0v1h2v3.5H0v1h2v3h12.5c1.378,0,2.5-1.121,2.5-2.5V2.5c0-1.379-1.122-2.5-2.5-2.5Zm1.5,21.5c0,.827-.673,1.5-1.5,1.5H3V1h11.5c.827,0,1.5.673,1.5,1.5v19ZM6,6h7v1h-7v-1ZM21.5,0c-1.378,0-2.5,1.121-2.5,2.5v19.015l2.5,2.5,2.5-2.5V2.5c0-1.379-1.122-2.5-2.5-2.5Zm1.5,21.101l-1.5,1.5-1.5-1.5V2.5c0-.827.673-1.5,1.5-1.5s1.5.673,1.5,1.5v18.601Z"/>
+            </svg>
+            <div (click)="goToLesson(patient.id)">Занятия</div>
+          </div>
+          <div class="card-button" (click)="goToSpeechCard(patient.id)">
+            <svg xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 24 24">
+              <path d="m23.854,23.146l-3.274-3.274c.886-1.046,1.421-2.398,1.421-3.872,0-3.309-2.691-6-6-6s-6,2.691-6,6,2.691,6,6,6c1.475,0,2.827-.535,3.872-1.421l3.274,3.274c.098.098.226.146.354.146s.256-.049.354-.146c.195-.195.195-.512,0-.707Zm-7.854-2.146c-2.757,0-5-2.243-5-5s2.243-5,5-5,5,2.243,5,5-2.243,5-5,5Zm-4.5,2h-7c-1.93,0-3.5-1.57-3.5-3.5V4.5c0-1.93,1.57-3.5,3.5-3.5h5.515c.334,0,.664.03.985.087v5.413c0,1.378,1.122,2.5,2.5,2.5h5.813c.154,0,.3-.071.395-.193s.127-.281.089-.431c-.289-1.13-.877-2.163-1.702-2.987l-3.485-3.485c-1.228-1.228-2.86-1.904-4.596-1.904h-5.515C2.019,0,0,2.019,0,4.5v15c0,2.481,2.019,4.5,4.5,4.5h7c.276,0,.5-.224.5-.5s-.224-.5-.5-.5Zm.5-21.632c.706.272,1.353.692,1.904,1.243l3.485,3.485c.542.542.964,1.192,1.24,1.904h-5.129c-.827,0-1.5-.673-1.5-1.5V1.368Zm-2.5,9.632h-5c-.276,0-.5-.224-.5-.5s.224-.5.5-.5h5c.276,0,.5.224.5.5s-.224.5-.5.5Zm-5.5,3.5c0-.276.224-.5.5-.5h3c.276,0,.5.224.5.5s-.224.5-.5.5h-3c-.276,0-.5-.224-.5-.5Zm0,4c0-.276.224-.5.5-.5h3.5c.276,0,.5.224.5.5s-.224.5-.5.5h-3.5c-.276,0-.5-.224-.5-.5Zm15.35-3.857c.192.199.187.515-.012.707l-2.703,2.614c-.36.355-.835.534-1.311.534s-.949-.177-1.312-.532l-1.364-1.345c-.197-.194-.199-.51-.005-.707.194-.197.512-.198.707-.005l1.363,1.344c.337.33.885.329,1.223-.004l2.706-2.617c.199-.192.516-.186.707.012Z"/>
+            </svg>
+            <div>Речевая карта</div>
+          </div>
+          <div class="card-button" (click)="startEdit(patient,i)">
+            <svg xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 24 24" width="512" height="512"><path d="M8.974,12.026c3.323,0,6.026-2.703,6.026-6.026S12.297-.026,8.974-.026,2.949,2.677,2.949,6s2.703,6.026,6.025,6.026ZM8.974,.974c2.771,0,5.026,2.254,5.026,5.026s-2.254,5.026-5.026,5.026S3.949,8.771,3.949,6,6.203,.974,8.974,.974Zm14.293,10.758c-.943-.944-2.592-.944-3.535,0l-8.732,8.732v3.536h3.536l8.732-8.732c.472-.472,.732-1.1,.732-1.768s-.26-1.296-.732-1.768Zm-.707,2.828l-8.439,8.439h-2.122v-2.122l8.439-8.439c.566-.566,1.555-.566,2.121,0,.283,.283,.439,.66,.439,1.061s-.156,.777-.439,1.061Zm-9.061,.439H4.5c-1.93,0-3.5,1.57-3.5,3.5v5.5H0v-5.5c0-2.481,2.019-4.5,4.5-4.5H13.5c.345,0,.684,.046,1.014,.122l-.891,.891c-.042-.001-.081-.013-.123-.013Z"/>
+            </svg>
+            <div>Изменить</div>
+          </div>
         </div>
       </div>
 
@@ -20,6 +35,7 @@
         <form (ngSubmit)="addChild(i)" #formRef="ngForm">
           <input type="text" placeholder="Имя" [(ngModel)]="child.firstName" name="firstName{{i}}" required>
           <input type="text" placeholder="Фамилия" [(ngModel)]="child.lastName" name="lastName{{i}}" required>
+          <label for="editBirthDate" class="small-label">Дата рождения</label>
           <input type="date" [(ngModel)]="child.birthDate" name="birthDate{{i}}" required>
           <div class="button-group">
             <button type="submit" [disabled]="!formRef.valid">Добавить</button>
@@ -36,31 +52,39 @@
     </div>
   </ng-container>
 
+
+
+
+
+  <!-- Интерфейс для логопеда (роль 'logoped') -->
   <!-- Интерфейс для логопеда (роль 'logoped') -->
   <ng-container *ngIf="currentRole === 'logoped'">
     <h2>Список детей</h2>
-<!--    <label for="speechErrorFilter">Фильтр по речевым нарушениям:</label>-->
-<!--    <select id="speechErrorFilter" [(ngModel)]="selectedSpeechError">-->
-<!--      <option [ngValue]="null">&#45;&#45; Показать всех &#45;&#45;</option>-->
-<!--      <option *ngFor="let error of availableSpeechErrors" [ngValue]="error">-->
-<!--        {{ error }}-->
-<!--      </option>-->
-<!--    </select>-->
+
+    <label for="speechErrorFilter">Фильтр по речевым нарушениям:</label>
+    <select id="speechErrorFilter" [(ngModel)]="selectedSpeechError">
+      <option [ngValue]="null">-- Показать всех --</option>
+      <option *ngFor="let error of availableSpeechErrors" [ngValue]="error">
+        {{ error }}
+      </option>
+    </select>
+
     <table class="logoped-table">
       <thead>
       <tr>
         <th>Имя</th>
         <th>Фамилия</th>
         <th>Дата рождения</th>
-<!--        <th (click)="toggleSort('speechErrors')">-->
-<!--          Речевые нарушения-->
-<!--          <span *ngIf="sortColumn === 'speechErrors'">({{ sortDirection === 'asc' ? '↑' : '↓' }})</span>-->
-<!--        </th>-->
-<!--        <th (click)="toggleSort('speechCorrection')">-->
-<!--          Направления коррекции-->
-<!--          <span *ngIf="sortColumn === 'speechCorrection'">({{ sortDirection === 'asc' ? '↑' : '↓' }})</span>-->
-<!--        </th>-->
+        <th (click)="toggleSort('speechErrors')">
+          Речевые нарушения
+          <span *ngIf="sortColumn === 'speechErrors'">({{ sortDirection === 'asc' ? '↑' : '↓' }})</span>
+        </th>
+        <th (click)="toggleSort('soundCorrections')">
+          Направления коррекции
+          <span *ngIf="sortColumn === 'soundCorrections'">({{ sortDirection === 'asc' ? '↑' : '↓' }})</span>
+        </th>
         <th>О пациенте</th>
+        <th>Действия</th>
       </tr>
       </thead>
       <tbody>
@@ -68,34 +92,119 @@
         <td>{{ child.firstName }}</td>
         <td>{{ child.lastName }}</td>
         <td>{{ child.dateOfBirth | date }}</td>
-<!--        <td>{{child.speechErrors}}</td>-->
-<!--        <td>{{child.speechCorrection}}</td>-->
-        <td><p>
-          <button (click)="goToSpeechCard(child.id)">Речевая карта</button>
-        </p>
-        </td>
+
         <td>
-          <button (click)="startEdit(child)" title="Редактировать" class="edit-btn">
-            ✏️
-          </button>
+          <ul *ngIf="child.speechErrors?.length">
+            <li *ngFor="let error of child.speechErrors">
+              <strong>{{ error.title }}</strong>: {{ error.description }}
+            </li>
+          </ul>
+        </td>
+
+        <td>
+          <ul *ngIf="child.soundCorrections?.length">
+            <li *ngFor="let correction of child.soundCorrections">
+              <strong>{{ correction.sound }}</strong>: {{ correction.correction }}
+            </li>
+          </ul>
+        </td>
+
+        <td>
+          <button (click)="goToSpeechCard(child.id)">Речевая карта</button>
+        </td>
+
+        <td>
+          <button (click)="startEdit(child, i)" title="Редактировать" class="edit-btn">✏️</button>
         </td>
       </tr>
       </tbody>
     </table>
   </ng-container>
+
+
+
+
   <!-- Модальное окно редактирования -->
-  <div class="modal" *ngIf="editingPatient">
-    <div class="modal-content">
+  <div class="modal-backdrop" *ngIf="editingPatient" (click)="cancelEdit()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
       <h3>Редактировать ребёнка</h3>
-      <form (ngSubmit)="saveEdit()" #editForm="ngForm">
-        <input type="text" [(ngModel)]="editFormData.firstName" name="editFirstName" required placeholder="Имя">
-        <input type="text" [(ngModel)]="editFormData.lastName" name="editLastName" required placeholder="Фамилия">
-        <input type="date" [(ngModel)]="editFormData.dateOfBirth" name="editBirthDate" required>
+      <form (ngSubmit)="saveEdit()" #editForm="ngForm" novalidate>
+        <div class="form-group">
+          <label for="editFirstName" class="small-label">Имя</label>
+          <input
+            id="editFirstName"
+            type="text"
+            [(ngModel)]="editFormData.firstName"
+            name="editFirstName"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="editLastName" class="small-label">Фамилия</label>
+          <input
+            id="editLastName"
+            type="text"
+            [(ngModel)]="editFormData.lastName"
+            name="editLastName"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="editBirthDate" class="small-label">Дата рождения</label>
+          <input
+            id="editBirthDate"
+            type="date"
+            [(ngModel)]="editFormData.dateOfBirth"
+            name="editBirthDate"
+            required
+          />
+        </div>
+        <div class="card-button hide" (click)="removeChild(editingPatientIndex!)">
+          <svg xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 24 24">
+            <path d="m24,11.5c0,.276-.224.5-.5.5h-7c-.276,0-.5-.224-.5-.5s.224-.5.5-.5h7c.276,0,.5.224.5.5ZM2.949,6C2.949,2.678,5.652-.025,8.974-.025s6.026,2.703,6.026,6.025-2.703,6.025-6.026,6.025-6.025-2.703-6.025-6.025Zm1,0c0,2.771,2.254,5.025,5.025,5.025s5.026-2.254,5.026-5.025S11.746.975,8.974.975,3.949,3.229,3.949,6Zm5.051,8C4.038,14,0,18.037,0,23v.5c0,.276.224.5.5.5s.5-.224.5-.5v-.5c0-4.411,3.589-8,8-8s8,3.589,8,8v.5c0,.276.224.5.5.5s.5-.224.5-.5v-.5c0-4.963-4.038-9-9-9Z"/>
+          </svg>
+          <div>Скрыть</div>
+        </div>
         <div class="button-group">
-          <button type="submit" [disabled]="!editForm.valid">Сохранить</button>
-          <button type="button" (click)="cancelEdit()">Отмена</button>
+          <button type="submit" [disabled]="!editForm.valid" class="save-btn">Сохранить</button>
+          <button type="button" (click)="cancelEdit()" class="cancel-btn">Отмена</button>
+
         </div>
       </form>
     </div>
   </div>
+
+
+
+
+
+  <!-- Восстановление -->
+  <div style="margin-top: 30px;">
+    <button (click)="openRestoreModal()">Показать скрытых детей</button>
+  </div>
+  <!-- Модальное окно восстановления -->
+  <div class="modal-backdrop" *ngIf="showRestoreModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Скрытые дети</h3>
+        <button class="close-btn" (click)="closeRestoreModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="hiddenPatients.length === 0">
+          Нет скрытых детей
+        </div>
+        <div *ngFor="let patient of hiddenPatients" class="hidden-patient-item">
+          <div class="patient-info">
+            {{ patient.firstName }} {{ patient.lastName }} {{ patient.dateOfBirth | date }}
+          </div>
+          <button (click)="restorePatient(patient.id)">Восстановить</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
 </div>
