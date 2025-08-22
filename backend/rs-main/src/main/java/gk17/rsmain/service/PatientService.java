@@ -13,7 +13,6 @@ import gk17.rsmain.repository.PatientRepository;
 import gk17.rsmain.utils.hibernate.ResponseHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;

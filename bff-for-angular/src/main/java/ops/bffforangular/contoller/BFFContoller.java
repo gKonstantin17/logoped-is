@@ -10,9 +10,9 @@ import ops.bffforangular.dto.UserProfile;
 import ops.bffforangular.utils.CookieUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -25,8 +25,6 @@ import java.util.*;
 @RestController
 @RequestMapping("/bff")
 public class BFFContoller {
-    // для выполнения веб запросов на KeyCloak
-    private static final RestTemplate restTemplate = new RestTemplate();
 
     // названия токенов в cookies
     public static final String IDTOKEN_COOKIE_KEY = "IT";
@@ -70,12 +68,13 @@ public class BFFContoller {
     private String refreshToken;
 
     // используется, чтобы получать любые значения пользователя из JSON
-    private JSONObject payload;
+    public JSONObject payload;
 
-
+    private final RestTemplate restTemplate;
     @Autowired
-    public BFFContoller(CookieUtils cookieUtils) {
+    public BFFContoller(CookieUtils cookieUtils, RestTemplate restTemplate) {
         this.cookieUtils = cookieUtils;
+        this.restTemplate = restTemplate;
     }
 
 

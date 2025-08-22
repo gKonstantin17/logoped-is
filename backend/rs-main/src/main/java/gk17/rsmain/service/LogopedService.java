@@ -5,7 +5,6 @@ import gk17.rsmain.dto.responseWrapper.AsyncResult;
 import gk17.rsmain.dto.responseWrapper.ServiceResult;
 import gk17.rsmain.dto.user.BaseUserDto;
 import gk17.rsmain.entity.Logoped;
-import gk17.rsmain.entity.UserData;
 import gk17.rsmain.repository.LogopedRepository;
 import gk17.rsmain.utils.hibernate.ResponseHelper;
 import gk17.rsmain.utils.keycloak.KeycloakAdminService;
