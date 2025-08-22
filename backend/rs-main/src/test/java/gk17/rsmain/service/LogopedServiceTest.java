@@ -84,8 +84,8 @@ public class LogopedServiceTest {
 
         LogopedDto dto = new LogopedDto("NewName",null,null,null);
 
-        try (var mock = mockStatic(ResponseHelper.class)) {
-            mock.when(() -> ResponseHelper.findById(repository,id,"Логопед не найден"))
+        try (var mocked = mockStatic(ResponseHelper.class)) {
+            mocked.when(() -> ResponseHelper.findById(repository,id,"Логопед не найден"))
                     .thenReturn(existing);
             when(repository.save(any(Logoped.class))).thenAnswer(inv -> inv.getArgument(0));
 
