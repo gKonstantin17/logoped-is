@@ -1,0 +1,4 @@
+rootProject.name = 'backend-ms'
+include 'sys-gateway'
+include 'sys-server'
+include 'rs-main'
