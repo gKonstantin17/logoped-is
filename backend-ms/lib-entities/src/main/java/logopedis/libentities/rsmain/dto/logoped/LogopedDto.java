@@ -1,6 +1,6 @@
 package logopedis.libentities.rsmain.dto.logoped;
 
-import logopedis.rsmain.dto.user.BaseUserDto;
+import logopedis.libentities.rsmain.dto.user.BaseUserDto;
 
 public record LogopedDto (
         String firstName,

@@ -1,7 +1,7 @@
 package logopedis.libentities.rsmain.dto.patient;
 
-import logopedis.rsmain.dto.soundCorrection.SoundCorrectionDto;
-import logopedis.rsmain.dto.speechError.SpeechErrorDto;
+import logopedis.libentities.rsmain.dto.soundCorrection.SoundCorrectionDto;
+import logopedis.libentities.rsmain.dto.speechError.SpeechErrorDto;
 
 import java.sql.Timestamp;
 import java.util.List;

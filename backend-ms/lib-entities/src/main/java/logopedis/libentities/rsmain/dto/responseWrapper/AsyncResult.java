@@ -1,19 +1,19 @@
 package logopedis.libentities.rsmain.dto.responseWrapper;
 
 import java.util.concurrent.CompletableFuture;
-
+import logopedis.libentities.rsmain.dto.responseWrapper.ServiceResult;
 public final class AsyncResult {
 
     private AsyncResult() {
         // private constructor to prevent instantiation
     }
 
-    public static <T> CompletableFuture<logopedis.rsmain.dto.responseWrapper.ServiceResult<T>> success(T data) {
-        return CompletableFuture.completedFuture(logopedis.rsmain.dto.responseWrapper.ServiceResult.success(data));
+    public static <T> CompletableFuture<ServiceResult<T>> success(T data) {
+        return CompletableFuture.completedFuture(ServiceResult.success(data));
     }
 
-    public static <T> CompletableFuture<logopedis.rsmain.dto.responseWrapper.ServiceResult<T>> error(String message) {
-        return CompletableFuture.completedFuture(logopedis.rsmain.dto.responseWrapper.ServiceResult.error(message));
+    public static <T> CompletableFuture<ServiceResult<T>> error(String message) {
+        return CompletableFuture.completedFuture(ServiceResult.error(message));
     }
 }
 

@@ -1,6 +1,6 @@
 package logopedis.libentities.rsmain.dto.speechCard;
 
-import logopedis.rsmain.dto.soundCorrection.SoundCorrectionDto;
+import logopedis.libentities.rsmain.dto.soundCorrection.SoundCorrectionDto;
 
 import java.util.List;
 import java.util.UUID;
