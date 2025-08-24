@@ -1,4 +1,4 @@
-package logopedis.rsmain.utils.hibernate;
+package logopedis.libutils.hibernate;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

@@ -1,6 +1,6 @@
 package logopedis.rsmain.security;
 
-import logopedis.rsmain.utils.keycloak.KCRoleConverter;
+import logopedis.libutils.keycloak.KCRoleConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

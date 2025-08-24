@@ -12,7 +12,7 @@ import logopedis.libentities.rsmain.entity.Lesson;
 import logopedis.libentities.rsmain.entity.Logoped;
 import logopedis.libentities.rsmain.entity.Patient;
 import logopedis.rsmain.repository.*;
-import logopedis.rsmain.utils.hibernate.ResponseHelper;
+import logopedis.libutils.hibernate.ResponseHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 

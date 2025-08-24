@@ -1,4 +1,4 @@
-package logopedis.rsmain.utils.hibernate;
+package logopedis.libutils.hibernate;
 
 import org.hibernate.boot.model.naming.Identifier;
 import org.hibernate.boot.model.naming.PhysicalNamingStrategy;

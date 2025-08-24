@@ -6,7 +6,7 @@ import logopedis.libentities.rsmain.dto.soundCorrection.SoundCorrectionDto;
 import logopedis.libentities.rsmain.dto.soundCorrection.SoundCorrectionReadDto;
 import logopedis.libentities.rsmain.entity.SoundCorrection;
 import logopedis.rsmain.repository.SoundCorrectionRepository;
-import logopedis.rsmain.utils.hibernate.ResponseHelper;
+import logopedis.libutils.hibernate.ResponseHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 

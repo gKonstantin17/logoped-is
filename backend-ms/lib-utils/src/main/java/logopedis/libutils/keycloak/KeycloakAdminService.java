@@ -1,4 +1,4 @@
-    package logopedis.rsmain.utils.keycloak;
+    package logopedis.libutils.keycloak;
 
     import com.fasterxml.jackson.databind.JsonNode;
     import logopedis.libentities.rsmain.dto.user.BaseUserDto;
