@@ -1,10 +1,10 @@
 package logopedis.rsmain.service;
 
-import logopedis.rsmain.dto.responseWrapper.AsyncResult;
-import logopedis.rsmain.dto.responseWrapper.ServiceResult;
-import logopedis.rsmain.dto.speechError.SpeechErrorDto;
-import logopedis.rsmain.dto.speechError.SpeechErrorReadDto;
-import logopedis.rsmain.entity.SpeechError;
+import logopedis.libentities.rsmain.dto.responseWrapper.AsyncResult;
+import logopedis.libentities.rsmain.dto.responseWrapper.ServiceResult;
+import logopedis.libentities.rsmain.dto.speechError.SpeechErrorDto;
+import logopedis.libentities.rsmain.dto.speechError.SpeechErrorReadDto;
+import logopedis.libentities.rsmain.entity.SpeechError;
 import logopedis.rsmain.repository.SpeechErrorRepository;
 import logopedis.rsmain.utils.hibernate.ResponseHelper;
 import org.springframework.scheduling.annotation.Async;

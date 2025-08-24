@@ -1,6 +1,6 @@
 package logopedis.rsmain.controller;
 
-import logopedis.rsmain.dto.lesson.*;
+import logopedis.libentities.rsmain.dto.lesson.*;
 import logopedis.rsmain.service.LessonService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -1,8 +1,8 @@
 package logopedis.rsmain.service;
 
-import logopedis.rsmain.dto.homework.HomeworkDto;
-import logopedis.rsmain.dto.responseWrapper.ServiceResult;
-import logopedis.rsmain.entity.Homework;
+import logopedis.libentities.rsmain.dto.homework.HomeworkDto;
+import logopedis.libentities.rsmain.dto.responseWrapper.ServiceResult;
+import logopedis.libentities.rsmain.entity.Homework;
 import logopedis.rsmain.repository.HomeworkRepository;
 import logopedis.rsmain.utils.hibernate.ResponseHelper;
 import logopedis.rsmain.service.HomeworkService;

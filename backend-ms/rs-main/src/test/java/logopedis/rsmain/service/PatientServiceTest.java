@@ -1,11 +1,11 @@
 package logopedis.rsmain.service;
 
-import logopedis.rsmain.dto.patient.PatientCreateDto;
-import logopedis.rsmain.dto.patient.PatientDto;
-import logopedis.rsmain.dto.patient.PatientReadDto;
-import logopedis.rsmain.dto.patient.PatientWithSpeechCard;
-import logopedis.rsmain.dto.responseWrapper.ServiceResult;
-import logopedis.rsmain.entity.*;
+import logopedis.libentities.rsmain.dto.patient.PatientCreateDto;
+import logopedis.libentities.rsmain.dto.patient.PatientDto;
+import logopedis.libentities.rsmain.dto.patient.PatientReadDto;
+import logopedis.libentities.rsmain.dto.patient.PatientWithSpeechCard;
+import logopedis.libentities.rsmain.dto.responseWrapper.ServiceResult;
+import logopedis.libentities.rsmain.entity.*;
 import logopedis.rsmain.repository.PatientRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

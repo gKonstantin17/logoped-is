@@ -1,11 +1,11 @@
 package logopedis.rsmain.service;
 
-import logopedis.rsmain.dto.responseWrapper.AsyncResult;
-import logopedis.rsmain.dto.responseWrapper.ServiceResult;
-import logopedis.rsmain.dto.user.UserDto;
-import logopedis.rsmain.dto.user.UserWithIdDto;
-import logopedis.rsmain.entity.Logoped;
-import logopedis.rsmain.entity.UserData;
+import logopedis.libentities.rsmain.dto.responseWrapper.AsyncResult;
+import logopedis.libentities.rsmain.dto.responseWrapper.ServiceResult;
+import logopedis.libentities.rsmain.dto.user.UserDto;
+import logopedis.libentities.rsmain.dto.user.UserWithIdDto;
+import logopedis.libentities.rsmain.entity.Logoped;
+import logopedis.libentities.rsmain.entity.UserData;
 import logopedis.rsmain.repository.UserRepository;
 import logopedis.rsmain.utils.hibernate.ResponseHelper;
 import logopedis.rsmain.utils.keycloak.KeycloakAdminService;

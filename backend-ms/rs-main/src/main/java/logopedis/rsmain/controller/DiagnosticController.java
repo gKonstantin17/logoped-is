@@ -1,7 +1,7 @@
 package logopedis.rsmain.controller;
 
-import logopedis.rsmain.dto.diagnostic.DiagnosticDto;
-import logopedis.rsmain.dto.diagnostic.DiagnosticReadDto;
+import logopedis.libentities.rsmain.dto.diagnostic.DiagnosticDto;
+import logopedis.libentities.rsmain.dto.diagnostic.DiagnosticReadDto;
 import logopedis.rsmain.service.DiagnosticService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

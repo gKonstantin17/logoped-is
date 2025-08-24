@@ -1,9 +1,9 @@
 package logopedis.rsmain.service;
 
-import logopedis.rsmain.dto.responseWrapper.AsyncResult;
-import logopedis.rsmain.dto.responseWrapper.ServiceResult;
-import logopedis.rsmain.dto.speechCard.*;
-import logopedis.rsmain.entity.*;
+import logopedis.libentities.rsmain.dto.responseWrapper.AsyncResult;
+import logopedis.libentities.rsmain.dto.responseWrapper.ServiceResult;
+import logopedis.libentities.rsmain.dto.speechCard.*;
+import logopedis.libentities.rsmain.entity.*;
 import logopedis.rsmain.repository.*;
 import logopedis.rsmain.utils.hibernate.ResponseHelper;
 import org.springframework.data.crossstore.ChangeSetPersister;

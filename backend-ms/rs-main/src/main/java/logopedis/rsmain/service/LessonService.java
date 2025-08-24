@@ -1,16 +1,16 @@
 package logopedis.rsmain.service;
 
-import logopedis.rsmain.dto.homework.HomeworkDto;
-import logopedis.rsmain.dto.lesson.*;
-import logopedis.rsmain.dto.logoped.LogopedDto;
-import logopedis.rsmain.dto.patient.PatientReadDto;
-import logopedis.rsmain.dto.patient.PatientWithoutFKDto;
-import logopedis.rsmain.dto.responseWrapper.AsyncResult;
-import logopedis.rsmain.dto.responseWrapper.ServiceResult;
-import logopedis.rsmain.entity.Homework;
-import logopedis.rsmain.entity.Lesson;
-import logopedis.rsmain.entity.Logoped;
-import logopedis.rsmain.entity.Patient;
+import logopedis.libentities.rsmain.dto.homework.HomeworkDto;
+import logopedis.libentities.rsmain.dto.lesson.*;
+import logopedis.libentities.rsmain.dto.logoped.LogopedDto;
+import logopedis.libentities.rsmain.dto.patient.PatientReadDto;
+import logopedis.libentities.rsmain.dto.patient.PatientWithoutFKDto;
+import logopedis.libentities.rsmain.dto.responseWrapper.AsyncResult;
+import logopedis.libentities.rsmain.dto.responseWrapper.ServiceResult;
+import logopedis.libentities.rsmain.entity.Homework;
+import logopedis.libentities.rsmain.entity.Lesson;
+import logopedis.libentities.rsmain.entity.Logoped;
+import logopedis.libentities.rsmain.entity.Patient;
 import logopedis.rsmain.repository.*;
 import logopedis.rsmain.utils.hibernate.ResponseHelper;
 import org.springframework.scheduling.annotation.Async;

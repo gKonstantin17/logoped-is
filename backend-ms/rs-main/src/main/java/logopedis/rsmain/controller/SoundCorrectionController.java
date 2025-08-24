@@ -1,7 +1,7 @@
 package logopedis.rsmain.controller;
 
-import logopedis.rsmain.dto.soundCorrection.SoundCorrectionDto;
-import logopedis.rsmain.dto.soundCorrection.SoundCorrectionReadDto;
+import logopedis.libentities.rsmain.dto.soundCorrection.SoundCorrectionDto;
+import logopedis.libentities.rsmain.dto.soundCorrection.SoundCorrectionReadDto;
 import logopedis.rsmain.service.SoundCorrectionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

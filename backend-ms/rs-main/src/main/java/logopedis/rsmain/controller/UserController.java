@@ -1,8 +1,8 @@
 package logopedis.rsmain.controller;
 
-import logopedis.rsmain.dto.user.UserDto;
-import logopedis.rsmain.dto.user.UserWithIdDto;
-import logopedis.rsmain.entity.UserData;
+import logopedis.libentities.rsmain.dto.user.UserDto;
+import logopedis.libentities.rsmain.dto.user.UserWithIdDto;
+import logopedis.libentities.rsmain.entity.UserData;
 import logopedis.rsmain.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

@@ -1,9 +1,9 @@
 package logopedis.rsmain.controller;
 
-import logopedis.rsmain.dto.speechCard.SCFromDiagnosticDto;
-import logopedis.rsmain.dto.speechCard.SpeechCardDto;
-import logopedis.rsmain.dto.speechCard.SpeechCardFullDto;
-import logopedis.rsmain.dto.speechCard.SpeechCardReadDto;
+import logopedis.libentities.rsmain.dto.speechCard.SCFromDiagnosticDto;
+import logopedis.libentities.rsmain.dto.speechCard.SpeechCardDto;
+import logopedis.libentities.rsmain.dto.speechCard.SpeechCardFullDto;
+import logopedis.libentities.rsmain.dto.speechCard.SpeechCardReadDto;
 import logopedis.rsmain.service.SpeechCardService;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;

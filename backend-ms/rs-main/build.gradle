@@ -55,6 +55,8 @@ dependencies {
 
 	// keycloak
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+
+	implementation project (':lib-entities')
 }
 dependencyManagement {
 	imports {

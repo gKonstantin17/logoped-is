@@ -1,12 +1,12 @@
 package logopedis.rsmain.service;
 
-import logopedis.rsmain.dto.responseWrapper.ServiceResult;
-import logopedis.rsmain.dto.soundCorrection.SoundCorrectionDto;
-import logopedis.rsmain.dto.speechCard.SCFromDiagnosticDto;
-import logopedis.rsmain.dto.speechCard.SpeechCardDto;
-import logopedis.rsmain.dto.speechCard.SpeechCardFullDto;
-import logopedis.rsmain.dto.speechCard.SpeechCardReadDto;
-import logopedis.rsmain.entity.*;
+import logopedis.libentities.rsmain.dto.responseWrapper.ServiceResult;
+import logopedis.libentities.rsmain.dto.soundCorrection.SoundCorrectionDto;
+import logopedis.libentities.rsmain.dto.speechCard.SCFromDiagnosticDto;
+import logopedis.libentities.rsmain.dto.speechCard.SpeechCardDto;
+import logopedis.libentities.rsmain.dto.speechCard.SpeechCardFullDto;
+import logopedis.libentities.rsmain.dto.speechCard.SpeechCardReadDto;
+import logopedis.libentities.rsmain.entity.*;
 import logopedis.rsmain.repository.*;
 import logopedis.rsmain.utils.hibernate.ResponseHelper;
 import org.junit.jupiter.api.Test;

@@ -1,12 +1,12 @@
 package logopedis.rsmain.service;
 
-import logopedis.rsmain.dto.lesson.LessonDto;
-import logopedis.rsmain.dto.lesson.LessonWithHomeworkDto;
-import logopedis.rsmain.dto.patient.PatientReadDto;
-import logopedis.rsmain.dto.responseWrapper.ServiceResult;
-import logopedis.rsmain.entity.Homework;
-import logopedis.rsmain.entity.Lesson;
-import logopedis.rsmain.entity.Logoped;
+import logopedis.libentities.rsmain.dto.lesson.LessonDto;
+import logopedis.libentities.rsmain.dto.lesson.LessonWithHomeworkDto;
+import logopedis.libentities.rsmain.dto.patient.PatientReadDto;
+import logopedis.libentities.rsmain.dto.responseWrapper.ServiceResult;
+import logopedis.libentities.rsmain.entity.Homework;
+import logopedis.libentities.rsmain.entity.Lesson;
+import logopedis.libentities.rsmain.entity.Logoped;
 import logopedis.rsmain.repository.LessonRepository;
 import logopedis.rsmain.service.LogopedService;
 import org.junit.jupiter.api.BeforeEach;

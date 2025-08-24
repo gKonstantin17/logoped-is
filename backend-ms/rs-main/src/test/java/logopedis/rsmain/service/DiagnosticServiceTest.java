@@ -1,11 +1,11 @@
 package logopedis.rsmain.service;
 
-import logopedis.rsmain.dto.diagnostic.DiagnosticDto;
-import logopedis.rsmain.dto.diagnostic.DiagnosticReadDto;
-import logopedis.rsmain.dto.responseWrapper.ServiceResult;
-import logopedis.rsmain.entity.Diagnostic;
-import logopedis.rsmain.entity.Lesson;
-import logopedis.rsmain.entity.SpeechCard;
+import logopedis.libentities.rsmain.dto.diagnostic.DiagnosticDto;
+import logopedis.libentities.rsmain.dto.diagnostic.DiagnosticReadDto;
+import logopedis.libentities.rsmain.dto.responseWrapper.ServiceResult;
+import logopedis.libentities.rsmain.entity.Diagnostic;
+import logopedis.libentities.rsmain.entity.Lesson;
+import logopedis.libentities.rsmain.entity.SpeechCard;
 import logopedis.rsmain.repository.DiagnosticRepository;
 import logopedis.rsmain.utils.hibernate.ResponseHelper;
 import logopedis.rsmain.service.DiagnosticService;

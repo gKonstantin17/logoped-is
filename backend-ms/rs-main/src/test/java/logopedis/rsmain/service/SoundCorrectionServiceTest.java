@@ -1,10 +1,10 @@
 package logopedis.rsmain.service;
 
 
-import logopedis.rsmain.dto.responseWrapper.ServiceResult;
-import logopedis.rsmain.dto.soundCorrection.SoundCorrectionDto;
-import logopedis.rsmain.dto.soundCorrection.SoundCorrectionReadDto;
-import logopedis.rsmain.entity.SoundCorrection;
+import logopedis.libentities.rsmain.dto.responseWrapper.ServiceResult;
+import logopedis.libentities.rsmain.dto.soundCorrection.SoundCorrectionDto;
+import logopedis.libentities.rsmain.dto.soundCorrection.SoundCorrectionReadDto;
+import logopedis.libentities.rsmain.entity.SoundCorrection;
 import logopedis.rsmain.repository.SoundCorrectionRepository;
 import logopedis.rsmain.utils.hibernate.ResponseHelper;
 import logopedis.rsmain.service.SoundCorrectionService;
