@@ -1,6 +1,6 @@
 package logopedis.rsmain.repository;
 
-import logopedis.rsmain.entity.Logoped;
+import logopedis.libentities.rsmain.entity.Logoped;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.UUID;

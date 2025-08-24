@@ -1,7 +1,7 @@
 package logopedis.rsmain.controller;
 
-import logopedis.rsmain.dto.speechError.SpeechErrorDto;
-import logopedis.rsmain.dto.speechError.SpeechErrorReadDto;
+import logopedis.libentities.rsmain.dto.speechError.SpeechErrorDto;
+import logopedis.libentities.rsmain.dto.speechError.SpeechErrorReadDto;
 import logopedis.rsmain.service.SpeechErrorService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

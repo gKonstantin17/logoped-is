@@ -1,7 +1,7 @@
 package logopedis.rsmain.controller;
 
-import logopedis.rsmain.dto.logoped.LogopedDto;
-import logopedis.rsmain.entity.Logoped;
+import logopedis.libentities.rsmain.dto.logoped.LogopedDto;
+import logopedis.libentities.rsmain.entity.Logoped;
 import logopedis.rsmain.service.LogopedService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

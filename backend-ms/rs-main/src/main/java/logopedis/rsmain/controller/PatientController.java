@@ -1,9 +1,9 @@
 package logopedis.rsmain.controller;
 
-import logopedis.rsmain.dto.patient.PatientCreateDto;
-import logopedis.rsmain.dto.patient.PatientDto;
-import logopedis.rsmain.dto.patient.PatientReadDto;
-import logopedis.rsmain.dto.patient.PatientWithSpeechCard;
+import logopedis.libentities.rsmain.dto.patient.PatientCreateDto;
+import logopedis.libentities.rsmain.dto.patient.PatientDto;
+import logopedis.libentities.rsmain.dto.patient.PatientReadDto;
+import logopedis.libentities.rsmain.dto.patient.PatientWithSpeechCard;
 import logopedis.rsmain.service.PatientService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

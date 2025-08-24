@@ -1,7 +1,7 @@
 package logopedis.rsmain.controller;
 
-import logopedis.rsmain.dto.homework.HomeworkDto;
-import logopedis.rsmain.entity.Homework;
+import logopedis.libentities.rsmain.dto.homework.HomeworkDto;
+import logopedis.libentities.rsmain.entity.Homework;
 import logopedis.rsmain.service.HomeworkService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

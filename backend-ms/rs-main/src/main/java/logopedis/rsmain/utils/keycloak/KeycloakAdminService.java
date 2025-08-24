@@ -1,8 +1,7 @@
     package logopedis.rsmain.utils.keycloak;
 
     import com.fasterxml.jackson.databind.JsonNode;
-    import logopedis.rsmain.dto.user.BaseUserDto;
-    import logopedis.rsmain.dto.user.UserDto;
+    import logopedis.libentities.rsmain.dto.user.BaseUserDto;
     import org.springframework.http.HttpHeaders;
     import org.springframework.http.MediaType;
     import org.springframework.stereotype.Service;
