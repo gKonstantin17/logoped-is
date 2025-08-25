@@ -50,6 +50,8 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
+    implementation project (':lib-entities')
+    implementation project (':lib-utils')
     // swagger
     //implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0")
 
