@@ -1,10 +1,14 @@
 package logopedis.msnotification.controller;
 
+import logopedis.libentities.msnotification.dto.notification.NotificationCreateDto;
+import logopedis.libentities.msnotification.dto.notification.NotificationUpdateDto;
 import logopedis.libentities.msnotification.entity.Notification;
 import logopedis.msnotification.service.NotificationService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 @RestController
 @RequestMapping("/notification")
@@ -15,31 +19,35 @@ public class NotificationController {
     }
 
     @PostMapping("/findall")
-    public List<Notification> findall()  {
+    public List<Notification> findall() throws ExecutionException, InterruptedException {
         var result = service.findall();
-        return result;
-    }
-
-    @PostMapping("/find-by-id")
-    public Notification findById(@RequestBody Long id)  {
-        var result = service.findById(id);
-        return result;
+        return result.get().data();
     }
 
     @PostMapping("/create")
-    public Notification create(@RequestBody Notification note)  {
-        var result = service.create(note);
-        return result;
+    public ResponseEntity<?> create(@RequestBody NotificationCreateDto dto) throws ExecutionException, InterruptedException {
+        var future = service.create(dto);
+        var result = future.get();
+
+        return result.isSuccess()
+                ? ResponseEntity.ok(result.data())
+                : ResponseEntity.badRequest().body(result.message());
     }
 
-    @PutMapping("/update")
-    public Notification update(@RequestBody Notification note)  {
-        var result = service.update(note);
-        return result;
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody NotificationUpdateDto dto) throws ExecutionException, InterruptedException {
+        var future = service.update(id, dto);
+        var result = future.get();
+        return result.isSuccess()
+                ? ResponseEntity.ok(result.data())
+                : ResponseEntity.badRequest().body(result.message());
     }
-    @DeleteMapping("/delete")
-    public Notification delete(@RequestBody Long id)  {
-        var result = service.delete(id);
-        return result;
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> delete(@PathVariable Long id) throws ExecutionException, InterruptedException {
+        var future = service.delete(id);
+        var result = future.get();
+        return result.isSuccess()
+                ? ResponseEntity.ok(result.data())
+                : ResponseEntity.badRequest().body(result.message());
     }
 }

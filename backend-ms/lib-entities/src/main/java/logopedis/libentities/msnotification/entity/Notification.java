@@ -17,9 +17,9 @@ public class Notification {
     @Id
     @Column(name = "Id", nullable = false)
     private Long id;
-    @Basic
-    @Column(name = "LessonId", nullable = false)
-    private Long lessonId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "LessonId")
+    private LessonNote lessonNote;
     @Basic
     @Column(name = "SendDate", nullable = true)
     private Timestamp sendDate;
