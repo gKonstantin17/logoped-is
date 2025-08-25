@@ -1,6 +1,6 @@
 rootProject.name = 'backend-ms'
 include 'rs-main'
-include 'ms-notificaton'
+include 'ms-notification'
 include 'sys-gateway'
 include 'sys-server'
 include 'lib-entities'

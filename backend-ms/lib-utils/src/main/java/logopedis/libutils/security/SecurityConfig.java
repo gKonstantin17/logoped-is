@@ -1,4 +1,4 @@
-package logopedis.rsmain.security;
+package logopedis.libutils.security;
 
 import logopedis.libutils.keycloak.KCRoleConverter;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,12 +9,8 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
-
-import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 public class SecurityConfig {

@@ -1,24 +1,20 @@
-package logopedis.rsmain.utils.swagger;
+package logopedis.libutils.swagger;
 
 import jakarta.annotation.PostConstruct;
-import org.springframework.boot.web.context.WebServerApplicationContext;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.web.context.WebServerApplicationContext;
+import org.springframework.boot.web.context.WebServerInitializedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 @Component
 @ConditionalOnProperty(name = "swagger.enabled", havingValue = "true", matchIfMissing = true)
 public class SwaggerAutoOpener {
 
-    private final WebServerApplicationContext webServerAppCtxt;
-
-    public SwaggerAutoOpener(WebServerApplicationContext webServerAppCtxt) {
-        this.webServerAppCtxt = webServerAppCtxt;
-    }
-
-    @PostConstruct
-    public void openSwaggerUi() {
-        int serverPort = webServerAppCtxt.getWebServer().getPort();
-        String url = "http://localhost:" + serverPort + "/swagger-ui/index.html";
+    @EventListener
+    public void onWebServerReady(WebServerInitializedEvent event) {
+        int serverPort = event.getWebServer().getPort();
+        String url = "http://localhost:" + serverPort + "/swagger-ui.html"; // корневой путь
         String os = System.getProperty("os.name").toLowerCase();
 
         try {
