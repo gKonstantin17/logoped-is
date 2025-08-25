@@ -66,7 +66,7 @@ public class NotificationService {
     @Async
     public CompletableFuture<ServiceResult<Long>> delete(Long id) {
         try {
-            var deletedData = ResponseHelper.findById(repository,id,"Занятие не найдено");
+            var deletedData = ResponseHelper.findById(repository,id,"Уведомление не найдено");
             repository.deleteById(id);
             return AsyncResult.success(deletedData.getId());
         } catch (Exception ex) {
