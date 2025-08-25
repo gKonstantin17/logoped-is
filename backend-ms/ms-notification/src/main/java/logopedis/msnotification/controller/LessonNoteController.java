@@ -23,8 +23,8 @@ public class LessonNoteController {
         return result.get().data();
     }
     @PostMapping("/create")
-    public ResponseEntity<?> create(@RequestBody LessonNoteChangeDto dto) throws ExecutionException, InterruptedException {
-        var future = service.create(dto);
+    public ResponseEntity<?> create(@RequestBody LessonNote lessonNote) throws ExecutionException, InterruptedException {
+        var future = service.create(lessonNote);
         var result = future.get();
 
         return result.isSuccess()

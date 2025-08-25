@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -32,9 +31,8 @@ public class LessonNoteService {
     }
 
     @Async
-    public CompletableFuture<ServiceResult<LessonNote>> create(LessonNoteChangeDto dto) {
+    public CompletableFuture<ServiceResult<LessonNote>> create(LessonNote lessonNote) {
         try {
-            LessonNote lessonNote = lessonNoteFromDto(dto);
             LessonNote result = repository.save(lessonNote);
             return AsyncResult.success(result);
         } catch (Exception ex) {
@@ -45,7 +43,7 @@ public class LessonNoteService {
     @Async
     public CompletableFuture<ServiceResult<LessonNote>> update(Long id, LessonNoteChangeDto dto) {
         try {
-            var updated = ResponseHelper.findById(repository,id,"Логопед не найден");
+            var updated = ResponseHelper.findById(repository,id,"Занятие не найдено");
 
             if (dto.status() != null)     updated.setStatus(dto.status());
             if (dto.startTime() != null)    updated.setStartTime(dto.startTime());
@@ -70,10 +68,4 @@ public class LessonNoteService {
     }
 
 
-    private LessonNote lessonNoteFromDto(LessonNoteChangeDto dto) {
-        LessonNote lessonNote = new LessonNote();
-        lessonNote.setStatus(dto.status());
-        lessonNote.setStartTime(dto.startTime());
-        return lessonNote;
-    }
 }
