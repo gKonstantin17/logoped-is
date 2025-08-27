@@ -13,7 +13,6 @@ import java.sql.Timestamp;
 @Entity
 @Table(name = "LessonNote", schema = "notification", catalog = "Logoped")
 public class LessonNote {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @Column(name = "Id", nullable = false)
     private Long id;

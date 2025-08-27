@@ -1,5 +1,6 @@
 package logopedis.rsmain.service;
 
+import logopedis.libentities.msnotification.entity.LessonNote;
 import logopedis.libentities.rsmain.dto.homework.HomeworkDto;
 import logopedis.libentities.rsmain.dto.lesson.*;
 import logopedis.libentities.rsmain.dto.logoped.LogopedDto;
@@ -11,6 +12,7 @@ import logopedis.libentities.rsmain.entity.Homework;
 import logopedis.libentities.rsmain.entity.Lesson;
 import logopedis.libentities.rsmain.entity.Logoped;
 import logopedis.libentities.rsmain.entity.Patient;
+import logopedis.rsmain.kafka.LessonProducer;
 import logopedis.rsmain.repository.*;
 import logopedis.libutils.hibernate.ResponseHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -30,12 +32,14 @@ public class LessonService {
     private final LogopedService logopedService;
     private final HomeworkService homeworkService;
     private final PatientService patientService;
+    private final LessonProducer lessonKafkaProducer;
 
-    public LessonService(LessonRepository repository, LogopedService logopedService, HomeworkService homeworkService,PatientService patientService) {
+    public LessonService(LessonRepository repository, LogopedService logopedService, HomeworkService homeworkService, PatientService patientService, LessonProducer lessonKafkaProducer) {
         this.repository = repository;
         this.logopedService = logopedService;
         this.homeworkService = homeworkService;
         this.patientService = patientService;
+        this.lessonKafkaProducer = lessonKafkaProducer;
     }
 
     @Async
@@ -124,6 +128,14 @@ public class LessonService {
 
             var createdLesson = repository.findById(lesson.getId()).get();
             var readDto = toReadDto(createdLesson);
+
+            // тест отправки Kafka
+            LessonNote lessonNote = new LessonNote();
+            lessonNote.setId(createdLesson.getId());
+            lessonNote.setStartTime(createdLesson.getDateOfLesson());
+            lessonNote.setStatus(createdLesson.getStatus());
+            lessonKafkaProducer.sendLesson(lessonNote);
+
             return AsyncResult.success(readDto);
 
         } catch (Exception ex) {
