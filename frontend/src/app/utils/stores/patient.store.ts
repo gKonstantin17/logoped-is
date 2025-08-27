@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import {BehaviorSubject, Observable, of, tap} from 'rxjs';
+import {BehaviorSubject, Observable} from 'rxjs';
 import {PatientChangeData, PatientService} from '../services/patient.service';
-import {catchError} from 'rxjs/operators';
 
 
 @Injectable({
