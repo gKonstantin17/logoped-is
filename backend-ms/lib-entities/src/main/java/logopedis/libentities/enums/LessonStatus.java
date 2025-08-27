@@ -5,7 +5,8 @@ public enum LessonStatus {
     STARTING_SOON("Скоро начнётся"),
     CANCELED_BY_CLIENT("Отменено клиентом"),
     CANCELED_BY_LOGOPED("Отменено логопедом"),
-    NO_SHOW("Не состоялось (клиент не пришёл)"),
+    NO_SHOW_CLIENT("Не состоялось (клиент не пришёл)"),
+    NO_SHOW_LOGOPED("Не состоялось (логопед отсутствовал)"),
     COMPLETED("Проведено");
 
     private final String description;
