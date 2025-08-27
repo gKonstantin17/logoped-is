@@ -5,10 +5,10 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
-public class LessonProducer {
+public class LessonKafkaProducer {
     private final KafkaTemplate<String, LessonNote> kafkaTemplate;
 
-    public LessonProducer(KafkaTemplate<String, LessonNote> kafkaTemplate) {
+    public LessonKafkaProducer(KafkaTemplate<String, LessonNote> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
     }
 

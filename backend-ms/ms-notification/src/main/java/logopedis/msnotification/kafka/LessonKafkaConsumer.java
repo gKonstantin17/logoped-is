@@ -6,9 +6,9 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 @Service
-public class LessonConsumer {
+public class LessonKafkaConsumer {
     private final LessonNoteService service;
-    public LessonConsumer(LessonNoteService service) {
+    public LessonKafkaConsumer(LessonNoteService service) {
         this.service = service;
     }
 
