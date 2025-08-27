@@ -1,6 +1,7 @@
 package logopedis.libentities.msnotification.entity;
 
 import jakarta.persistence.*;
+import logopedis.libentities.enums.LessonStatus;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,10 +17,9 @@ public class LessonNote {
     @Id
     @Column(name = "Id", nullable = false)
     private Long id;
-    @Basic
-    @Column(name = "Status", nullable = true, length = -1)
-    private String status;
-    @Basic
-    @Column(name = "StartTime", nullable = true)
+    @Column(name = "Status")
+    @Enumerated(EnumType.STRING)
+    private LessonStatus status;
+    @Column(name = "StartTime")
     private Timestamp startTime;
 }

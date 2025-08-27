@@ -1,5 +1,6 @@
 package logopedis.rsmain.service;
 
+import logopedis.libentities.enums.LessonStatus;
 import logopedis.libentities.msnotification.entity.LessonNote;
 import logopedis.libentities.rsmain.dto.homework.HomeworkDto;
 import logopedis.libentities.rsmain.dto.lesson.*;
@@ -94,7 +95,7 @@ public class LessonService {
             lesson.setTopic(dto.topic());
             lesson.setDescription(dto.description());
             lesson.setDateOfLesson(dto.dateOfLesson());
-            lesson.setStatus("Активно");
+            lesson.setStatus(LessonStatus.PLANNED);
 
             if (dto.logopedId() != null) {
                 var logoped = logopedService.findById(dto.logopedId()).get();
@@ -183,8 +184,9 @@ public class LessonService {
     @Async
     public CompletableFuture<ServiceResult<Lesson>> canselLesson(Long id) {
         try {
+            // TODO: добавить логику отмену за разных ролей
             var lesson = repository.findById(id).get();
-            lesson.setStatus("Отменено");
+            lesson.setStatus(LessonStatus.CANCELED_BY_CLIENT);
             repository.save(lesson);
             return AsyncResult.success(lesson);
         } catch (Exception ex) {
