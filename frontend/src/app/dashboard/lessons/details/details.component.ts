@@ -5,6 +5,7 @@ import {UserDataStore} from '../../../utils/stores/user-data.store';
 import {LessonStore} from '../../../utils/stores/lesson.store';
 import {Observable} from 'rxjs';
 import {ChangeDateModalComponent} from './change-date-modal/change-date-modal.component';
+import {LessonStatus, LessonStatusLabels} from '../../../utils/enums/lesson-status.enum';
 
 @Component({
   selector: 'app-details',
@@ -60,6 +61,9 @@ export class DetailsComponent implements OnInit {
       });
     }).unsubscribe();  // Не забудь отписаться или использовать async pipe в шаблоне!
   }
+  getStatusLabel(status: LessonStatus): string {
+    return LessonStatusLabels[status];
+  }
 
   cancelLesson() {
     const confirmed = confirm('Отменить занятие?');
@@ -84,4 +88,7 @@ export class DetailsComponent implements OnInit {
 
 
   }
+
+  protected readonly LessonStatusLabels = LessonStatusLabels;
+  protected readonly LessonStatus = LessonStatus;
 }

@@ -3,6 +3,7 @@ import {environment} from '../../../environments/environment';
 import {HttpMethod, Operation} from '../oauth2/model/RequestBFF';
 import {Observable} from 'rxjs';
 import {BackendService} from '../oauth2/backend/backend.service';
+import {LessonStatus} from '../enums/lesson-status.enum';
 export interface LessonData {
   type: string,
   topic: string,
@@ -18,7 +19,7 @@ export interface LessonFullData {
   topic: string;
   description: string;
   dateOfLesson: string;
-  status:string;
+  status:LessonStatus;
   logoped: {
     firstName: string;
     lastName: string;

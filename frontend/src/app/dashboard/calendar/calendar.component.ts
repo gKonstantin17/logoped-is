@@ -10,6 +10,7 @@ import {ActivatedRoute, RouterLink} from '@angular/router';
 import {LessonFullData} from '../../utils/services/lesson.service';
 import {UserDataStore} from '../../utils/stores/user-data.store';
 import {LessonStore} from '../../utils/stores/lesson.store';
+import {LessonStatus, LessonStatusLabels} from '../../utils/enums/lesson-status.enum';
 
 interface LessonData {
   id: number;
@@ -123,7 +124,9 @@ export class CalendarComponent implements OnInit {
       const end = new Date(start);
       end.setHours(start.getHours() + 1);
 
-      const isCancelled = lesson.status === 'Отменено';
+      const isCancelled =
+        lesson.status === LessonStatus.CANCELED_BY_CLIENT ||
+        lesson.status === LessonStatus.CANCELED_BY_LOGOPED;
 
       const patientName = lesson.patients.length > 0
         ? `${lesson.patients[0].firstName} ${lesson.patients[0].lastName}`
