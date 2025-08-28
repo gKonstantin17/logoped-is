@@ -41,6 +41,19 @@ public class LessonNoteService {
     }
 
     @Async
+    public CompletableFuture<ServiceResult<LessonNote>> createIfNotExist(LessonNote lessonNote) {
+        try {
+            boolean exists = repository.existsById(lessonNote.getId());
+            if (exists) {
+                return AsyncResult.error("Уже есть");
+            }
+            LessonNote result = repository.save(lessonNote);
+            return AsyncResult.success(result);
+        } catch (Exception ex) {
+            return AsyncResult.error(ex.getMessage());
+        }
+    }
+    @Async
     public CompletableFuture<ServiceResult<LessonNote>> update(Long id, LessonNoteChangeDto dto) {
         try {
             var updated = ResponseHelper.findById(repository,id,"Занятие не найдено");

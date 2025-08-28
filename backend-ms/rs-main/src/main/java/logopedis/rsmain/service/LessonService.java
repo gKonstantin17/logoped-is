@@ -1,5 +1,6 @@
 package logopedis.rsmain.service;
 
+import jakarta.transaction.Transactional;
 import logopedis.libentities.enums.LessonStatus;
 import logopedis.libentities.msnotification.entity.LessonNote;
 import logopedis.libentities.rsmain.dto.homework.HomeworkDto;
@@ -13,7 +14,7 @@ import logopedis.libentities.rsmain.entity.Homework;
 import logopedis.libentities.rsmain.entity.Lesson;
 import logopedis.libentities.rsmain.entity.Logoped;
 import logopedis.libentities.rsmain.entity.Patient;
-import logopedis.rsmain.kafka.LessonKafkaProducer;
+import logopedis.rsmain.kafka.LessonNoteKafkaProducer;
 import logopedis.rsmain.repository.*;
 import logopedis.libutils.hibernate.ResponseHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -33,14 +34,14 @@ public class LessonService {
     private final LogopedService logopedService;
     private final HomeworkService homeworkService;
     private final PatientService patientService;
-    private final LessonKafkaProducer lessonKafkaProducer;
+    private final LessonNoteKafkaProducer lessonNoteKafkaProducer;
 
-    public LessonService(LessonRepository repository, LogopedService logopedService, HomeworkService homeworkService, PatientService patientService, LessonKafkaProducer lessonKafkaProducer) {
+    public LessonService(LessonRepository repository, LogopedService logopedService, HomeworkService homeworkService, PatientService patientService, LessonNoteKafkaProducer lessonNoteKafkaProducer) {
         this.repository = repository;
         this.logopedService = logopedService;
         this.homeworkService = homeworkService;
         this.patientService = patientService;
-        this.lessonKafkaProducer = lessonKafkaProducer;
+        this.lessonNoteKafkaProducer = lessonNoteKafkaProducer;
     }
 
     @Async
@@ -131,18 +132,9 @@ public class LessonService {
             var readDto = toReadDto(createdLesson);
 
             // тест отправки Kafka
-            LessonNote lessonNote = new LessonNote();
-            lessonNote.setId(createdLesson.getId());
-            lessonNote.setStartTime(createdLesson.getDateOfLesson());
-            lessonNote.setStatus(createdLesson.getStatus());
-            lessonNote.setLogopedId(createdLesson.getLogoped().getId());
 
-            List<Long> patientIds = createdLesson.getPatients()
-                    .stream()
-                    .map(Patient::getId)
-                    .toList();
-            lessonNote.setPatientsId(patientIds);
-            lessonKafkaProducer.sendLesson(lessonNote);
+            LessonNote lessonNote = lessonToLessonNode(createdLesson);
+            lessonNoteKafkaProducer.sendLessonNote(lessonNote);
 
             return AsyncResult.success(readDto);
 
@@ -319,5 +311,31 @@ public class LessonService {
         return selectedLogoped;
     }
 
+    public List<Lesson> findByPeriod(Timestamp start, Timestamp end) {
+        return repository.findByDateOfLessonBetween(start,end)
+                .stream()
+                .toList();
+    }
 
+    @Async
+    @Transactional
+    public CompletableFuture<List<LessonNote>> createResponseInLessonNote(Timestamp start, Timestamp end) {
+        List<Lesson> lessons = findByPeriod(start,end);
+        System.out.println("Занятия найдены");
+        return CompletableFuture.completedFuture(lessons.stream().map(this::lessonToLessonNode).toList());
+    }
+    private LessonNote lessonToLessonNode(Lesson lesson) {
+        LessonNote lessonNote = new LessonNote();
+        lessonNote.setId(lesson.getId());
+        lessonNote.setStartTime(lesson.getDateOfLesson());
+        lessonNote.setStatus(lesson.getStatus());
+        lessonNote.setLogopedId(lesson.getLogoped().getId());
+
+        List<Long> patientIds = lesson.getPatients()
+                .stream()
+                .map(Patient::getId)
+                .toList();
+        lessonNote.setPatientsId(patientIds);
+        return lessonNote;
+    }
 }
