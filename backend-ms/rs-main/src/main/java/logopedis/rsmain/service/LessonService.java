@@ -135,6 +135,13 @@ public class LessonService {
             lessonNote.setId(createdLesson.getId());
             lessonNote.setStartTime(createdLesson.getDateOfLesson());
             lessonNote.setStatus(createdLesson.getStatus());
+            lessonNote.setLogopedId(createdLesson.getLogoped().getId());
+
+            List<Long> patientIds = createdLesson.getPatients()
+                    .stream()
+                    .map(Patient::getId)
+                    .toList();
+            lessonNote.setPatientsId(patientIds);
             lessonKafkaProducer.sendLesson(lessonNote);
 
             return AsyncResult.success(readDto);

@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.sql.Timestamp;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -17,16 +18,20 @@ public class Notification {
     @Id
     @Column(name = "Id", nullable = false)
     private Long id;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "LessonId")
+    @JoinColumn(name = "LessonNoteId")
     private LessonNote lessonNote;
-    @Basic
-    @Column(name = "SendDate", nullable = true)
+
+    @Column(name = "SendDate")
     private Timestamp sendDate;
-    @Basic
-    @Column(name = "Message", nullable = true, length = -1)
+
+    @Column(name = "Message")
     private String message;
-    @Basic
-    @Column(name = "Received", nullable = true)
+
+    @Column(name = "Received")
     private Boolean received;
+
+    @Column(name = "RecipientId")
+    private UUID RecipientId;
 }
