@@ -1,6 +1,7 @@
 package logopedis.msnotification.kafka;
 
 import logopedis.libentities.msnotification.entity.LessonNote;
+import logopedis.libutils.kafka.KafkaTopicConfig;
 import logopedis.msnotification.service.LessonNoteService;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
@@ -13,8 +14,8 @@ public class LessonNoteKafkaConsumer {
         this.service = service;
     }
 
-    @KafkaListener(topics = "lesson-note-topic")
+    @KafkaListener(topics = KafkaTopicConfig.lessonNoteTopic)
     public void consume(LessonNote lessonNote) {
-        service.createIfNotExist(lessonNote);
+        service.createOrUpdateStatus(lessonNote);
     }
 }

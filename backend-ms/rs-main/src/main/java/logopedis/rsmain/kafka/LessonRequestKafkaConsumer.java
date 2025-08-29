@@ -1,6 +1,7 @@
 package logopedis.rsmain.kafka;
 
 import logopedis.libentities.kafka.LessonPeriodRequest;
+import logopedis.libutils.kafka.KafkaTopicConfig;
 import logopedis.rsmain.service.LessonService;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
@@ -16,7 +17,7 @@ public class LessonRequestKafkaConsumer {
         this.service = service;
         this.lessonNoteKafkaProducer = lessonNoteKafkaProducer;
     }
-    @KafkaListener(topics = "lesson-request-topic")
+    @KafkaListener(topics = KafkaTopicConfig.lessonRequestTopic)
     public void consume(LessonPeriodRequest request) {
         Timestamp start = request.periodStart();
         Timestamp end = request.periodEnd();

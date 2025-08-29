@@ -1,6 +1,7 @@
 package logopedis.msnotification.kafka;
 
 import logopedis.libentities.kafka.LessonPeriodRequest;
+import logopedis.libutils.kafka.KafkaTopicConfig;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +13,6 @@ public class LessonRequestKafkaProducer {
         this.kafkaTemplate = kafkaTemplate;
     }
     public void requestLessons(LessonPeriodRequest request) {
-        kafkaTemplate.send("lesson-request-topic", request);
+        kafkaTemplate.send(KafkaTopicConfig.lessonRequestTopic, request);
     }
 }

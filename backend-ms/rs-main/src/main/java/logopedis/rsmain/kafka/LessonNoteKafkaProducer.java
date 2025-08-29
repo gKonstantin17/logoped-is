@@ -1,6 +1,7 @@
 package logopedis.rsmain.kafka;
 
 import logopedis.libentities.msnotification.entity.LessonNote;
+import logopedis.libutils.kafka.KafkaTopicConfig;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -15,12 +16,12 @@ public class LessonNoteKafkaProducer {
     }
 
     public void sendLessonNote(LessonNote lessonNote) {
-        kafkaTemplate.send("lesson-note-topic", lessonNote);
+        kafkaTemplate.send(KafkaTopicConfig.lessonNoteTopic, lessonNote);
     }
 
     public void sendLessonNotes(List<LessonNote> lessonNotes) {
         lessonNotes.forEach(lessonNote -> {
-            kafkaTemplate.send("lesson-note-topic", lessonNote);
+            kafkaTemplate.send(KafkaTopicConfig.lessonNoteTopic, lessonNote);
         });
     }
 }
