@@ -18,13 +18,11 @@ public class LessonRequestKafkaConsumer {
     }
     @KafkaListener(topics = "lesson-request-topic")
     public void consume(LessonPeriodRequest request) {
-        System.out.println("Получено");
         Timestamp start = request.periodStart();
         Timestamp end = request.periodEnd();
 
         service.createResponseInLessonNote(start,end)
                 .thenAccept(lessonNoteKafkaProducer::sendLessonNotes)
                 .join();
-        System.out.println("Занятия отправляются");
     }
 }

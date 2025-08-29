@@ -21,8 +21,6 @@ public class LessonNoteKafkaProducer {
     public void sendLessonNotes(List<LessonNote> lessonNotes) {
         lessonNotes.forEach(lessonNote -> {
             kafkaTemplate.send("lesson-note-topic", lessonNote);
-            System.out.println("SENDED: "+ lessonNote.getId()+" "+lessonNote.getStatus());
         });
-        System.out.println("Занятия отправлены");
     }
 }

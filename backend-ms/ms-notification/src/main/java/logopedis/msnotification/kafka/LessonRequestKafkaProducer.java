@@ -13,6 +13,5 @@ public class LessonRequestKafkaProducer {
     }
     public void requestLessons(LessonPeriodRequest request) {
         kafkaTemplate.send("lesson-request-topic", request);
-        System.out.println("Отправлено");
     }
 }
