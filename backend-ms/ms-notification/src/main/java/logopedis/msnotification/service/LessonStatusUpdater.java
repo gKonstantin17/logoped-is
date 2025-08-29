@@ -1,6 +1,5 @@
 package logopedis.msnotification.service;
 
-import jakarta.transaction.Transactional;
 import logopedis.libentities.enums.LessonStatus;
 import logopedis.libentities.msnotification.entity.LessonNote;
 import org.springframework.stereotype.Service;
@@ -10,14 +9,10 @@ import java.time.Instant;
 
 @Service
 public class LessonStatusUpdater {
-    private final LessonNoteService lessonNoteService;
+    private final Long minutesFromStart = 15L;
+    private final Long lessonDuraction = 60L;
 
-    public LessonStatusUpdater(LessonNoteService lessonNoteService) {
-        this.lessonNoteService = lessonNoteService;
-    }
-
-    @Transactional
-    public void updateStatusLesson(LessonNote lessonNote) {
+    public LessonStatus updateStatusLesson(LessonNote lessonNote) {
         Timestamp now = Timestamp.from(Instant.now());
         Timestamp startTime = lessonNote.getStartTime();
 
@@ -25,16 +20,14 @@ public class LessonStatusUpdater {
             case PLANNED -> {
                 if (isStartingSoon(now, startTime)) {
                     lessonNote.setStatus(LessonStatus.STARTING_SOON); // скоро начнется
-                }
-                if (isCompleted(now,startTime)) {
+                } else if (isCompleted(now,startTime)) {
                     lessonNote.setStatus(LessonStatus.COMPLETED); // прошло
                 }
             }
             case STARTING_SOON -> {
                 if (isAlreadyStarted(now,startTime)) {
                     lessonNote.setStatus(LessonStatus.NO_SHOW_LOGOPED); // не появился логопед
-                }
-                if (isCompleted(now,startTime)) {
+                } else if (isCompleted(now,startTime)) {
                     lessonNote.setStatus(LessonStatus.COMPLETED); // прошло
                 }
             }
@@ -52,11 +45,9 @@ public class LessonStatusUpdater {
             }
         }
 
-        lessonNoteService.save(lessonNote);
+        //lessonNoteService.save(lessonNote);
+        return lessonNote.getStatus();
     }
-
-    private final Long minutesFromStart = 15L;
-    private final Long lessonDuraction = 60L;
     private boolean isStartingSoon(Timestamp now, Timestamp startTime) {
         // 15 минут от начала занятия
         return now.after(Timestamp.from(startTime.toInstant().minusSeconds(minutesFromStart * 60)))

@@ -1,5 +1,6 @@
 package logopedis.msnotification.service;
 
+import logopedis.libentities.enums.LessonStatus;
 import logopedis.libentities.msnotification.dto.lessonNote.LessonNoteChangeDto;
 import logopedis.libentities.msnotification.entity.LessonNote;
 import logopedis.libentities.rsmain.dto.responseWrapper.AsyncResult;
@@ -9,6 +10,7 @@ import logopedis.msnotification.repository.LessonNoteRepository;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -16,8 +18,10 @@ import java.util.concurrent.CompletableFuture;
 @Service
 public class LessonNoteService {
     private final LessonNoteRepository repository;
-    public LessonNoteService(LessonNoteRepository repository) {
+    private final LessonStatusUpdater lessonStatusUpdater;
+    public LessonNoteService(LessonNoteRepository repository, LessonStatusUpdater lessonStatusUpdater) {
         this.repository = repository;
+        this.lessonStatusUpdater = lessonStatusUpdater;
     }
 
     @Async
@@ -41,17 +45,13 @@ public class LessonNoteService {
     }
 
     @Async
-    public CompletableFuture<ServiceResult<LessonNote>> createIfNotExist(LessonNote lessonNote) {
-        try {
+    public void createIfNotExist(LessonNote lessonNote) {
             boolean exists = repository.existsById(lessonNote.getId());
-            if (exists) {
-                return AsyncResult.error("Уже есть");
-            }
-            LessonNote result = repository.save(lessonNote);
-            return AsyncResult.success(result);
-        } catch (Exception ex) {
-            return AsyncResult.error(ex.getMessage());
-        }
+            if (exists) return;
+
+            LessonStatus status = lessonStatusUpdater.updateStatusLesson(lessonNote);
+            lessonNote.setStatus(status);
+            repository.save(lessonNote);
     }
     @Async
     public CompletableFuture<ServiceResult<LessonNote>> update(Long id, LessonNoteChangeDto dto) {
@@ -71,6 +71,12 @@ public class LessonNoteService {
 
     public void save(LessonNote changedLessonNote) {
         repository.save(changedLessonNote);
+    }
+    public List<LessonNote> findByPeriod(Timestamp start, Timestamp end) {
+        return repository.findByStartTimeBetween(start,end);
+    }
+    public List<LessonNote> findByPeriodAndStatuses(Timestamp start, Timestamp end, List<LessonStatus> statuses) {
+        return repository.findByStartTimeBetweenAndStatusIn(start, end, statuses);
     }
 
     @Async
