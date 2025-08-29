@@ -17,19 +17,24 @@ public class LessonIntegrationService {
         this.kafkaProducer = kafkaProducer;
     }
 
-    public void fetchUpcomingLessons(int days) {
+    public void fetchUpcomingLessons() {
         // Текущая дата
         LocalDate today = LocalDate.now(ZoneId.systemDefault());
-        LocalDate endDay = today.plusDays(days);
 
-        // Начало сегодняшнего дня 00:00:00
-        LocalDateTime startOfToday = today.atStartOfDay();
-        Timestamp start = Timestamp.valueOf(startOfToday);
+        // Вчерашний день
+        LocalDate yesterday = today.minusDays(1);
+        // Завтрашний день
+        LocalDate tomorrow = today.plusDays(1);
 
-        // Конец конечного дня 23:59:59.999
-        LocalDateTime endOfEndDay = endDay.plusDays(1).atStartOfDay().minusNanos(1);
-        Timestamp end = Timestamp.valueOf(endOfEndDay);
-        // запрос через кафку
+        // Начало вчерашнего дня 00:00:00
+        LocalDateTime startOfYesterday = yesterday.atStartOfDay();
+        Timestamp start = Timestamp.valueOf(startOfYesterday);
+
+        // Конец завтрашнего дня 23:59:59.999
+        LocalDateTime endOfTomorrow = tomorrow.plusDays(1).atStartOfDay().minusNanos(1);
+        Timestamp end = Timestamp.valueOf(endOfTomorrow);
+
+        // Запрос через Kafka
         LessonPeriodRequest request = new LessonPeriodRequest(start, end);
         kafkaProducer.requestLessons(request);
     }
