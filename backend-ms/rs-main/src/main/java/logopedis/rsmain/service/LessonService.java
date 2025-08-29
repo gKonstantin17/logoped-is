@@ -321,7 +321,6 @@ public class LessonService {
     @Transactional
     public CompletableFuture<List<LessonNote>> createResponseInLessonNote(Timestamp start, Timestamp end) {
         List<Lesson> lessons = findByPeriod(start,end);
-        System.out.println("Занятия найдены");
         return CompletableFuture.completedFuture(lessons.stream().map(this::lessonToLessonNode).toList());
     }
     private LessonNote lessonToLessonNode(Lesson lesson) {

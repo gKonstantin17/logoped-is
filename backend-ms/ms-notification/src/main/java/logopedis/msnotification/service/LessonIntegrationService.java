@@ -29,7 +29,6 @@ public class LessonIntegrationService {
         // Конец конечного дня 23:59:59.999
         LocalDateTime endOfEndDay = endDay.plusDays(1).atStartOfDay().minusNanos(1);
         Timestamp end = Timestamp.valueOf(endOfEndDay);
-        System.out.println("Отправка в кафку");
         // запрос через кафку
         LessonPeriodRequest request = new LessonPeriodRequest(start, end);
         kafkaProducer.requestLessons(request);

@@ -15,12 +15,6 @@ public class LessonNoteKafkaConsumer {
 
     @KafkaListener(topics = "lesson-note-topic")
     public void consume(LessonNote lessonNote) {
-        System.out.println("Получено из rs:"+lessonNote.getId());
-        service.createIfNotExist(lessonNote).thenAccept(result -> {
-            if (result.isSuccess())
-                System.out.println("LessonNote создан: " + result.data().getId());
-            else
-                System.out.println("Ошибка: " + result.message());
-        });
+        service.createIfNotExist(lessonNote);
     }
 }

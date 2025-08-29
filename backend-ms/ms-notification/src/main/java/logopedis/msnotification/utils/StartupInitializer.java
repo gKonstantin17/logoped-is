@@ -15,7 +15,6 @@ public class StartupInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        System.out.println("Начался запрос при запуске");
         integrationService.fetchUpcomingLessons(2); // подтягиваем ближайшие 2 дня
     }
 }
