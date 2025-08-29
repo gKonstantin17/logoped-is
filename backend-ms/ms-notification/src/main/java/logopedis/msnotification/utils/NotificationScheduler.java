@@ -33,9 +33,12 @@ public class NotificationScheduler {
 
         List<LessonNote> lessonNotes = lessonNoteService.findByPeriodAndStatuses(start, end, checkedStatuses);
         lessonNotes.forEach(lessonNote -> {
+            LessonStatus oldStatus = lessonNote.getStatus();
             LessonStatus newStatus = lessonStatusUpdater.updateStatusLesson(lessonNote);
-            lessonNote.setStatus(newStatus);
-            lessonNoteService.save(lessonNote);
+            if (newStatus != oldStatus) {
+                lessonNote.setStatus(newStatus);
+                lessonNoteService.save(lessonNote);
+            }
         });
 
     }

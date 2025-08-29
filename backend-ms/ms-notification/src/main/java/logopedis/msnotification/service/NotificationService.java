@@ -46,6 +46,7 @@ public class NotificationService {
             return AsyncResult.error(ex.getMessage());
         }
     }
+
     @Async
     public CompletableFuture<ServiceResult<Notification>> update(Long id, NotificationUpdateDto dto) {
         try {

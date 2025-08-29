@@ -45,13 +45,23 @@ public class LessonNoteService {
     }
 
     @Async
-    public void createIfNotExist(LessonNote lessonNote) {
-            boolean exists = repository.existsById(lessonNote.getId());
-            if (exists) return;
+    public void createOrUpdateStatus(LessonNote lessonNote) {
+        LessonNote existing = repository.findById(lessonNote.getId()).orElse(null);
 
-            LessonStatus status = lessonStatusUpdater.updateStatusLesson(lessonNote);
-            lessonNote.setStatus(status);
+        // Вычисляем актуальный статус
+        LessonStatus newStatus = lessonStatusUpdater.updateStatusLesson(lessonNote);
+
+        if (existing != null) {
+            LessonStatus oldStatus = existing.getStatus();
+            if (oldStatus != newStatus) {
+                existing.setStatus(newStatus);
+                repository.save(existing);
+            }
+            // если статусы совпадают — ничего не делаем
+        } else {
+            lessonNote.setStatus(newStatus);
             repository.save(lessonNote);
+        }
     }
     @Async
     public CompletableFuture<ServiceResult<LessonNote>> update(Long id, LessonNoteChangeDto dto) {

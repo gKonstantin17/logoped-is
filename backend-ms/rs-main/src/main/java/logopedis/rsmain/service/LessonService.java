@@ -2,6 +2,7 @@ package logopedis.rsmain.service;
 
 import jakarta.transaction.Transactional;
 import logopedis.libentities.enums.LessonStatus;
+import logopedis.libentities.kafka.LessonStatusDto;
 import logopedis.libentities.msnotification.entity.LessonNote;
 import logopedis.libentities.rsmain.dto.homework.HomeworkDto;
 import logopedis.libentities.rsmain.dto.lesson.*;
@@ -239,10 +240,20 @@ public class LessonService {
             return AsyncResult.error(ex.getMessage());
         }
     }
+    public void updateStatus(LessonStatusDto dto) {
+        try {
+            var updated = ResponseHelper.findById(repository,dto.id(),"Занятие не найдено");
+            updated.setStatus(dto.status());
+            repository.save(updated);
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+
+    }
     @Async
     public CompletableFuture<ServiceResult<Long>> delete(Long id) {
         try {
-            var deletedData = ResponseHelper.findById(repository,id,"Логопед не найден");
+            var deletedData = ResponseHelper.findById(repository,id,"Занятие не найдено");
             repository.deleteById(id);
             return AsyncResult.success(deletedData.getId());
         } catch (Exception ex) {

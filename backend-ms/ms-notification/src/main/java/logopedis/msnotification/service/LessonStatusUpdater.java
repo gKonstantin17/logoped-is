@@ -1,7 +1,9 @@
 package logopedis.msnotification.service;
 
 import logopedis.libentities.enums.LessonStatus;
+import logopedis.libentities.kafka.LessonStatusDto;
 import logopedis.libentities.msnotification.entity.LessonNote;
+import logopedis.msnotification.kafka.LessonStatusKafkaProducer;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -9,32 +11,35 @@ import java.time.Instant;
 
 @Service
 public class LessonStatusUpdater {
+    private final LessonStatusKafkaProducer lessonStatusKafkaProducer;
     private final Long minutesFromStart = 15L;
     private final Long lessonDuraction = 60L;
+
+    public LessonStatusUpdater(LessonStatusKafkaProducer lessonStatusKafkaProducer) {
+        this.lessonStatusKafkaProducer = lessonStatusKafkaProducer;
+    }
 
     public LessonStatus updateStatusLesson(LessonNote lessonNote) {
         Timestamp now = Timestamp.from(Instant.now());
         Timestamp startTime = lessonNote.getStartTime();
+        LessonStatus oldStatus = lessonNote.getStatus();
 
-        switch (lessonNote.getStatus()) {
+        switch (oldStatus) {
             case PLANNED -> {
-                if (isStartingSoon(now, startTime)) {
+                if (isStartingSoon(now, startTime))
                     lessonNote.setStatus(LessonStatus.STARTING_SOON); // скоро начнется
-                } else if (isCompleted(now,startTime)) {
+                else if (isCompleted(now,startTime))
                     lessonNote.setStatus(LessonStatus.COMPLETED); // прошло
-                }
             }
             case STARTING_SOON -> {
-                if (isAlreadyStarted(now,startTime)) {
+                if (isAlreadyStarted(now,startTime))
                     lessonNote.setStatus(LessonStatus.NO_SHOW_LOGOPED); // не появился логопед
-                } else if (isCompleted(now,startTime)) {
+                else if (isCompleted(now,startTime))
                     lessonNote.setStatus(LessonStatus.COMPLETED); // прошло
-                }
             }
             case IN_PROGRESS -> {
-                if (isCompleted(now,startTime)) {
+                if (isCompleted(now,startTime))
                     lessonNote.setStatus(LessonStatus.COMPLETED); // прошло
-                }
             }
             case CANCELED_BY_CLIENT,
                     CANCELED_BY_LOGOPED,
@@ -44,7 +49,11 @@ public class LessonStatusUpdater {
                 // финальные статусы → ничего не меняем
             }
         }
-
+        // обновление статусов Lesson в rs-main
+        if (lessonNote.getStatus() != oldStatus) {
+            LessonStatusDto dto = new LessonStatusDto(lessonNote.getId(),lessonNote.getStatus());
+            lessonStatusKafkaProducer.sendLessonStatus(dto);
+        }
         //lessonNoteService.save(lessonNote);
         return lessonNote.getStatus();
     }
