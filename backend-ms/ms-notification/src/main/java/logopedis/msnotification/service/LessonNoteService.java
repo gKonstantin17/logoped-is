@@ -69,6 +69,10 @@ public class LessonNoteService {
         }
     }
 
+    public void save(LessonNote changedLessonNote) {
+        repository.save(changedLessonNote);
+    }
+
     @Async
     public CompletableFuture<ServiceResult<Long>> delete(Long id) {
         try {
@@ -79,6 +83,4 @@ public class LessonNoteService {
             return AsyncResult.error(ex.getMessage());
         }
     }
-
-
 }
