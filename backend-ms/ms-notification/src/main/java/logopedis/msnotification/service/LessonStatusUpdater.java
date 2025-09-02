@@ -12,8 +12,8 @@ import java.time.Instant;
 @Service
 public class LessonStatusUpdater {
     private final LessonStatusKafkaProducer lessonStatusKafkaProducer;
-    private final Long minutesFromStart = 15L;
-    private final Long lessonDuraction = 60L;
+    private final Long MINUTES_FROM_START = 15L;
+    private final Long LESSON_DURACTION = 60L;
 
     public LessonStatusUpdater(LessonStatusKafkaProducer lessonStatusKafkaProducer) {
         this.lessonStatusKafkaProducer = lessonStatusKafkaProducer;
@@ -59,17 +59,17 @@ public class LessonStatusUpdater {
     }
     private boolean isStartingSoon(Timestamp now, Timestamp startTime) {
         // 15 минут от начала занятия
-        return now.after(Timestamp.from(startTime.toInstant().minusSeconds(minutesFromStart * 60)))
+        return now.after(Timestamp.from(startTime.toInstant().minusSeconds(MINUTES_FROM_START * 60)))
                 && now.before(startTime);
     }
     private boolean isAlreadyStarted(Timestamp now, Timestamp startTime) {
         // 15 минут после начала
-        return now.after(Timestamp.from(startTime.toInstant().plusSeconds(minutesFromStart * 60)))
-                && now.before(Timestamp.from(startTime.toInstant().plusSeconds(lessonDuraction * 60)));
+        return now.after(Timestamp.from(startTime.toInstant().plusSeconds(MINUTES_FROM_START * 60)))
+                && now.before(Timestamp.from(startTime.toInstant().plusSeconds(LESSON_DURACTION * 60)));
     }
 
     private boolean isCompleted(Timestamp now, Timestamp startTime) {
         // 60 минут от начала
-        return now.after(Timestamp.from(startTime.toInstant().plusSeconds(lessonDuraction * 60)));
+        return now.after(Timestamp.from(startTime.toInstant().plusSeconds(LESSON_DURACTION * 60)));
     }
 }
