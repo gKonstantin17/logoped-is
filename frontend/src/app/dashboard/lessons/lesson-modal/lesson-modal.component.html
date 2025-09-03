@@ -45,6 +45,14 @@
           {{ slot }}
         </button>
       </div>
+
+      <div class="custom-time">
+        <label>Любое время (для тестирования)</label>
+        <input
+          type="time"
+          [(ngModel)]="selectedTime" />
+      </div>
+
       <button class="modal-step1-btn"
               *ngIf="choice === 'lesson' && currentRole === 'logoped'"
               (click)="proceedToStep3()">
