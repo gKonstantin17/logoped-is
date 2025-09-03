@@ -10,7 +10,17 @@
   </div>
 
   <!-- Кнопка "Закончить занятие" в правом нижнем углу -->
-  <button class="end-session-btn" (click)="endSession()">
-    Закончить занятие
-  </button>
+  <div class="session-actions">
+    <button class="session-btn end" (click)="confirmEndSession()">Закончить занятие</button>
+    <button *ngIf="!statusUpdated" class="session-btn start" (click)="confirmStartLesson()">Урок начался</button>
+    <button *ngIf="!statusUpdated" class="session-btn no-show" (click)="confirmNoShow()">Пациент не пришел</button>
+  </div>
+
+
+  <app-confirm-modal
+    *ngIf="showConfirmModal"
+    [message]="confirmMessage"
+    (confirm)="onConfirm()"
+    (cancel)="showConfirmModal=false">
+  </app-confirm-modal>
 </div>

@@ -46,10 +46,22 @@
 
       <!-- Кнопки -->
       <div class="lesson-buttons">
-        <button class="btn" (click)="openSession()">Открыть виртуальный урок</button>
-        <button class="btn" (click)="showRescheduleModal = true">Перенести занятие</button>
-        <button class="btn" (click)="cancelLesson()">Отменить занятие</button>
-        <button class="btn" *ngIf="currentRole === 'logoped'" (click)="openDiagnostic()">Открыть диагностику</button>
+        <button class="btn" *ngIf="(lesson.status === LessonStatus.STARTING_SOON || lesson.status === LessonStatus.IN_PROGRESS)
+                                    && (lesson.type !== 'Диагностика' || currentRole === 'user')"
+                (click)="openSession()">
+          Открыть виртуальный урок
+        </button>
+        <button class="btn" *ngIf="lesson.status === LessonStatus.PLANNED"  (click)="showRescheduleModal = true">
+          Перенести занятие
+        </button>
+        <button class="btn" *ngIf="lesson.status === LessonStatus.PLANNED"  (click)="cancelLesson()">
+          Отменить занятие
+        </button>
+        <button class="btn" *ngIf="currentRole === 'logoped' && lesson.type === 'Диагностика'
+              && (lesson.status === LessonStatus.STARTING_SOON || lesson.status === LessonStatus.IN_PROGRESS)"
+                (click)="openDiagnostic()">
+          Открыть диагностику
+        </button>
       </div>
 
       <app-change-date-modal

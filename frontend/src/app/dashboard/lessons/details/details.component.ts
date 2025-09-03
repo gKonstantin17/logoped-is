@@ -44,7 +44,11 @@ export class DetailsComponent implements OnInit {
   }
 
   openSession() {
-    this.router.navigate(['/dashboard/session']);
+    this.lesson$.subscribe(lesson => {
+      this.router.navigate(['/dashboard/session'], {
+        queryParams: { id: this.lessonId, status: lesson.status }
+      });
+    }).unsubscribe(); // сразу отписываемся
   }
   openDiagnostic() {
     this.lesson$.subscribe(lesson => {
@@ -89,6 +93,5 @@ export class DetailsComponent implements OnInit {
 
   }
 
-  protected readonly LessonStatusLabels = LessonStatusLabels;
   protected readonly LessonStatus = LessonStatus;
 }

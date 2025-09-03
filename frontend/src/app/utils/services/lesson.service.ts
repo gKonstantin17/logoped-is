@@ -38,6 +38,10 @@ export interface CheckAvailableTime {
   patientId: number;
   date: string;
 }
+export interface LessonStatusDto {
+  id:number;
+  status:string;
+}
 @Injectable({
   providedIn: 'root'
 })
@@ -75,5 +79,7 @@ export class LessonService {
   checkTimeLesson(data: CheckAvailableTime): Observable<any> {
     return this.backend.createOperation(HttpMethod.POST,`${this.baseUrl}/check-time`,data);
   }
-
+  updateStatus(data:LessonStatusDto): Observable<any> {
+    return this.backend.createOperation(HttpMethod.PUT,`${this.baseUrl}/update-status`,data);
+  }
 }
