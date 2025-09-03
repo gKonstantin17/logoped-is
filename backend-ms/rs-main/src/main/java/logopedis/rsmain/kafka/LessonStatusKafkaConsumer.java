@@ -9,15 +9,15 @@ import org.springframework.stereotype.Service;
 
 
 @Service
-public class LessonStatusConsumer {
+public class LessonStatusKafkaConsumer {
     private final LessonService service;
 
-    public LessonStatusConsumer(LessonService service) {
+    public LessonStatusKafkaConsumer(LessonService service) {
         this.service = service;
     }
 
     @KafkaListener(topics = KafkaTopicConfig.lessonStatusTopic)
     public void consume(LessonStatusDto dto) {
-       service.updateStatus(dto);
+       service.updateStatusFromKafka(dto);
     }
 }

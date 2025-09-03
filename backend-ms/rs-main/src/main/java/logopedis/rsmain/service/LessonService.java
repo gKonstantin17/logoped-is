@@ -240,7 +240,7 @@ public class LessonService {
             return AsyncResult.error(ex.getMessage());
         }
     }
-    public void updateStatus(LessonStatusDto dto) {
+    public void updateStatusFromKafka(LessonStatusDto dto) {
         try {
             var updated = ResponseHelper.findById(repository,dto.id(),"Занятие не найдено");
             updated.setStatus(dto.status());
@@ -248,7 +248,21 @@ public class LessonService {
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
         }
+    }
+    public CompletableFuture<ServiceResult<LessonReadDto>> updateStatusFromFE(LessonStatusDto dto) {
+        try {
+            Lesson updated = ResponseHelper.findById(repository,dto.id(),"Занятие не найдено");
+            updated.setStatus(dto.status());
+            repository.save(updated);
 
+            LessonNote lessonNote = lessonToLessonNode(updated);
+            lessonNoteKafkaProducer.sendLessonNote(lessonNote);
+
+            var updatedDto = toReadDto(updated);
+            return AsyncResult.success(updatedDto);
+        } catch (Exception ex) {
+            return AsyncResult.error(ex.getMessage());
+        }
     }
     @Async
     public CompletableFuture<ServiceResult<Long>> delete(Long id) {

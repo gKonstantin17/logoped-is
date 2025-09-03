@@ -1,5 +1,6 @@
 package logopedis.rsmain.controller;
 
+import logopedis.libentities.kafka.LessonStatusDto;
 import logopedis.libentities.rsmain.dto.lesson.*;
 import logopedis.rsmain.service.LessonService;
 import org.springframework.http.HttpStatus;
@@ -93,6 +94,14 @@ public class LessonController {
     @PutMapping("/update/{id}")
     public ResponseEntity<?> update(@PathVariable Long id,@RequestBody LessonDto dto) throws ExecutionException, InterruptedException {
         var future = service.update(id, dto);
+        var result = future.get();
+        return result.isSuccess()
+                ? ResponseEntity.ok(result.data())
+                : ResponseEntity.badRequest().body(result.message());
+    }
+    @PutMapping("update-status")
+    public ResponseEntity<?> updateStatus(@RequestBody LessonStatusDto dto) throws ExecutionException, InterruptedException {
+        var future = service.updateStatusFromFE(dto);
         var result = future.get();
         return result.isSuccess()
                 ? ResponseEntity.ok(result.data())

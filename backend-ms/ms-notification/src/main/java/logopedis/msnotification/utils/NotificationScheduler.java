@@ -27,7 +27,7 @@ public class NotificationScheduler {
     }
 
     @Scheduled(cron = "0 0/5 * * * *")
-    public void runEveryFiveMinutes() {
+    public void updateStatusesInDB() {
         Timestamp start = Timestamp.valueOf(LocalDate.now().atStartOfDay());
         Timestamp end = Timestamp.valueOf(LocalDate.now().plusDays(1).atTime(23, 59, 59));
 
