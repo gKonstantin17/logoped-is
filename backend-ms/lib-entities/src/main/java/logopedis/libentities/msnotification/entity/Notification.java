@@ -33,5 +33,5 @@ public class Notification {
     private Boolean received;
 
     @Column(name = "RecipientId")
-    private UUID RecipientId;
+    private UUID recipientId;
 }
