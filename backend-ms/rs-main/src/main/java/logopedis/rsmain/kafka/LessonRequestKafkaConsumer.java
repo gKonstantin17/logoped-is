@@ -11,11 +11,11 @@ import java.sql.Timestamp;
 @Service
 public class LessonRequestKafkaConsumer {
     private final LessonService service;
-    private final LessonNoteKafkaProducer lessonNoteKafkaProducer;
+    private final LessonForPeriodKafkaProducer forPeriodKafkaProducer;
 
-    public LessonRequestKafkaConsumer(LessonService service, LessonNoteKafkaProducer lessonNoteKafkaProducer) {
+    public LessonRequestKafkaConsumer(LessonService service, LessonForPeriodKafkaProducer forPeriodKafkaProducer) {
         this.service = service;
-        this.lessonNoteKafkaProducer = lessonNoteKafkaProducer;
+        this.forPeriodKafkaProducer = forPeriodKafkaProducer;
     }
     @KafkaListener(topics = KafkaTopicConfig.lessonRequestTopic)
     public void consume(LessonPeriodRequest request) {
@@ -23,7 +23,7 @@ public class LessonRequestKafkaConsumer {
         Timestamp end = request.periodEnd();
 
         service.createResponseInLessonNote(start,end)
-                .thenAccept(lessonNoteKafkaProducer::sendLessonNotes)
+                .thenAccept(forPeriodKafkaProducer::sendLessonForPeriod)
                 .join();
     }
 }

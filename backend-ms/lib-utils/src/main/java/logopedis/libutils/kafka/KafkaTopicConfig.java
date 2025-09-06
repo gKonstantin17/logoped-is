@@ -10,6 +10,8 @@ public class KafkaTopicConfig {
     public static final String lessonNoteTopic = "lesson-note-topic";
     public static final String lessonRequestTopic = "lesson-request-topic";
     public static final String lessonStatusTopic = "lesson-status-topic";
+    public static final String noteRecipientTopic = "note-recipient-topic";
+    public static final String lessonForPeriodTopic = "lessons-for-period-topic";
 
     @Bean
     public NewTopic lessonNoteTopic() {
