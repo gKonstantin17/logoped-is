@@ -48,7 +48,9 @@ public class UserService {
             return AsyncResult.error(ex.getMessage());
         }
     }
-
+    public UserData findByPatient(Long id) {
+        return repository.findByPatient(id);
+    }
     @Async
     public CompletableFuture<ServiceResult<Boolean>> createIfNotExists(UserWithIdDto dto) {
         try {
