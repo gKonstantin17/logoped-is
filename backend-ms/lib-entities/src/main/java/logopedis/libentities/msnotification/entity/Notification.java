@@ -34,4 +34,7 @@ public class Notification {
 
     @Column(name = "RecipientId")
     private UUID recipientId;
+
+    @Column(name = "PatientId")
+    private Long patientId;
 }

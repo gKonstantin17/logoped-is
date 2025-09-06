@@ -15,13 +15,7 @@ public class LessonNoteKafkaProducer {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    public void sendLessonNote(LessonNote lessonNote) {
-        kafkaTemplate.send(KafkaTopicConfig.lessonNoteTopic, lessonNote);
-    }
-
-    public void sendLessonNotes(List<LessonNote> lessonNotes) {
-        lessonNotes.forEach(lessonNote -> {
-            kafkaTemplate.send(KafkaTopicConfig.lessonNoteTopic, lessonNote);
-        });
+    public void sendLessonNote(LessonNote dto) {
+        kafkaTemplate.send(KafkaTopicConfig.lessonNoteTopic, dto);
     }
 }

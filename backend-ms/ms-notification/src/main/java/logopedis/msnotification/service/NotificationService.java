@@ -1,9 +1,11 @@
 package logopedis.msnotification.service;
 
 import logopedis.libentities.msnotification.dto.notification.NotificationCreateDto;
+import logopedis.libentities.msnotification.dto.notification.NotificationReadDto;
 import logopedis.libentities.msnotification.dto.notification.NotificationUpdateDto;
 import logopedis.libentities.msnotification.entity.LessonNote;
 import logopedis.libentities.msnotification.entity.Notification;
+import logopedis.libentities.msnotification.entity.Recipient;
 import logopedis.libentities.rsmain.dto.responseWrapper.AsyncResult;
 import logopedis.libentities.rsmain.dto.responseWrapper.ServiceResult;
 import logopedis.libutils.hibernate.ResponseHelper;
@@ -11,25 +13,39 @@ import logopedis.msnotification.repository.NotificationRepository;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 @Service
 public class NotificationService {
     private final NotificationRepository repository;
     private final LessonNoteService lessonNoteService;
-    public NotificationService(NotificationRepository repository, LessonNoteService lessonNoteService) {
+    private final NotificationCreater notificationCreater;
+    private final RecipientService recipientService;
+    public NotificationService(NotificationRepository repository, LessonNoteService lessonNoteService, NotificationCreater notificationCreater, RecipientService recipientService) {
         this.repository = repository;
         this.lessonNoteService = lessonNoteService;
+        this.notificationCreater = notificationCreater;
+        this.recipientService = recipientService;
     }
 
     @Async
-    public CompletableFuture<ServiceResult<List<Notification>>> findall() {
+    public CompletableFuture<ServiceResult<List<NotificationReadDto>>> findall() {
         var data = repository.findAll();
-        return AsyncResult.success(data);
+        List<NotificationReadDto> result =  data.stream().map(this::toReadDto).toList();
+        return AsyncResult.success(result);
     }
-
+    private NotificationReadDto toReadDto(Notification n) {
+        return new NotificationReadDto(n.getId(),
+                n.getLessonNote().getId(),
+                n.getSendDate(),
+                n.getMessage(),
+                n.getReceived(),
+                n.getRecipientId());
+    }
     public Optional<Notification> findById(Long id) {
         return repository.findById(id);
     }
@@ -42,6 +58,17 @@ public class NotificationService {
             Notification notification = notificationFromDto(dto,lessonNote);
             Notification result = repository.save(notification);
             return AsyncResult.success(result);
+        } catch (Exception ex) {
+            return AsyncResult.error(ex.getMessage());
+        }
+    }
+
+    public CompletableFuture<ServiceResult<List<Notification>>> createFromLessonNote(LessonNote lessonNote) {
+        try {
+            List<Recipient> recipients = recipientService.findByLessonNote(lessonNote);
+            List<Notification> notifications = notificationCreater.createNotifications(lessonNote,recipients);
+
+            return AsyncResult.success(notifications);
         } catch (Exception ex) {
             return AsyncResult.error(ex.getMessage());
         }

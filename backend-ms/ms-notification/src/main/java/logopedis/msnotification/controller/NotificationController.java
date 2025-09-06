@@ -1,6 +1,7 @@
 package logopedis.msnotification.controller;
 
 import logopedis.libentities.msnotification.dto.notification.NotificationCreateDto;
+import logopedis.libentities.msnotification.dto.notification.NotificationReadDto;
 import logopedis.libentities.msnotification.dto.notification.NotificationUpdateDto;
 import logopedis.libentities.msnotification.entity.Notification;
 import logopedis.msnotification.service.NotificationService;
@@ -19,7 +20,7 @@ public class NotificationController {
     }
 
     @PostMapping("/findall")
-    public List<Notification> findall() throws ExecutionException, InterruptedException {
+    public List<NotificationReadDto> findall() throws ExecutionException, InterruptedException {
         var result = service.findall();
         return result.get().data();
     }

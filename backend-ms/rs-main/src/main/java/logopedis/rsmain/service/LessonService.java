@@ -2,7 +2,10 @@ package logopedis.rsmain.service;
 
 import jakarta.transaction.Transactional;
 import logopedis.libentities.enums.LessonStatus;
+import logopedis.libentities.kafka.LessonNoteWithRecipientDto;
 import logopedis.libentities.kafka.LessonStatusDto;
+import logopedis.libentities.kafka.LessonsForPeriodDto;
+import logopedis.libentities.msnotification.dto.recipient.RecipientDataDto;
 import logopedis.libentities.msnotification.entity.LessonNote;
 import logopedis.libentities.rsmain.dto.homework.HomeworkDto;
 import logopedis.libentities.rsmain.dto.lesson.*;
@@ -16,6 +19,7 @@ import logopedis.libentities.rsmain.entity.Lesson;
 import logopedis.libentities.rsmain.entity.Logoped;
 import logopedis.libentities.rsmain.entity.Patient;
 import logopedis.rsmain.kafka.LessonNoteKafkaProducer;
+import logopedis.rsmain.kafka.LessonNoteRecipientKafkaProducer;
 import logopedis.rsmain.repository.*;
 import logopedis.libutils.hibernate.ResponseHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -35,14 +39,18 @@ public class LessonService {
     private final LogopedService logopedService;
     private final HomeworkService homeworkService;
     private final PatientService patientService;
+    private final LessonNoteRecipientKafkaProducer lessonNoteRecipientKafkaProducer;
     private final LessonNoteKafkaProducer lessonNoteKafkaProducer;
+    private final UserService userService;
 
-    public LessonService(LessonRepository repository, LogopedService logopedService, HomeworkService homeworkService, PatientService patientService, LessonNoteKafkaProducer lessonNoteKafkaProducer) {
+    public LessonService(LessonRepository repository, LogopedService logopedService, HomeworkService homeworkService, PatientService patientService, LessonNoteRecipientKafkaProducer lessonNoteKafkaProducer, LessonNoteKafkaProducer lessonNoteKafkaProducer1, UserService userService) {
         this.repository = repository;
         this.logopedService = logopedService;
         this.homeworkService = homeworkService;
         this.patientService = patientService;
-        this.lessonNoteKafkaProducer = lessonNoteKafkaProducer;
+        this.lessonNoteRecipientKafkaProducer = lessonNoteKafkaProducer;
+        this.lessonNoteKafkaProducer = lessonNoteKafkaProducer1;
+        this.userService = userService;
     }
 
     @Async
@@ -132,10 +140,10 @@ public class LessonService {
             var createdLesson = repository.findById(lesson.getId()).get();
             var readDto = toReadDto(createdLesson);
 
-            // тест отправки Kafka
+            // отправка по Kafka
 
-            LessonNote lessonNote = lessonToLessonNode(createdLesson);
-            lessonNoteKafkaProducer.sendLessonNote(lessonNote);
+            LessonNoteWithRecipientDto lessonNote = lessonToLessonNodeDto(createdLesson);
+            lessonNoteRecipientKafkaProducer.sendLessonNoteRecipient(lessonNote);
 
             return AsyncResult.success(readDto);
 
@@ -344,9 +352,37 @@ public class LessonService {
 
     @Async
     @Transactional
-    public CompletableFuture<List<LessonNote>> createResponseInLessonNote(Timestamp start, Timestamp end) {
-        List<Lesson> lessons = findByPeriod(start,end);
-        return CompletableFuture.completedFuture(lessons.stream().map(this::lessonToLessonNode).toList());
+    public CompletableFuture<LessonsForPeriodDto> createResponseInLessonNote(Timestamp start, Timestamp end) {
+        List<Lesson> lessons = findByPeriod(start, end);
+
+        List<LessonNoteWithRecipientDto> list = lessons.stream()
+                .map(this::lessonToLessonNodeDto)
+                .toList();
+
+        LessonsForPeriodDto dto = new LessonsForPeriodDto(list);
+
+        return CompletableFuture.completedFuture(dto);
+    }
+    private LessonNoteWithRecipientDto lessonToLessonNodeDto(Lesson lesson) {
+        List<RecipientDataDto> recipientDtos = new ArrayList<>();
+        List<Long> patientIds = lesson.getPatients()
+                .stream()
+                .map(Patient::getId)
+                .toList();
+
+        for (Long patientId : patientIds) {
+            UUID userId = userService.findByPatient(patientId).getId();
+            recipientDtos.add(new RecipientDataDto(patientId, userId));
+        }
+
+        LessonNoteWithRecipientDto dto = new LessonNoteWithRecipientDto(
+                lesson.getId(),
+                lesson.getStatus(),
+                lesson.getDateOfLesson(),
+                lesson.getLogoped().getId(),
+                recipientDtos
+        );
+        return dto;
     }
     private LessonNote lessonToLessonNode(Lesson lesson) {
         LessonNote lessonNote = new LessonNote();
@@ -354,12 +390,6 @@ public class LessonService {
         lessonNote.setStartTime(lesson.getDateOfLesson());
         lessonNote.setStatus(lesson.getStatus());
         lessonNote.setLogopedId(lesson.getLogoped().getId());
-
-        List<Long> patientIds = lesson.getPatients()
-                .stream()
-                .map(Patient::getId)
-                .toList();
-        lessonNote.setPatientsId(patientIds);
         return lessonNote;
     }
 }

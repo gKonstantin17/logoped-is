@@ -1,12 +1,19 @@
 package logopedis.msnotification.service;
 
 import logopedis.libentities.enums.LessonStatus;
+import logopedis.libentities.kafka.LessonNoteWithRecipientDto;
+import logopedis.libentities.kafka.LessonsForPeriodDto;
 import logopedis.libentities.msnotification.dto.lessonNote.LessonNoteChangeDto;
+import logopedis.libentities.msnotification.dto.recipient.RecipientCreateDto;
+import logopedis.libentities.msnotification.dto.recipient.RecipientDataDto;
 import logopedis.libentities.msnotification.entity.LessonNote;
 import logopedis.libentities.rsmain.dto.responseWrapper.AsyncResult;
 import logopedis.libentities.rsmain.dto.responseWrapper.ServiceResult;
 import logopedis.libutils.hibernate.ResponseHelper;
 import logopedis.msnotification.repository.LessonNoteRepository;
+import logopedis.msnotification.utils.NotificationScheduler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -19,9 +26,12 @@ import java.util.concurrent.CompletableFuture;
 public class LessonNoteService {
     private final LessonNoteRepository repository;
     private final LessonStatusUpdater lessonStatusUpdater;
-    public LessonNoteService(LessonNoteRepository repository, LessonStatusUpdater lessonStatusUpdater) {
+    private final RecipientService recipientService;
+    private static final Logger log = LoggerFactory.getLogger(LessonNoteService.class);
+    public LessonNoteService(LessonNoteRepository repository, LessonStatusUpdater lessonStatusUpdater, RecipientService recipientService) {
         this.repository = repository;
         this.lessonStatusUpdater = lessonStatusUpdater;
+        this.recipientService = recipientService;
     }
 
     @Async
@@ -45,12 +55,26 @@ public class LessonNoteService {
     }
 
     @Async
-    public void createOrUpdateStatus(LessonNote lessonNote) {
+    public void updateStatus(LessonNote lessonNote) {
         LessonNote existing = repository.findById(lessonNote.getId()).orElse(null);
 
-        // Вычисляем актуальный статус
         LessonStatus newStatus = lessonStatusUpdater.updateStatusLesson(lessonNote);
+        if (existing != null) {
+            LessonStatus oldStatus = existing.getStatus();
+            if (oldStatus != newStatus) {
+                existing.setStatus(newStatus);
+                repository.save(existing);
+            }
+            // если статусы совпадают — ничего не делаем
+        }
+    }
 
+    @Async
+    public void createWithRecipient(LessonNoteWithRecipientDto dto) {
+        LessonNote existing = repository.findById(dto.id()).orElse(null);
+
+        LessonNote recieved = dtoWithRecipientToLessonNote(dto);
+        LessonStatus newStatus = lessonStatusUpdater.updateStatusLesson(recieved);
         if (existing != null) {
             LessonStatus oldStatus = existing.getStatus();
             if (oldStatus != newStatus) {
@@ -59,10 +83,28 @@ public class LessonNoteService {
             }
             // если статусы совпадают — ничего не делаем
         } else {
-            lessonNote.setStatus(newStatus);
-            repository.save(lessonNote);
+            recieved.setStatus(newStatus);
+            repository.save(recieved);
         }
+        recipientService.createFromDto(dto.recipientDtos(),recieved);
     }
+
+    @Async
+    public void createForLessonPeriod(LessonsForPeriodDto lessonsForPeriod) {
+        for (LessonNoteWithRecipientDto dto : lessonsForPeriod.list())
+            createWithRecipient(dto);
+        log.info("Синхронизация занятий окончена");
+    }
+
+    private static LessonNote dtoWithRecipientToLessonNote(LessonNoteWithRecipientDto dto) {
+        LessonNote recieved = new LessonNote();
+        recieved.setId(dto.id());
+        recieved.setStatus(dto.status());
+        recieved.setStartTime(dto.startTime());
+        recieved.setLogopedId(dto.logopedId());
+        return recieved;
+    }
+
     @Async
     public CompletableFuture<ServiceResult<LessonNote>> update(Long id, LessonNoteChangeDto dto) {
         try {
@@ -79,8 +121,8 @@ public class LessonNoteService {
         }
     }
 
-    public void save(LessonNote changedLessonNote) {
-        repository.save(changedLessonNote);
+    public LessonNote save(LessonNote changedLessonNote) {
+        return repository.save(changedLessonNote);
     }
     public List<LessonNote> findByPeriod(Timestamp start, Timestamp end) {
         return repository.findByStartTimeBetween(start,end);
