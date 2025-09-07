@@ -62,6 +62,62 @@
   margin-left: 20px; /* небольшой отступ от логотипа */
 }
 
+.icon-container {
+  position: relative;
+  display: inline-block; /* чтобы размеры совпадали с картинки */
+}
+
+.circle {
+  position: absolute;
+  right: -5px; /* смещаем вправо */
+  background-color: #d30c5f;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.icon-container {
+  position: relative;
+  cursor: pointer;
+}
+
+.notifications-popup {
+  position: absolute;
+  top: 50px;
+  right: 0;
+  width: 300px;
+  max-height: 400px;
+  overflow-y: auto;
+  background-color: white;
+  border: 1px solid #ccc;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  z-index: 100;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.notifications-popup ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.notifications-popup li {
+  padding: 5px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.notifications-popup .footer {
+  text-align: center;
+  margin-top: 10px;
+}
+
+
 .nav-item:hover .children-img {
   content: url('/assets/header/children.gif');
 }
@@ -73,6 +129,9 @@
 }
 .nav-item:hover .profile-img {
   content: url('/assets/header/profile.gif');
+}
+.nav-item:hover .message-img {
+  content: url('/assets/header/message.gif');
 }
 .nav-item:hover .logout-img {
   content: url('/assets/header/logout.gif');

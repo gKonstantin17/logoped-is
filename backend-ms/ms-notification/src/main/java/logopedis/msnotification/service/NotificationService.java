@@ -10,10 +10,11 @@ import logopedis.libentities.rsmain.dto.responseWrapper.AsyncResult;
 import logopedis.libentities.rsmain.dto.responseWrapper.ServiceResult;
 import logopedis.libutils.hibernate.ResponseHelper;
 import logopedis.msnotification.repository.NotificationRepository;
+import org.springframework.http.*;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -25,6 +26,7 @@ public class NotificationService {
     private final LessonNoteService lessonNoteService;
     private final NotificationCreater notificationCreater;
     private final RecipientService recipientService;
+    private static final RestTemplate restTemplate = new RestTemplate();
     public NotificationService(NotificationRepository repository, LessonNoteService lessonNoteService, NotificationCreater notificationCreater, RecipientService recipientService) {
         this.repository = repository;
         this.lessonNoteService = lessonNoteService;
@@ -38,13 +40,21 @@ public class NotificationService {
         List<NotificationReadDto> result =  data.stream().map(this::toReadDto).toList();
         return AsyncResult.success(result);
     }
+
+    @Async
+    public CompletableFuture<ServiceResult<List<NotificationReadDto>>> findByUser(UUID userId) {
+        var data = repository.findByRecipientId(userId);
+        List<NotificationReadDto> result =  data.stream().map(this::toReadDto).toList();
+        return AsyncResult.success(result);
+    }
     private NotificationReadDto toReadDto(Notification n) {
         return new NotificationReadDto(n.getId(),
                 n.getLessonNote().getId(),
                 n.getSendDate(),
                 n.getMessage(),
                 n.getReceived(),
-                n.getRecipientId());
+                n.getRecipientId(),
+                 n.getPatientId());
     }
     public Optional<Notification> findById(Long id) {
         return repository.findById(id);
@@ -68,6 +78,10 @@ public class NotificationService {
             List<Recipient> recipients = recipientService.findByLessonNote(lessonNote);
             List<Notification> notifications = notificationCreater.createNotifications(lessonNote,recipients);
 
+            repository.saveAll(notifications);
+            for (Notification n: notifications) {
+                sendNotification(n);
+            }
             return AsyncResult.success(notifications);
         } catch (Exception ex) {
             return AsyncResult.error(ex.getMessage());
@@ -110,5 +124,24 @@ public class NotificationService {
         notification.setReceived(dto.received());
         notification.setSendDate(dto.sendDate());
         return notification;
+    }
+
+    private void sendNotification(Notification notification) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        // Оборачиваем тело в HttpEntity
+        HttpEntity<Notification> entity = new HttpEntity<>(notification, headers);
+
+        // Отправляем POST-запрос
+        ResponseEntity<String> response = restTemplate.exchange(
+                "http://localhost:8380/notification/send-to-client",
+                HttpMethod.POST,
+                entity,
+                String.class
+        );
+        if (response.getStatusCode()== HttpStatus.OK) {
+            System.out.println("ОКей");
+        }
     }
 }

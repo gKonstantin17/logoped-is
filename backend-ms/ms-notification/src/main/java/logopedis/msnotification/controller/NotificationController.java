@@ -3,12 +3,12 @@ package logopedis.msnotification.controller;
 import logopedis.libentities.msnotification.dto.notification.NotificationCreateDto;
 import logopedis.libentities.msnotification.dto.notification.NotificationReadDto;
 import logopedis.libentities.msnotification.dto.notification.NotificationUpdateDto;
-import logopedis.libentities.msnotification.entity.Notification;
 import logopedis.msnotification.service.NotificationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 @RestController
@@ -24,6 +24,11 @@ public class NotificationController {
         var result = service.findall();
         return result.get().data();
     }
+    @PostMapping("/find-messages")
+    public List<NotificationReadDto> findByUser(@RequestBody UUID userId) throws ExecutionException, InterruptedException {
+        var result = service.findByUser(userId);
+        return result.get().data();
+    }
 
     @PostMapping("/create")
     public ResponseEntity<?> create(@RequestBody NotificationCreateDto dto) throws ExecutionException, InterruptedException {
@@ -34,6 +39,9 @@ public class NotificationController {
                 ? ResponseEntity.ok(result.data())
                 : ResponseEntity.badRequest().body(result.message());
     }
+
+
+
 
     @PutMapping("/update/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody NotificationUpdateDto dto) throws ExecutionException, InterruptedException {

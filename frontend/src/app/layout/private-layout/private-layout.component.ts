@@ -6,6 +6,9 @@ import {KeycloakService} from '../../utils/oauth2/bff/keycloak.service';
 import {UserDataStore} from '../../utils/stores/user-data.store';
 import {PatientStore} from '../../utils/stores/patient.store';
 import {LessonStore} from '../../utils/stores/lesson.store';
+import {NotificationDto, WebSocketService} from '../../utils/websocket/WebSocketService';
+import {Subscription} from 'rxjs';
+import {NgForOf, NgIf, SlicePipe} from '@angular/common';
 
 
 @Component({
@@ -13,13 +16,18 @@ import {LessonStore} from '../../utils/stores/lesson.store';
   standalone: true,
   imports: [
     RouterOutlet,
-    RouterLink
+    RouterLink,
+    NgIf,
+    SlicePipe,
+    NgForOf
   ],
   templateUrl: './private-layout.component.html',
   styleUrl: './private-layout.component.css'
 })
 export class PrivateLayoutComponent implements OnInit {
   userProfile?: UserData;
+  notifications: NotificationDto[] = [];
+  private wsSub: Subscription | null = null;
 
   constructor(private keycloakService: KeycloakService,
 
@@ -27,6 +35,7 @@ export class PrivateLayoutComponent implements OnInit {
               private patientStore: PatientStore,
               private lessonStore:LessonStore,
 
+              private websocketService: WebSocketService,
               private router:Router,) {}
 
   // после авторизации получение профиля, синхронизация с бд,
@@ -57,13 +66,26 @@ export class PrivateLayoutComponent implements OnInit {
         });
 
         this.loadInitialData(this.userProfile.id, this.userProfile.role);
+
+        this.websocketService.connect();
+        this.websocketService.loadInitMessages(this.userProfile.id);
+
+        this.wsSub = this.websocketService.messages$.subscribe({
+          next: msgs => {
+            console.log('Received notifications:', msgs);
+            this.notifications = msgs;
+          },
+          error: err => console.error(err)
+        });
       },
       error: err => {
         console.error('Error loading profile:', err);
       }
     });
   }
-
+  ngOnDestroy(): void {
+    this.wsSub?.unsubscribe();
+  }
   private loadInitialData(userId: string, role: string) {
     this.patientStore.refresh(userId, role);
     this.lessonStore.refresh(userId, role);
@@ -82,5 +104,15 @@ export class PrivateLayoutComponent implements OnInit {
       }
     });
   }
+
+  showNotifications = false;
+
+  toggleNotifications() {
+    this.showNotifications = !this.showNotifications;
+  }
+  closeNotifications() {
+    this.showNotifications = false;
+  }
+
 
 }

@@ -28,7 +28,7 @@ public class SpringSecurityConfig {
         http.authorizeHttpRequests(authz -> authz
                         .requestMatchers("/bff/*").permitAll()
                         .requestMatchers("/ws/**").permitAll() // для websocket /forevent
-                        .requestMatchers("/forevent/*").permitAll()
+                        .requestMatchers("/notification/*").permitAll()
                         .anyRequest().authenticated()
                 )
 

@@ -1,4 +1,4 @@
-package logopedis.libentities.msnotification.dto.notification;
+package ops.bffforangular.dto;
 
 import java.sql.Timestamp;
 import java.util.UUID;

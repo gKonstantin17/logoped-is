@@ -2,6 +2,7 @@ package ops.bffforangular.websocket.service;
 
 
 
+import ops.bffforangular.dto.NotificationReadDto;
 import ops.bffforangular.websocket.dto.MyEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
@@ -11,6 +12,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import javax.management.Notification;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -38,6 +40,7 @@ public class EventService {
         ResponseEntity<String> response = restTemplate.exchange(
                 "http://localhost:8765/rs/data/event",
                 HttpMethod.POST,
+
                 entity,
                 String.class
         );
@@ -51,9 +54,13 @@ public class EventService {
 //    public List<MyEvent> getAllEvents() {
 //        return new ArrayList<>(eventsStorage.values());
 //    }
-    public void checkUpcomingEvents(MyEvent eventToSend) {
+    public void checkUpcomingEvents(NotificationReadDto dto) {
         // просто отправка клиенту
-        messagingTemplate.convertAndSend("/topic/messages", eventToSend);
-        System.out.println("Sent notification: " + eventToSend);
+        messagingTemplate.convertAndSendToUser(
+                dto.recipientId().toString(),   // userName или userId как строка
+                "/queue/messages",              // destination (относительный к /user/)
+                dto
+        );
+        System.out.println("Sent notification: " + dto);
     }
 }

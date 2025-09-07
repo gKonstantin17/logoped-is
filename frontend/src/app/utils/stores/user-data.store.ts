@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import {BehaviorSubject, Observable, tap, throwError} from 'rxjs';
-import {environment} from '../../../environments/environment';
 import {UserDataService} from '../services/user-data.service';
 
 
@@ -17,7 +16,6 @@ export interface UserData {
   providedIn: 'root' // сервис будет синглтоном на всё приложение
 })
 export class UserDataStore {
-  private baseUrl = `${environment.RESOURSE_URL}/user`;
 
   constructor(private userDataService: UserDataService) { }
 

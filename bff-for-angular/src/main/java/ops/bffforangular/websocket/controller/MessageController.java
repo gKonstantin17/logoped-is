@@ -31,14 +31,14 @@ public class MessageController {
     }
     @MessageMapping("/events") // получение на /app/message
     @SendTo("/topic/messages") // отправка
-    public MyEvent getEvent(final MyEvent event, @Headers Map<String, Object> headers) {
+    public void getEvent(final MyEvent event, @Headers Map<String, Object> headers) {
         // Извлекаем токен из атрибутов WebSocket сессии
-        Map<String, Object> simpSessionAttributes = (Map<String, Object>) headers.get("simpSessionAttributes");
-        String accessToken = (String) simpSessionAttributes.get("accessToken");
-        eventService.sendEvent(event,accessToken);
-        System.out.println("!!! Event from BACKEND: " + event.getDescr());
-
-        return new MyEvent(LocalDateTime.now(), "Событие получено");
+//        Map<String, Object> simpSessionAttributes = (Map<String, Object>) headers.get("simpSessionAttributes");
+//        String accessToken = (String) simpSessionAttributes.get("accessToken");
+//        eventService.sendEvent(event,accessToken);
+//        System.out.println("!!! Event from BACKEND: " + event.getDescr());
+//
+//        return new MyEvent(LocalDateTime.now(), "Событие получено");
     }
 
 }
