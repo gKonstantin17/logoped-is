@@ -1,6 +1,7 @@
 package logopedis.libentities.msnotification.dto.notification;
 
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.UUID;
 
 public record NotificationReadDto(
@@ -10,6 +11,6 @@ public record NotificationReadDto(
         String message,
         Boolean received,
         UUID recipientId,
-        Long patientId
+        List<Long> patientsId
 ) {
 }

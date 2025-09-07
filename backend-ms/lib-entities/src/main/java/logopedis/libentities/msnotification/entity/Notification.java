@@ -4,8 +4,12 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.Type;
+import org.hibernate.type.SqlTypes;
 
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -35,6 +39,7 @@ public class Notification {
     @Column(name = "RecipientId")
     private UUID recipientId;
 
-    @Column(name = "PatientId")
-    private Long patientId;
+    @Column(name = "PatientsId", columnDefinition = "bigint[]")
+    @JdbcTypeCode(SqlTypes.ARRAY)
+    private List<Long> patientsId;
 }
