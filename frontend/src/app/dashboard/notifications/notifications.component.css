@@ -1,0 +1,71 @@
+/* Общий контейнер таблицы */
+.notifications-page {
+  padding: 20px;
+  background-color: #f9f9f9;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+}
+
+/* Заголовок */
+.notifications-page h2 {
+  margin-bottom: 15px;
+  color: #ef019b;
+}
+
+/* Таблица */
+.notifications-page table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Заголовки таблицы */
+.notifications-page th {
+  background-color: #ef019b;
+  color: #fff;
+  text-align: left;
+  padding: 12px 15px;
+  font-weight: 600;
+}
+
+/* Ячейки таблицы */
+.notifications-page td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #eee;
+}
+
+/* Последняя строка без границы */
+.notifications-page tr:last-child td {
+  border-bottom: none;
+}
+
+/* Ссылки на пациентов и уроки */
+.notifications-page a {
+  color: #ef019b;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.notifications-page a:hover {
+  text-decoration: underline;
+}
+
+/* Стиль для нескольких пациентов в одной ячейке */
+.notifications-page td span {
+  display: inline-block;
+  margin-right: 5px;
+}
+
+/* Альтернативный цвет фона для строк */
+.notifications-page tr:nth-child(even) {
+  background-color: #fdfdfd;
+}
+
+/* Стиль для сообщения */
+.notifications-page td:nth-child(3) {
+  font-style: italic;
+  color: #555;
+}

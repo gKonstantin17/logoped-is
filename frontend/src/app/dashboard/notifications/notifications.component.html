@@ -1,8 +1,27 @@
 <div class="notifications-page">
   <h2>Все уведомления</h2>
-  <ul>
-    <li *ngFor="let notification of notifications">
-      {{ notification.sendDate | date:'short' }} - {{ notification.message }}
-    </li>
-  </ul>
+  <table>
+    <thead>
+    <tr>
+      <th>Дата</th>
+      <th>Пациент</th>
+      <th>Сообщение</th>
+      <th>Занятие</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let n of notificationsWithDetails">
+      <td>{{ n.sendDate | date:'short' }}</td>
+      <td>
+          <span *ngFor="let p of n.patients; let last = last">
+            <a [routerLink]="['/dashboard/speechcard']" [queryParams]="{ id: p.id }">{{ p.name }}</a>{{ !last ? ', ' : '' }}
+          </span>
+      </td>
+      <td>{{ n.message }}</td>
+      <td>
+        <a [routerLink]="['/dashboard/details', n.lessonId]">{{ n.lessonTopic }}</a>
+      </td>
+    </tr>
+    </tbody>
+  </table>
 </div>
