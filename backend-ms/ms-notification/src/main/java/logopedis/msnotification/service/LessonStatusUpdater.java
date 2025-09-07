@@ -26,9 +26,18 @@ public class LessonStatusUpdater {
 
         switch (oldStatus) {
             case PLANNED -> {
+                if (isWithinHour(now, startTime))
+                    lessonNote.setStatus(LessonStatus.PLANNED_1H); // за час до начала
+                else if (isStartingSoon(now, startTime))
+                    lessonNote.setStatus(LessonStatus.STARTING_SOON); // за 15 минут
+                else if (isCompleted(now, startTime))
+                    lessonNote.setStatus(LessonStatus.COMPLETED); // прошло
+            }
+
+            case PLANNED_1H -> {
                 if (isStartingSoon(now, startTime))
-                    lessonNote.setStatus(LessonStatus.STARTING_SOON); // скоро начнется
-                else if (isCompleted(now,startTime))
+                    lessonNote.setStatus(LessonStatus.STARTING_SOON); // за 15 минут
+                else if (isCompleted(now, startTime))
                     lessonNote.setStatus(LessonStatus.COMPLETED); // прошло
             }
             case STARTING_SOON -> {
@@ -71,5 +80,10 @@ public class LessonStatusUpdater {
     private boolean isCompleted(Timestamp now, Timestamp startTime) {
         // 60 минут от начала
         return now.after(Timestamp.from(startTime.toInstant().plusSeconds(LESSON_DURACTION * 60)));
+    }
+    private boolean isWithinHour(Timestamp now, Timestamp startTime) {
+        // 60 минут до начала
+        long minutesToStart = (startTime.getTime() - now.getTime()) / 60000;
+        return minutesToStart <= 60 && minutesToStart > 15;
     }
 }

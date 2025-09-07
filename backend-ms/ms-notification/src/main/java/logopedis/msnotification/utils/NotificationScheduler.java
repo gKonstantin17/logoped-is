@@ -51,7 +51,6 @@ public class NotificationScheduler {
                 log.info("У занятия id={} обновлен статус: {} -> {}", lessonNote.getId(), oldStatus, newStatus);
             }
         }
-
         log.info("Запланированное обновление статусов закончено. Всего просмотрено: {}, обновлено: {}", lessonNotes.size(), updatedCount);
 
     }
