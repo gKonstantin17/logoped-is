@@ -54,7 +54,7 @@ public class NotificationService {
                 n.getMessage(),
                 n.getReceived(),
                 n.getRecipientId(),
-                 n.getPatientId());
+                n.getPatientsId());
     }
     public Optional<Notification> findById(Long id) {
         return repository.findById(id);
@@ -96,6 +96,8 @@ public class NotificationService {
             if (dto.sendDate() != null)     updated.setSendDate(dto.sendDate());
             if (dto.message() != null)     updated.setMessage(dto.message());
             if (dto.received() != null)    updated.setReceived(dto.received());
+            if (dto.recipientId() != null)    updated.setRecipientId(dto.recipientId());
+            if (dto.patientsId() != null)    updated.setPatientsId(dto.patientsId());
 
             Notification saved = repository.save(updated);
 
