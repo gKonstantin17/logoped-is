@@ -2,7 +2,8 @@ package logopedis.libentities.enums;
 
 public enum LessonStatus {
     PLANNED("Запланировано"), // при создании занятия
-    STARTING_SOON("Скоро начнётся"), // За 15 минут до начала
+    PLANNED_1H("Скоро начнётся"), // за 60 минут до начала
+    STARTING_SOON("Начнется вот-вот"), // За 15 минут до начала
     IN_PROGRESS("В процессе"), // Началось
     CANCELED_BY_CLIENT("Отменено клиентом"), // Отмена до начала занятия
     CANCELED_BY_LOGOPED("Отменено логопедом"), // Отмена до начала занятия
