@@ -73,7 +73,6 @@ export class PrivateLayoutComponent implements OnInit {
           // Создаём Map для быстрого поиска пациентов
           const patientMap = new Map<number, string>();
           patients.forEach(p => patientMap.set(p.id, `${p.firstName} ${p.lastName}`));
-
           // Пересчитываем массив для отображения, сортируем по дате
           this.notificationsWithNames = notifications
             .map(n => ({
@@ -82,12 +81,7 @@ export class PrivateLayoutComponent implements OnInit {
               received: n.received,
               sendDate: n.sendDate
             }))
-            .sort((a, b) => {
-              // сортировка по дате: последние сверху
-              const nA = new Date(notifications.find(n1 => n1.message === a.message)?.sendDate ?? 0).getTime();
-              const nB = new Date(notifications.find(n1 => n1.message === b.message)?.sendDate ?? 0).getTime();
-              return nB - nA;
-            });
+            .sort((a, b) => new Date(b.sendDate).getTime() - new Date(a.sendDate).getTime());
         });
       },
       error: err => console.error('Error loading profile:', err)

@@ -2,9 +2,6 @@ import { Injectable } from '@angular/core';
 import {Client, IFrame, IMessage} from '@stomp/stompjs';
 import {BehaviorSubject, Observable} from 'rxjs';
 import SockJS from 'sockjs-client';
-import {environment} from '../../../environments/environment';
-import {BackendService} from '../oauth2/backend/backend.service';
-import {HttpMethod} from '../oauth2/model/RequestBFF';
 import {NotificationService} from '../services/notification.service';
 
 export interface NotificationDto {
