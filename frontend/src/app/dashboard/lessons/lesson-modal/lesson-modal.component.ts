@@ -89,9 +89,6 @@ export class LessonModalComponent {
     this.lessonStore.checkTime(this.patientId, date);
   }
 
-
-
-
   cancel() {
     this.closeModal.emit();
   }

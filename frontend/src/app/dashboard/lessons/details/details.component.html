@@ -66,6 +66,7 @@
 
       <app-change-date-modal
         [visible]="showRescheduleModal"
+        [patientId]="lesson?.patients?.[0]?.id"
         (close)="showRescheduleModal = false"
         (submit)="onReschedule($event)">
       </app-change-date-modal>
