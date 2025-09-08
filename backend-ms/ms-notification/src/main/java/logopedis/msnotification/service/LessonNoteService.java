@@ -4,14 +4,11 @@ import logopedis.libentities.enums.LessonStatus;
 import logopedis.libentities.kafka.LessonNoteWithRecipientDto;
 import logopedis.libentities.kafka.LessonsForPeriodDto;
 import logopedis.libentities.msnotification.dto.lessonNote.LessonNoteChangeDto;
-import logopedis.libentities.msnotification.dto.recipient.RecipientCreateDto;
-import logopedis.libentities.msnotification.dto.recipient.RecipientDataDto;
 import logopedis.libentities.msnotification.entity.LessonNote;
 import logopedis.libentities.rsmain.dto.responseWrapper.AsyncResult;
 import logopedis.libentities.rsmain.dto.responseWrapper.ServiceResult;
 import logopedis.libutils.hibernate.ResponseHelper;
 import logopedis.msnotification.repository.LessonNoteRepository;
-import logopedis.msnotification.utils.NotificationScheduler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
@@ -27,11 +24,13 @@ public class LessonNoteService {
     private final LessonNoteRepository repository;
     private final LessonStatusUpdater lessonStatusUpdater;
     private final RecipientService recipientService;
+    private final NotificationService notificationService;
     private static final Logger log = LoggerFactory.getLogger(LessonNoteService.class);
-    public LessonNoteService(LessonNoteRepository repository, LessonStatusUpdater lessonStatusUpdater, RecipientService recipientService) {
+    public LessonNoteService(LessonNoteRepository repository, LessonStatusUpdater lessonStatusUpdater, RecipientService recipientService, NotificationService notificationService) {
         this.repository = repository;
         this.lessonStatusUpdater = lessonStatusUpdater;
         this.recipientService = recipientService;
+        this.notificationService = notificationService;
     }
 
     @Async
@@ -57,13 +56,16 @@ public class LessonNoteService {
     @Async
     public void updateStatus(LessonNote lessonNote) {
         LessonNote existing = repository.findById(lessonNote.getId()).orElse(null);
-
-        LessonStatus newStatus = lessonStatusUpdater.updateStatusLesson(lessonNote);
+        log.info("Запрос на обновление статуса");
+        log.info("новый статус: "+lessonNote.getStatus().getDescription());
+        LessonStatus newStatus = lessonNote.getStatus();
         if (existing != null) {
             LessonStatus oldStatus = existing.getStatus();
+            log.info("старый статус: "+oldStatus.getDescription());
             if (oldStatus != newStatus) {
                 existing.setStatus(newStatus);
-                repository.save(existing);
+                var result = repository.save(existing);
+                notificationService.createFromLessonNote(result);
             }
             // если статусы совпадают — ничего не делаем
         }
@@ -79,14 +81,16 @@ public class LessonNoteService {
             LessonStatus oldStatus = existing.getStatus();
             if (oldStatus != newStatus) {
                 existing.setStatus(newStatus);
-                repository.save(existing);
+                var result = repository.save(existing);
+                notificationService.createFromLessonNote(result);
             }
             // если статусы совпадают — ничего не делаем
         } else {
             recieved.setStatus(newStatus);
-            repository.save(recieved);
+            var result = repository.save(recieved);
+            recipientService.createFromDto(dto.recipientDtos(),recieved);
+            notificationService.createFromLessonNote(result);
         }
-        recipientService.createFromDto(dto.recipientDtos(),recieved);
     }
 
     @Async

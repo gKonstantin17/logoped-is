@@ -30,9 +30,9 @@ public class NotificationController {
         return result.get().data();
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<?> create(@RequestBody NotificationCreateDto dto) throws ExecutionException, InterruptedException {
-        var future = service.create(dto);
+    @PutMapping("/receive")
+    public ResponseEntity<?> receive(@RequestBody Long id) throws ExecutionException, InterruptedException {
+        var future = service.receive(id);
         var result = future.get();
 
         return result.isSuccess()

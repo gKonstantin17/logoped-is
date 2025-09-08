@@ -19,6 +19,7 @@ public class NotificationCreater {
 
     private final List<LessonStatus> noiceStatuses = List.of(
             LessonStatus.PLANNED,
+            LessonStatus.PLANNED_1H,
             LessonStatus.CANCELED_BY_CLIENT,
             LessonStatus.CANCELED_BY_LOGOPED,
             LessonStatus.STARTING_SOON,
@@ -66,6 +67,6 @@ public class NotificationCreater {
     }
 
     private boolean setReceivedFromStatus(LessonNote lessonNote) {
-        return noiceStatuses.contains(lessonNote.getStatus());
+        return !noiceStatuses.contains(lessonNote.getStatus());
     }
 }

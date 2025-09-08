@@ -90,15 +90,15 @@
   position: absolute;
   top: 50px;
   right: 0;
-  width: 300px;
+  width: 320px;
   max-height: 400px;
   overflow-y: auto;
-  background-color: white;
+  background-color: #fff;
   border: 1px solid #ccc;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.15);
   z-index: 100;
-  padding: 10px;
-  border-radius: 8px;
+  padding: 12px;
+  border-radius: 10px;
 }
 
 .notifications-popup ul {
@@ -108,14 +108,55 @@
 }
 
 .notifications-popup li {
-  padding: 5px 0;
-  border-bottom: 1px solid #eee;
+  padding: 10px;
+  margin-bottom: 6px;
+  border-radius: 6px;
+  background-color: #f9f9f9;
+  transition: background-color 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.notifications-popup li.unread {
+  background-color: #ffeef0; /* подсветка для непрочитанных */
+  font-weight: 500;
+}
+
+.notifications-popup li:hover {
+  background-color: #f1f1f1;
+}
+
+.notifications-popup li .message {
+  margin-top: 4px;
+  font-size: 14px;
+  color: #333;
+}
+
+.notifications-popup li .patients a {
+  color: #EF019B;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.notifications-popup li .patients a:hover {
+  text-decoration: underline;
 }
 
 .notifications-popup .footer {
   text-align: center;
-  margin-top: 10px;
+  margin-top: 12px;
 }
+
+.notifications-popup .footer a {
+  color: #EF019B;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.notifications-popup .footer a:hover {
+  text-decoration: underline;
+}
+
 
 
 .nav-item:hover .children-img {

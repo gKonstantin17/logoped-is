@@ -10,26 +10,27 @@ import logopedis.libentities.rsmain.dto.responseWrapper.AsyncResult;
 import logopedis.libentities.rsmain.dto.responseWrapper.ServiceResult;
 import logopedis.libutils.hibernate.ResponseHelper;
 import logopedis.msnotification.repository.NotificationRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 @Service
 public class NotificationService {
     private final NotificationRepository repository;
-    private final LessonNoteService lessonNoteService;
     private final NotificationCreater notificationCreater;
     private final RecipientService recipientService;
     private static final RestTemplate restTemplate = new RestTemplate();
-    public NotificationService(NotificationRepository repository, LessonNoteService lessonNoteService, NotificationCreater notificationCreater, RecipientService recipientService) {
+
+    private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
+    public NotificationService(NotificationRepository repository,  NotificationCreater notificationCreater, RecipientService recipientService) {
         this.repository = repository;
-        this.lessonNoteService = lessonNoteService;
         this.notificationCreater = notificationCreater;
         this.recipientService = recipientService;
     }
@@ -56,33 +57,22 @@ public class NotificationService {
                 n.getRecipientId(),
                 n.getPatientsId());
     }
-    public Optional<Notification> findById(Long id) {
-        return repository.findById(id);
+    public Notification findById(Long id) {
+        return repository.findById(id).get();
     }
 
-    @Async
-    public CompletableFuture<ServiceResult<Notification>> create(NotificationCreateDto dto) {
-        try {
-            LessonNote lessonNote = lessonNoteService.findById(dto.lessonNoteId()).get();
-
-            Notification notification = notificationFromDto(dto,lessonNote);
-            Notification result = repository.save(notification);
-            return AsyncResult.success(result);
-        } catch (Exception ex) {
-            return AsyncResult.error(ex.getMessage());
-        }
-    }
 
     public CompletableFuture<ServiceResult<List<Notification>>> createFromLessonNote(LessonNote lessonNote) {
         try {
             List<Recipient> recipients = recipientService.findByLessonNote(lessonNote);
             List<Notification> notifications = notificationCreater.createNotifications(lessonNote,recipients);
 
-            repository.saveAll(notifications);
-            for (Notification n: notifications) {
+            List<Notification> results = repository.saveAll(notifications);
+            for (Notification n: results) {
                 sendNotification(n);
+                log.info("Создано уведомление: "+String.valueOf(n));
             }
-            return AsyncResult.success(notifications);
+            return AsyncResult.success(results);
         } catch (Exception ex) {
             return AsyncResult.error(ex.getMessage());
         }
@@ -144,6 +134,19 @@ public class NotificationService {
         );
         if (response.getStatusCode()== HttpStatus.OK) {
             System.out.println("ОКей");
+        }
+    }
+
+    @Async
+    public CompletableFuture<ServiceResult<NotificationReadDto>> receive(Long id) {
+        try {
+            Notification n = findById(id);
+            n.setReceived(true);
+            var changed = repository.save(n);
+            var result = toReadDto(changed);
+            return AsyncResult.success(result);
+        } catch (Exception ex) {
+            return AsyncResult.error(ex.getMessage());
         }
     }
 }

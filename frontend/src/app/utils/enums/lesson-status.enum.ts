@@ -1,5 +1,6 @@
 export enum LessonStatus {
   PLANNED = 'PLANNED',
+  PLANNED_1H = 'PLANNED_1H',
   STARTING_SOON = 'STARTING_SOON',
   IN_PROGRESS = 'IN_PROGRESS',
   CANCELED_BY_CLIENT = 'CANCELED_BY_CLIENT',
@@ -11,7 +12,8 @@ export enum LessonStatus {
 
 export const LessonStatusLabels: Record<LessonStatus, string> = {
   [LessonStatus.PLANNED]: 'Запланировано',
-  [LessonStatus.STARTING_SOON]: 'Скоро начнётся',
+  [LessonStatus.PLANNED_1H]: 'Скоро начнётся',
+  [LessonStatus.STARTING_SOON]: 'Начнется вот-вот',
   [LessonStatus.IN_PROGRESS]: 'В процессе',
   [LessonStatus.CANCELED_BY_CLIENT]: 'Отменено клиентом',
   [LessonStatus.CANCELED_BY_LOGOPED]: 'Отменено логопедом',

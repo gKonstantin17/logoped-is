@@ -51,10 +51,10 @@
                 (click)="openSession()">
           Открыть виртуальный урок
         </button>
-        <button class="btn" *ngIf="lesson.status === LessonStatus.PLANNED"  (click)="showRescheduleModal = true">
+        <button class="btn" *ngIf="lesson.status === LessonStatus.PLANNED || lesson.status === LessonStatus.PLANNED_1H"  (click)="showRescheduleModal = true">
           Перенести занятие
         </button>
-        <button class="btn" *ngIf="lesson.status === LessonStatus.PLANNED"  (click)="cancelLesson()">
+        <button class="btn" *ngIf="lesson.status === LessonStatus.PLANNED || lesson.status === LessonStatus.PLANNED_1H"  (click)="cancelLesson()">
           Отменить занятие
         </button>
         <button class="btn" *ngIf="currentRole === 'logoped' && lesson.type === 'Диагностика'

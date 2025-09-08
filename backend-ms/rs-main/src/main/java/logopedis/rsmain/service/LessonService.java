@@ -190,24 +190,29 @@ public class LessonService {
 
     }
     @Async
-    public CompletableFuture<ServiceResult<Lesson>> canselLesson(Long id) {
+    public CompletableFuture<ServiceResult<LessonReadDto>> canselLesson(Long id) {
         try {
             // TODO: добавить логику отмену за разных ролей
             var lesson = repository.findById(id).get();
             lesson.setStatus(LessonStatus.CANCELED_BY_CLIENT);
-            repository.save(lesson);
-            return AsyncResult.success(lesson);
+            var changed = repository.save(lesson);
+
+            LessonNote lessonNote = lessonToLessonNode(changed);
+            lessonNoteKafkaProducer.sendLessonNote(lessonNote);
+            var result = toReadDto(changed);
+            return AsyncResult.success(result);
         } catch (Exception ex) {
             return AsyncResult.error(ex.getMessage());
         }
     }
     @Async
-    public CompletableFuture<ServiceResult<Lesson>> changeDate(Long id, Timestamp newDate) {
+    public CompletableFuture<ServiceResult<LessonReadDto>> changeDate(Long id, Timestamp newDate) {
         try {
             var lesson = repository.findById(id).get();
             lesson.setDateOfLesson(newDate);
-            repository.save(lesson);
-            return AsyncResult.success(lesson);
+            var changed = repository.save(lesson);
+            var result = toReadDto(changed);
+            return AsyncResult.success(result);
         } catch (Exception ex) {
             return AsyncResult.error(ex.getMessage());
         }
@@ -261,9 +266,9 @@ public class LessonService {
         try {
             Lesson updated = ResponseHelper.findById(repository,dto.id(),"Занятие не найдено");
             updated.setStatus(dto.status());
-            repository.save(updated);
+            var result = repository.save(updated);
 
-            LessonNote lessonNote = lessonToLessonNode(updated);
+            LessonNote lessonNote = lessonToLessonNode(result);
             lessonNoteKafkaProducer.sendLessonNote(lessonNote);
 
             var updatedDto = toReadDto(updated);

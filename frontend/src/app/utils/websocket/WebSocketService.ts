@@ -5,6 +5,7 @@ import SockJS from 'sockjs-client';
 import {environment} from '../../../environments/environment';
 import {BackendService} from '../oauth2/backend/backend.service';
 import {HttpMethod} from '../oauth2/model/RequestBFF';
+import {NotificationService} from '../services/notification.service';
 
 export interface NotificationDto {
   id:number,
@@ -13,37 +14,45 @@ export interface NotificationDto {
   message: string,
   received: boolean,
   recipientId: string,
-  patientId: number
+  patientsId: number[]
 }
 @Injectable({
   providedIn: 'root'
 })
 export class WebSocketService {
-
   private stompClient: Client | null = null;  // STOMP client instance
   //private  messageSubject = new BehaviorSubject<string[]>([]);
   private  messageSubject = new BehaviorSubject<any[]>([]);
   public messages$ = this.messageSubject.asObservable();
 
-  private baseUrl = `${environment.MS_NOTIFICATION_URL}/notification`;
+  constructor(private notificationService: NotificationService) {}
 
-  constructor(private backend: BackendService) {}
-
-  findByUser(userId: string): Observable<any> {
-    return this.backend.createOperation(HttpMethod.POST, `${this.baseUrl}/find-messages`, userId);
-  }
   setMessages(notifications: any[]) {
     this.messageSubject.next(notifications);
   }
-  loadInitMessages(userId:string) {
-    const result = this.findByUser(userId);
-
-    result.subscribe({
+  loadInitMessages(userId: string) {
+    this.notificationService.findByUser(userId).subscribe({
       next: notifications => this.setMessages(notifications),
-      error: (err) => console.error('Ошибка при загрузке уведомлений:', err)
+      error: err => console.error('Ошибка при загрузке уведомлений:', err)
     });
   }
+  // В WebSocketService
+  loadMessages(userId: string): Observable<NotificationDto[]> {
+    return this.notificationService.findByUser(userId);
+  }
 
+  markAsReceived(notificationId: number) {
+    this.notificationService.markAsReceived(notificationId).subscribe({
+      next: () => {
+        const current = this.messageSubject.value;
+        const updated = current.map(n =>
+          n.id === notificationId ? { ...n, received: true } : n
+        );
+        this.messageSubject.next(updated);
+      },
+      error: err => console.error('Ошибка при пометке уведомления как прочитанного:', err)
+    });
+  }
 
   connect() {
     const socket = new SockJS('http://localhost:8380/ws');

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, HostListener, OnInit} from '@angular/core';
 
 import {Router, RouterLink, RouterOutlet} from '@angular/router';
 import {UserData} from '../../utils/services/user-data.service';
@@ -7,8 +7,8 @@ import {UserDataStore} from '../../utils/stores/user-data.store';
 import {PatientStore} from '../../utils/stores/patient.store';
 import {LessonStore} from '../../utils/stores/lesson.store';
 import {NotificationDto, WebSocketService} from '../../utils/websocket/WebSocketService';
-import {Subscription} from 'rxjs';
-import {NgForOf, NgIf, SlicePipe} from '@angular/common';
+import {combineLatest, Subscription} from 'rxjs';
+import {DatePipe, NgClass, NgForOf, NgIf, SlicePipe} from '@angular/common';
 
 
 @Component({
@@ -19,7 +19,9 @@ import {NgForOf, NgIf, SlicePipe} from '@angular/common';
     RouterLink,
     NgIf,
     SlicePipe,
-    NgForOf
+    NgForOf,
+    NgClass,
+    DatePipe
   ],
   templateUrl: './private-layout.component.html',
   styleUrl: './private-layout.component.css'
@@ -40,6 +42,8 @@ export class PrivateLayoutComponent implements OnInit {
 
   // после авторизации получение профиля, синхронизация с бд,
   // получение данных о пациентах и занятиях
+  notificationsWithNames: { message: string, patientNames: string[], received:boolean, sendDate:string }[] = [];
+
   ngOnInit(): void {
     this.keycloakService.requestUserProfile().subscribe({
       next: (profile: any) => {
@@ -51,44 +55,56 @@ export class PrivateLayoutComponent implements OnInit {
           phone: profile.phone,
           role: profile.role
         };
-
-        console.log('User profile loaded', this.userProfile);
         this.userDataStore.setUserData(this.userProfile);
-
-        this.keycloakService.isUserExist(this.userProfile).subscribe({
-          next: exists => {
-            // TODO логика когда найден или нет. Или зачем тогда?
-            console.log('User exists:', exists);
-          },
-          error: err => {
-            console.error('Error checking if user exists:', err);
-          }
-        });
 
         this.loadInitialData(this.userProfile.id, this.userProfile.role);
 
         this.websocketService.connect();
         this.websocketService.loadInitMessages(this.userProfile.id);
 
-        this.wsSub = this.websocketService.messages$.subscribe({
-          next: msgs => {
-            console.log('Received notifications:', msgs);
-            this.notifications = msgs;
-          },
-          error: err => console.error(err)
+        // Подписка на уведомления и пациентов
+        this.wsSub = combineLatest([
+          this.websocketService.messages$,
+          this.patientStore.patients$
+        ]).subscribe(([notifications, patients]) => {
+          // Сохраняем «сырые» уведомления для unreadCount
+          this.notifications = notifications;
+
+          // Создаём Map для быстрого поиска пациентов
+          const patientMap = new Map<number, string>();
+          patients.forEach(p => patientMap.set(p.id, `${p.firstName} ${p.lastName}`));
+
+          // Пересчитываем массив для отображения, сортируем по дате
+          this.notificationsWithNames = notifications
+            .map(n => ({
+              message: n.message,
+              patientNames: (n.patientsId ?? []).map((id:any) => patientMap.get(id) || 'Неизвестный пациент'),
+              received: n.received,
+              sendDate: n.sendDate
+            }))
+            .sort((a, b) => {
+              // сортировка по дате: последние сверху
+              const nA = new Date(notifications.find(n1 => n1.message === a.message)?.sendDate ?? 0).getTime();
+              const nB = new Date(notifications.find(n1 => n1.message === b.message)?.sendDate ?? 0).getTime();
+              return nB - nA;
+            });
         });
       },
-      error: err => {
-        console.error('Error loading profile:', err);
-      }
+      error: err => console.error('Error loading profile:', err)
     });
   }
+
+
+
   ngOnDestroy(): void {
     this.wsSub?.unsubscribe();
   }
   private loadInitialData(userId: string, role: string) {
     this.patientStore.refresh(userId, role);
     this.lessonStore.refresh(userId, role);
+  }
+  get unreadCount(): number {
+    return this.notifications.filter(n => !n.received).length;
   }
 
 
@@ -110,8 +126,26 @@ export class PrivateLayoutComponent implements OnInit {
   toggleNotifications() {
     this.showNotifications = !this.showNotifications;
   }
+
   closeNotifications() {
     this.showNotifications = false;
+  }
+
+  // Закрываем окно при клике вне него
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    const notificationsPopup = document.querySelector('.notifications-popup');
+
+    // Если клик не внутри окна уведомлений и не по иконке сообщения
+    if (
+      this.showNotifications &&
+      notificationsPopup &&
+      !notificationsPopup.contains(target) &&
+      !target.closest('.icon-container')
+    ) {
+      this.closeNotifications();
+    }
   }
 
 

@@ -69,3 +69,12 @@
   font-style: italic;
   color: #555;
 }
+.notifications-page .unread-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background-color: #ef019b; /* акцентный цвет */
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+}
