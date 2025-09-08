@@ -1,6 +1,7 @@
 package logopedis.msnotification.service;
 
 import logopedis.libentities.enums.LessonStatus;
+import logopedis.libentities.enums.NotificationMsg;
 import logopedis.libentities.kafka.LessonNoteWithRecipientDto;
 import logopedis.libentities.kafka.LessonsForPeriodDto;
 import logopedis.libentities.msnotification.dto.lessonNote.LessonNoteChangeDto;
@@ -15,7 +16,9 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
@@ -56,49 +59,79 @@ public class LessonNoteService {
     @Async
     public void updateStatus(LessonNote lessonNote) {
         LessonNote existing = repository.findById(lessonNote.getId()).orElse(null);
-        log.info("Запрос на обновление статуса");
-        log.info("новый статус: "+lessonNote.getStatus().getDescription());
+        if (existing == null) return;
+
         LessonStatus newStatus = lessonNote.getStatus();
-        if (existing != null) {
-            LessonStatus oldStatus = existing.getStatus();
-            log.info("старый статус: "+oldStatus.getDescription());
-            if (oldStatus != newStatus) {
-                existing.setStatus(newStatus);
-                var result = repository.save(existing);
-                notificationService.createFromLessonNote(result);
-            }
-            // если статусы совпадают — ничего не делаем
+        LessonStatus oldStatus = existing.getStatus();
+
+        boolean statusChanged = oldStatus != newStatus;
+        boolean dateChanged = !Objects.equals(existing.getStartTime(), lessonNote.getStartTime());
+
+        if (statusChanged) {
+            existing.setStatus(newStatus);
+            var result = repository.save(existing);
+            notificationService.createFromLessonNote(result);
+        }
+        // если статусы совпадают — ничего не делаем
+        if (dateChanged) {
+            existing.setStartTime(lessonNote.getStartTime());
+            repository.save(existing);
+            notificationService.createForDateChange(existing);
         }
     }
 
     @Async
     public void createWithRecipient(LessonNoteWithRecipientDto dto) {
         LessonNote existing = repository.findById(dto.id()).orElse(null);
+        LessonNote received = dtoWithRecipientToLessonNote(dto);
+        LessonStatus newStatus = lessonStatusUpdater.updateStatusLesson(received);
 
-        LessonNote recieved = dtoWithRecipientToLessonNote(dto);
-        LessonStatus newStatus = lessonStatusUpdater.updateStatusLesson(recieved);
         if (existing != null) {
-            LessonStatus oldStatus = existing.getStatus();
-            if (oldStatus != newStatus) {
+            // Проверяем изменения статуса
+            boolean statusChanged = existing.getStatus() != newStatus;
+            if (statusChanged) {
                 existing.setStatus(newStatus);
                 var result = repository.save(existing);
                 notificationService.createFromLessonNote(result);
             }
-            // если статусы совпадают — ничего не делаем
+
+            // Проверяем изменения даты
+            boolean dateChanged = !Objects.equals(existing.getStartTime(), received.getStartTime());
+            if (dateChanged) {
+                existing.setStartTime(received.getStartTime());
+                repository.save(existing);
+                notificationService.createForDateChange(existing);
+            }
+
         } else {
-            recieved.setStatus(newStatus);
-            var result = repository.save(recieved);
-            recipientService.createFromDto(dto.recipientDtos(),recieved);
+            // Новое занятие
+            received.setStatus(newStatus);
+            var result = repository.save(received);
+            recipientService.createFromDto(dto.recipientDtos(), received);
             notificationService.createFromLessonNote(result);
         }
     }
 
+
     @Async
     public void createForLessonPeriod(LessonsForPeriodDto lessonsForPeriod) {
-        for (LessonNoteWithRecipientDto dto : lessonsForPeriod.list())
-            createWithRecipient(dto);
-        log.info("Синхронизация занятий окончена");
+        try {
+            List<CompletableFuture<Void>> futures = new ArrayList<>();
+
+            for (LessonNoteWithRecipientDto dto : lessonsForPeriod.list()) {
+                CompletableFuture<Void> future = CompletableFuture.runAsync(() -> createWithRecipient(dto));
+                futures.add(future);
+            }
+
+            // Дожидаемся завершения всех асинхронных операций
+            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+
+            log.info("Синхронизация занятий окончена");
+        } catch (Exception ex) {
+            log.error("Ошибка при синхронизации занятий: " + ex.getMessage(), ex);
+        }
     }
+
 
     private static LessonNote dtoWithRecipientToLessonNote(LessonNoteWithRecipientDto dto) {
         LessonNote recieved = new LessonNote();

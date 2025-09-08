@@ -209,8 +209,15 @@ public class LessonService {
     public CompletableFuture<ServiceResult<LessonReadDto>> changeDate(Long id, Timestamp newDate) {
         try {
             var lesson = repository.findById(id).get();
+            if (Objects.equals(lesson.getDateOfLesson(), newDate))
+                return AsyncResult.error("Дата не изменена");
+
             lesson.setDateOfLesson(newDate);
             var changed = repository.save(lesson);
+
+            LessonNote lessonNote = lessonToLessonNode(changed);
+            lessonNoteKafkaProducer.sendLessonNote(lessonNote);
+
             var result = toReadDto(changed);
             return AsyncResult.success(result);
         } catch (Exception ex) {

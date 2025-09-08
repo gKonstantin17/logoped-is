@@ -1,5 +1,6 @@
 package logopedis.msnotification.service;
 
+import logopedis.libentities.enums.NotificationMsg;
 import logopedis.libentities.msnotification.dto.notification.NotificationCreateDto;
 import logopedis.libentities.msnotification.dto.notification.NotificationReadDto;
 import logopedis.libentities.msnotification.dto.notification.NotificationUpdateDto;
@@ -77,6 +78,25 @@ public class NotificationService {
             return AsyncResult.error(ex.getMessage());
         }
     }
+    @Async
+    public CompletableFuture<ServiceResult<List<Notification>>> createForDateChange(LessonNote lessonNote) {
+        try {
+            List<Recipient> recipients = recipientService.findByLessonNote(lessonNote);
+            List<Notification> notifications = notificationCreater
+                    .createWithCustomMessage(lessonNote, recipients, NotificationMsg.LESSON_DATE_CHANGED);
+
+            List<Notification> results = repository.saveAll(notifications);
+            for (Notification n: results) {
+                sendNotification(n);
+                log.info("Создано уведомление: "+String.valueOf(n));
+            }
+
+            return AsyncResult.success(results);
+        } catch (Exception ex) {
+            return AsyncResult.error(ex.getMessage());
+        }
+    }
+
 
     @Async
     public CompletableFuture<ServiceResult<Notification>> update(Long id, NotificationUpdateDto dto) {
@@ -121,9 +141,9 @@ public class NotificationService {
     private void sendNotification(Notification notification) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-
+        NotificationReadDto dto = toReadDto(notification);
         // Оборачиваем тело в HttpEntity
-        HttpEntity<Notification> entity = new HttpEntity<>(notification, headers);
+        HttpEntity<NotificationReadDto> entity = new HttpEntity<>(dto, headers);
 
         // Отправляем POST-запрос
         ResponseEntity<String> response = restTemplate.exchange(

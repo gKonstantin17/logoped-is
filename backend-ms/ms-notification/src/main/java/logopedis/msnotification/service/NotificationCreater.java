@@ -69,4 +69,14 @@ public class NotificationCreater {
     private boolean setReceivedFromStatus(LessonNote lessonNote) {
         return !noiceStatuses.contains(lessonNote.getStatus());
     }
+
+    public List<Notification> createWithCustomMessage(LessonNote lessonNote, List<Recipient> recipients, NotificationMsg msg) {
+        List<Notification> notifications = createNotifications(lessonNote,recipients);
+        notifications.forEach(notification -> {
+            notification.setMessage(msg.getDescription());
+            notification.setReceived(false);
+        });
+        return notifications;
+    }
+
 }
