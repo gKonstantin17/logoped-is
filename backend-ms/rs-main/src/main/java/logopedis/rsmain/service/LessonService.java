@@ -284,6 +284,42 @@ public class LessonService {
             return AsyncResult.error(ex.getMessage());
         }
     }
+    public CompletableFuture<ServiceResult<LessonWithFKDto>> changeLesson(LessonChangeDto dto) {
+        try {
+            Lesson updated = ResponseHelper.findById(repository,dto.id(),"Занятие не найдено");
+            if (dto.type() != null) updated.setType(dto.type());
+            if (dto.topic() != null)  updated.setTopic(dto.topic());
+            if (dto.description() != null) updated.setDescription(dto.description());
+
+            List<Patient> oldPatients = patientService.findAllById(dto.patients());
+
+            if (dto.patients() != null) {
+                Set<Patient> newPatients = new HashSet<>(patientService.findAllById(dto.patients()));
+                updated.setPatients(newPatients);
+            }
+
+            if (dto.homework() != null) {
+                if (updated.getHomework() == null) {
+                    Homework newHw = new Homework();
+                    newHw.setTask(dto.homework().task());
+                    homeworkService.save(newHw);
+                    updated.setHomework(newHw);
+                } else {
+                    updated.getHomework().setTask(dto.homework().task());
+                }
+            }
+
+            var result = repository.save(updated);
+
+            LessonNote lessonNote = lessonToLessonNode(result);
+            lessonNoteKafkaProducer.sendLessonNote(lessonNote);
+
+            var updatedDto = toReadDtoWithFK(updated);
+            return AsyncResult.success(updatedDto);
+        } catch (Exception ex) {
+            return AsyncResult.error(ex.getMessage());
+        }
+    }
     @Async
     public CompletableFuture<ServiceResult<Long>> delete(Long id) {
         try {

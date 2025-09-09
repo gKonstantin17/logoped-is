@@ -107,6 +107,14 @@ public class LessonController {
                 ? ResponseEntity.ok(result.data())
                 : ResponseEntity.badRequest().body(result.message());
     }
+    @PutMapping("change-lesson")
+    public ResponseEntity<?> changeLesson(@RequestBody LessonChangeDto dto) throws ExecutionException, InterruptedException {
+        var future = service.changeLesson(dto);
+        var result = future.get();
+        return result.isSuccess()
+                ? ResponseEntity.ok(result.data())
+                : ResponseEntity.badRequest().body(result.message());
+    }
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) throws ExecutionException, InterruptedException {
         var future = service.delete(id);

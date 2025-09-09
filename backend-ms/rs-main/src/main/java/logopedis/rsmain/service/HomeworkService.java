@@ -69,4 +69,8 @@ public class HomeworkService {
         }
 
     }
+
+    public Homework save(Homework newHw) {
+        return repository.save(newHw);
+    }
 }
