@@ -59,6 +59,7 @@ export class DetailsComponent implements OnInit {
     this.lesson$.subscribe(lesson => {
       if (lesson) {
         this.editableLesson = { ...lesson }; // копия для редактирования
+        console.log('this.editableLesson',this.editableLesson)
       }
     });
   }
@@ -120,12 +121,25 @@ export class DetailsComponent implements OnInit {
       this.originalLesson = JSON.parse(JSON.stringify(this.editableLesson));
       this.originalPatients = JSON.parse(JSON.stringify(this.patients));
 
-      console.log('editableLesson перед редактированием:', this.editableLesson);
+      // --- Конвертируем type в enum ---
+      if (this.editableLesson.type) {
+        const typeEntry = Object.entries(this.lessonTypeLabels)
+          .find(([key, label]) => label === this.editableLesson.type);
+        if (typeEntry) {
+          this.editableLesson.type = typeEntry[0] as LessonTypesEnum;
+        } else if (Object.values(LessonTypesEnum).includes(this.editableLesson.type)) {
+          // уже enum, ничего не делаем
+        } else {
+          this.editableLesson.type = LessonTypesEnum.SOUND_CORRECTION; // fallback
+        }
+      }
+      // -------------------------------
 
       const logopedId = this.editableLesson?.logoped?.id;
       if (logopedId) {
         this.loadPatientsForLogoped(logopedId);
       }
+      console.log(this.editableLesson)
     }
   }
 
@@ -185,9 +199,29 @@ export class DetailsComponent implements OnInit {
 
   saveChanges() {
     if (!this.editableLesson) return;
-    //this.lessonStore.update(this.lessonId, this.editableLesson);
+
+    if (!this.editableLesson.patients || this.editableLesson.patients.length === 0) {
+      alert('Нельзя сохранить занятие без пациентов!');
+      return;
+    }
+
+    const lessonDTO = {
+      id: this.editableLesson.id,
+      type: this.lessonTypeLabels[this.editableLesson.type as LessonTypesEnum], // на русском
+      topic: this.editableLesson.topic,
+      description: this.editableLesson.description,
+      patients: this.editableLesson.patients.map((p: any) => ({ id: p.id })),
+      homework: this.editableLesson.homework ? { task: this.editableLesson.homework.task } : null
+    };
+
+    console.log('DTO для сохранения:', lessonDTO);
+
+    // Отправка на сервер
+    // this.lessonStore.update(this.lessonId, lessonDTO);
+
     this.isEditMode = false;
     this.lessonStore.loadLesson(this.lessonId);
   }
+
 
 }

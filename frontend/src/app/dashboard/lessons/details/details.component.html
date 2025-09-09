@@ -32,7 +32,9 @@
           <br>
           <span *ngIf="!isEditMode">{{ lesson.type }}</span>
           <select class="form-control" *ngIf="isEditMode" [(ngModel)]="editableLesson.type">
-            <option *ngFor="let key of lessonTypeKeys" [ngValue]="key"> {{ lessonTypeLabels[key] }} </option>
+            <option *ngFor="let key of lessonTypeKeys" [ngValue]="key">
+              {{ lessonTypeLabels[key] }}
+            </option>
           </select>
         </p>
         <p><strong>Тема:</strong>
@@ -183,8 +185,9 @@
 
       <div class="block">
         <h3>Домашнее задание</h3>
-        <span *ngIf="!isEditMode">{{ lesson.homework?.task || 'Нет домашнего задания' }}</span>
-        <textarea *ngIf="isEditMode" class="form-control auto-resize" [(ngModel)]="editableLesson.description"
+        <span *ngIf="!isEditMode">{{ editableLesson.homework?.task || 'Нет домашнего задания' }}</span>
+        <textarea *ngIf="isEditMode" class="form-control auto-resize"
+                  [(ngModel)]="editableLesson.homework.task"
                   (input)="autoResize($event)"></textarea>
       </div>
     </div>
