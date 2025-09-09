@@ -8,6 +8,7 @@ import {ChangeDateModalComponent} from './change-date-modal/change-date-modal.co
 import {LessonStatus, LessonStatusLabels} from '../../../utils/enums/lesson-status.enum';
 import {FormsModule} from '@angular/forms';
 import {LessonTypesEnum, LessonTypesEnumLabels} from '../../../utils/enums/lesson-types.enum';
+import {PatientStore} from '../../../utils/stores/patient.store';
 
 @Component({
   selector: 'app-details',
@@ -36,10 +37,14 @@ export class DetailsComponent implements OnInit {
 
   isEditMode = false;
   editableLesson: any = null;
+  private originalLesson: any = null; // храним исходные данные
+  private originalPatients: any[] = [];
   lessonStatuses = Object.values(LessonStatus);
+  patients: any[] = [];
 
   constructor(private userDataStore: UserDataStore,
               private lessonStore: LessonStore,
+              private patientStore: PatientStore,
               private route: ActivatedRoute,
               private router: Router) {}
   ngOnInit() {
@@ -53,7 +58,7 @@ export class DetailsComponent implements OnInit {
 
     this.lesson$.subscribe(lesson => {
       if (lesson) {
-        this.editableLesson = { ...lesson }; // копия для формы
+        this.editableLesson = { ...lesson }; // копия для редактирования
       }
     });
   }
@@ -109,14 +114,73 @@ export class DetailsComponent implements OnInit {
   }
   toggleEditMode() {
     this.isEditMode = !this.isEditMode;
+
     if (this.isEditMode) {
-      //this.editableLesson = { ...this.lessonStore.getCurrentLessonSnapshot() };
+      // Глубокое копирование для отката
+      this.originalLesson = JSON.parse(JSON.stringify(this.editableLesson));
+      this.originalPatients = JSON.parse(JSON.stringify(this.patients));
+
+      console.log('editableLesson перед редактированием:', this.editableLesson);
+
+      const logopedId = this.editableLesson?.logoped?.id;
+      if (logopedId) {
+        this.loadPatientsForLogoped(logopedId);
+      }
     }
+  }
+
+
+
+
+
+
+  private loadPatientsForLogoped(logopedId: string) {
+    this.patientStore.findByLogoped(logopedId).subscribe({
+      next: patients => {
+        this.patients = patients; // сохраняем локально
+        console.log('Загруженные пациенты:', this.patients);
+      },
+      error: err => console.error('Ошибка при загрузке пациентов:', err)
+    });
+  }
+  autoResize(event: Event) {
+    const textarea = event.target as HTMLTextAreaElement;
+    textarea.style.height = 'auto'; // сброс высоты
+    textarea.style.height = textarea.scrollHeight + 'px'; // подстраиваем под контент
+  }
+  selectedPatientToAdd: any = null;
+
+  availablePatients(): any[] {
+    if (!this.patients) return [];
+    return this.patients.filter(p =>
+      !this.editableLesson.patients?.some((ep:any) => ep.id === p.id)
+    );
+  }
+
+  addPatient() {
+    if (this.selectedPatientToAdd) {
+      if (!this.editableLesson.patients) this.editableLesson.patients = [];
+      this.editableLesson.patients.push(this.selectedPatientToAdd);
+      this.selectedPatientToAdd = null; // сброс выбора
+    }
+  }
+
+  removePatient(patient: any) {
+    this.editableLesson.patients = this.editableLesson.patients.filter((p:any) => p.id !== patient.id);
   }
 
   cancelEdit() {
     this.isEditMode = false;
-    //this.editableLesson = { ...this.lessonStore.getCurrentLessonSnapshot() };
+
+    // Откатываем изменения с глубокой копией
+    if (this.originalLesson) {
+      this.editableLesson = JSON.parse(JSON.stringify(this.originalLesson));
+    }
+    if (this.originalPatients) {
+      this.patients = JSON.parse(JSON.stringify(this.originalPatients));
+    }
+
+    console.log('Изменения откатились:', this.editableLesson, this.patients);
   }
 
   saveChanges() {

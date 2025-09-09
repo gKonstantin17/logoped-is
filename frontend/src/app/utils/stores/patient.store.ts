@@ -47,6 +47,10 @@ export class PatientStore {
       this.refresh(this.lastUserId, this.lastRole);
     }
   }
+  findByLogoped(logopedId:string): Observable<any[]> {
+    return  this.patientService.findByLogoped(logopedId);
+  }
+
   create(data: any) {
     this.patientService.create(data).subscribe({
       next: created => {

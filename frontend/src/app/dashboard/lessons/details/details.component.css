@@ -53,18 +53,25 @@
   border-radius: 5px;
 }
 
-.block {
-  padding: 1rem;
-  background-color: #ffffff;
-  border: 1px solid #ccc;
-  margin-bottom: 1rem;
-  border-radius: 5px;
-}
-
 .block-row {
   display: flex;
   gap: 1rem;
+  align-items: stretch; /* равная высота блоков */
 }
+
+.block-row .block {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+
+
 
 .block-row .block {
   flex: 1;
@@ -163,3 +170,94 @@
 }
 
 
+.form-control {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  box-sizing: border-box;
+  background-color: white;
+  transition: all 0.2s ease;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #ef019b;
+  box-shadow: 0 0 8px rgba(239, 1, 155, 0.3);
+}
+
+/* textarea фиксируем минимальную высоту */
+textarea.form-control {
+  resize: vertical;
+  min-height: 60px;
+}
+textarea.auto-resize {
+  width: 100%;
+  min-height: 60px;
+  resize: none;
+  overflow: hidden;
+  font-family: inherit;
+  font-size: 14px;
+  border-radius: 6px;
+  padding: 10px;
+  box-sizing: border-box;
+}
+/* Контейнер для редактируемых пациентов */
+.editable-patients {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.editable-patients ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.editable-patients li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  background-color: #f0f0f0;
+  border-radius: 5px;
+  margin-bottom: 4px;
+}
+
+.editable-patients button {
+  padding: 3px 6px;
+  font-size: 12px;
+  background-color: #dc3545; /* красная кнопка для удаления */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.editable-patients button:hover {
+  background-color: #c82333;
+}
+
+.editable-patients select {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+.editable-patients .btn-sm {
+  padding: 4px 8px;
+  font-size: 12px;
+  border-radius: 4px;
+  margin-left: 5px;
+}
+
+/* Добавим немного отступа для кнопки "Добавить" */
+.editable-patients button.add-btn {
+  background-color: #007bff;
+}
+
+.editable-patients button.add-btn:hover {
+  background-color: #0056b3;
+}

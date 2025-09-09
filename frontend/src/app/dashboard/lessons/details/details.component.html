@@ -31,23 +31,45 @@
         <p><strong>Тип:</strong>
           <br>
           <span *ngIf="!isEditMode">{{ lesson.type }}</span>
-          <select *ngIf="isEditMode" [(ngModel)]="editableLesson.type">
+          <select class="form-control" *ngIf="isEditMode" [(ngModel)]="editableLesson.type">
             <option *ngFor="let key of lessonTypeKeys" [ngValue]="key"> {{ lessonTypeLabels[key] }} </option>
           </select>
         </p>
         <p><strong>Тема:</strong>
           <br>
           <span *ngIf="!isEditMode">{{ lesson.topic }}</span>
-          <input *ngIf="isEditMode" type="text" [(ngModel)]="editableLesson.topic" />
+          <input class="form-control" *ngIf="isEditMode" type="text" [(ngModel)]="editableLesson.topic" />
         </p>
         <p><strong>Статус:</strong> {{ getStatusLabel(lesson.status) }}</p>
         <p><strong>Логопед:</strong>  {{ lesson.logoped.firstName }} {{ lesson.logoped.lastName }}</p>
         <p><strong>Пациенты:</strong></p>
-        <ul>
-          <li *ngFor="let patient of lesson.patients">
-            {{ patient.firstName }} {{ patient.secondName }}
-          </li>
-        </ul>
+
+        <ng-container *ngIf="!isEditMode; else editPatients">
+          <ul>
+            <li *ngFor="let patient of editableLesson.patients">
+              {{ patient.firstName }} {{ patient.secondName }}
+            </li>
+          </ul>
+        </ng-container>
+
+        <ng-template #editPatients>
+          <div class="editable-patients">
+            <ul>
+              <li *ngFor="let patient of editableLesson.patients">
+                {{ patient.firstName }} {{ patient.secondName }}
+                <button type="button" class="btn-sm" (click)="removePatient(patient)">✖</button>
+              </li>
+            </ul>
+
+            <select [(ngModel)]="selectedPatientToAdd" class="form-control">
+              <option [ngValue]="null">Добавить пациента</option>
+              <option *ngFor="let patient of availablePatients()" [ngValue]="patient">
+                {{ patient.firstName }} {{ patient.secondName }}
+              </option>
+            </select>
+            <button type="button" class="btn-sm add-btn" (click)="addPatient()">Добавить</button>
+          </div>
+        </ng-template>
       </div>
 
       <!-- Блок 2: Картинка -->
@@ -114,7 +136,8 @@
       <div class="block">
         <h3 >Описание</h3>
         <p *ngIf="!isEditMode">{{ lesson.description }}</p>
-        <textarea *ngIf="isEditMode" [(ngModel)]="editableLesson.description"></textarea>
+        <textarea *ngIf="isEditMode" class="form-control auto-resize" [(ngModel)]="editableLesson.description"
+                  (input)="autoResize($event)"></textarea>
       </div>
 
       <!-- Блок: Материалы -->
@@ -161,7 +184,8 @@
       <div class="block">
         <h3>Домашнее задание</h3>
         <span *ngIf="!isEditMode">{{ lesson.homework?.task || 'Нет домашнего задания' }}</span>
-        <textarea *ngIf="isEditMode" [(ngModel)]="editableLesson.homework.task"></textarea>
+        <textarea *ngIf="isEditMode" class="form-control auto-resize" [(ngModel)]="editableLesson.description"
+                  (input)="autoResize($event)"></textarea>
       </div>
     </div>
   </ng-container>

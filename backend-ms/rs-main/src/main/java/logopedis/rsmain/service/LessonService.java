@@ -319,6 +319,7 @@ public class LessonService {
                 lesson.getStatus(),
                 lesson.getLogoped() == null ? null :
                         new LogopedDto(
+                                lesson.getLogoped().getId(),
                                 lesson.getLogoped().getFirstName(),
                                 lesson.getLogoped().getLastName(),
                                 lesson.getLogoped().getPhone(),
