@@ -83,7 +83,7 @@ public class LessonController {
                 ? ResponseEntity.ok(result.data())
                 : ResponseEntity.badRequest().body(result.message());
     }
-    @PutMapping("changeDate/{id}")
+    @PutMapping("change-date-by-patient/{id}")
     public ResponseEntity<?> changeDate(@PathVariable Long id, @RequestBody Timestamp newDate) throws ExecutionException, InterruptedException {
         var future = service.changeDate(id,newDate);
         var result = future.get();

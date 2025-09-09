@@ -70,7 +70,7 @@ export class LessonService {
     return this.backend.createOperation(HttpMethod.PUT, `${this.baseUrl}/cancel/${lessonId}`,);
   }
   changeDateLesson(lessonId:number, newDate:Date): Observable<any> {
-    return this.backend.createOperation(HttpMethod.PUT, `${this.baseUrl}/changeDate/${lessonId}`,newDate);
+    return this.backend.createOperation(HttpMethod.PUT, `${this.baseUrl}/change-date-by-patient/${lessonId}`,newDate);
   }
   // checkTimeLesson(patientId: number, date: Date): Observable<any> {
   //   const body = { date: date.toISOString() };
