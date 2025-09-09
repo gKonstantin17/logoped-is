@@ -1,83 +1,105 @@
+<div class="details-header">
   <div class="tabs">
     <button [class.active]="selectedTab === 'lesson'" (click)="selectedTab = 'lesson'">Основное</button>
     <button [class.active]="selectedTab === 'about'" (click)="selectedTab = 'about'">О занятии</button>
     <button [class.active]="selectedTab === 'description'" (click)="selectedTab = 'description'">Результаты</button>
   </div>
-
-  <div class="tab-content" *ngIf="lesson$ | async as lesson">
-    <!-- Вкладка: Основное -->
-    <ng-container *ngIf="selectedTab === 'lesson'">
-      <div class="lesson-row">
-
-        <!-- Блок 1: Информация -->
-        <div class="lesson-info block">
-          <p>
-            Вы записались на занятие, которое пройдет
-            {{ lesson.dateOfLesson | date: 'd MMMM в HH:mm' }}
-          </p>
-          <p><strong>Тип:</strong> {{ lesson.type }}</p>
-          <p><strong>Тема:</strong> {{ lesson.topic }}</p>
-          <p><strong>Статус:</strong> {{ getStatusLabel(lesson.status) }}</p>
-          <p><strong>Логопед:</strong>  {{ lesson.logoped.firstName }} {{ lesson.logoped.lastName }}</p>
-          <p><strong>Пациенты:</strong></p>
-          <ul>
-            <li *ngFor="let patient of lesson.patients">
-              {{ patient.firstName }} {{ patient.secondName }}
-            </li>
-          </ul>
-        </div>
-
-        <!-- Блок 2: Картинка -->
-        <div class="lesson-image block">
-          <img src="assets/details/details_main.png" alt="Картинка занятия" />
-        </div>
-
-        <!-- Блок 3: Уведомления -->
-        <div class="lesson-notice block">
-          <div class="notice-top">
-            <p>📩 За час до занятия мы пришлём уведомление</p>
-          </div>
-          <div class="notice-bottom">
-            <p>🎙 Проверьте, работают ли микрофон и камера</p>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Кнопки -->
-      <div class="lesson-buttons">
-        <button class="btn" *ngIf="(lesson.status === LessonStatus.STARTING_SOON || lesson.status === LessonStatus.IN_PROGRESS)
-                                    && (lesson.type !== 'Диагностика' || currentRole === 'user')"
-                (click)="openSession()">
-          Открыть виртуальный урок
-        </button>
-        <button class="btn" *ngIf="lesson.status === LessonStatus.PLANNED || lesson.status === LessonStatus.PLANNED_1H"  (click)="showRescheduleModal = true">
-          Перенести занятие
-        </button>
-        <button class="btn" *ngIf="lesson.status === LessonStatus.PLANNED || lesson.status === LessonStatus.PLANNED_1H"  (click)="cancelLesson()">
-          Отменить занятие
-        </button>
-        <button class="btn" *ngIf="currentRole === 'logoped' && lesson.type === 'Диагностика'
-              && (lesson.status === LessonStatus.STARTING_SOON || lesson.status === LessonStatus.IN_PROGRESS)"
-                (click)="openDiagnostic()">
-          Открыть диагностику
-        </button>
-      </div>
-
-      <app-change-date-modal
-        [visible]="showRescheduleModal"
-        [patientId]="lesson?.patients?.[0]?.id"
-        (close)="showRescheduleModal = false"
-        (submit)="onReschedule($event)">
-      </app-change-date-modal>
+  <div class="edit-btns" *ngIf="currentRole === 'logoped'">
+    <ng-container *ngIf="isEditMode; else viewMode">
+      <p>Режим редактирования</p>
+      <button class="btn" (click)="cancelEdit()">Отмена</button>
+      <button class="btn" (click)="saveChanges()">Сохранить</button>
     </ng-container>
+    <ng-template #viewMode>
+      <img class="edit-btn" src="assets/details/edit.png" alt="Редактировать" (click)="toggleEditMode()"/>
+    </ng-template>
+  </div>
+</div>
 
 
+<div class="tab-content" *ngIf="lesson$ | async as lesson">
+  <!-- Вкладка: Основное -->
+  <ng-container *ngIf="selectedTab === 'lesson'">
+    <div class="lesson-row">
 
-    <!-- Вкладка: О занятии -->
-    <ng-container *ngIf="selectedTab === 'about'">
-      <div class="block-row">
-        <!-- Блок: Логопед -->
+      <!-- Блок 1: Информация -->
+      <div class="lesson-info block">
+        <p>
+          Вы записались на занятие, которое пройдет
+          {{ lesson.dateOfLesson | date: 'd MMMM в HH:mm' }}
+        </p>
+        <p><strong>Тип:</strong>
+          <br>
+          <span *ngIf="!isEditMode">{{ lesson.type }}</span>
+          <select *ngIf="isEditMode" [(ngModel)]="editableLesson.type">
+            <option *ngFor="let key of lessonTypeKeys" [ngValue]="key"> {{ lessonTypeLabels[key] }} </option>
+          </select>
+        </p>
+        <p><strong>Тема:</strong>
+          <br>
+          <span *ngIf="!isEditMode">{{ lesson.topic }}</span>
+          <input *ngIf="isEditMode" type="text" [(ngModel)]="editableLesson.topic" />
+        </p>
+        <p><strong>Статус:</strong> {{ getStatusLabel(lesson.status) }}</p>
+        <p><strong>Логопед:</strong>  {{ lesson.logoped.firstName }} {{ lesson.logoped.lastName }}</p>
+        <p><strong>Пациенты:</strong></p>
+        <ul>
+          <li *ngFor="let patient of lesson.patients">
+            {{ patient.firstName }} {{ patient.secondName }}
+          </li>
+        </ul>
+      </div>
+
+      <!-- Блок 2: Картинка -->
+      <div class="lesson-image block">
+        <img src="assets/details/details_main.png" alt="Картинка занятия" />
+      </div>
+
+      <!-- Блок 3: Уведомления -->
+      <div class="lesson-notice block">
+        <div class="notice-top">
+          <p>📩 За час до занятия мы пришлём уведомление</p>
+        </div>
+        <div class="notice-bottom">
+          <p>🎙 Проверьте, работают ли микрофон и камера</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Кнопки -->
+    <div class="lesson-buttons">
+      <button class="btn" *ngIf="(lesson.status === LessonStatus.STARTING_SOON || lesson.status === LessonStatus.IN_PROGRESS)
+                                  && (lesson.type !== 'Диагностика' || currentRole === 'user')"
+              (click)="openSession()">
+        Открыть виртуальный урок
+      </button>
+      <button class="btn" *ngIf="lesson.status === LessonStatus.PLANNED || lesson.status === LessonStatus.PLANNED_1H"  (click)="showRescheduleModal = true">
+        Перенести занятие
+      </button>
+      <button class="btn" *ngIf="lesson.status === LessonStatus.PLANNED || lesson.status === LessonStatus.PLANNED_1H"  (click)="cancelLesson()">
+        Отменить занятие
+      </button>
+      <button class="btn" *ngIf="currentRole === 'logoped' && lesson.type === 'Диагностика'
+            && (lesson.status === LessonStatus.STARTING_SOON || lesson.status === LessonStatus.IN_PROGRESS)"
+              (click)="openDiagnostic()">
+        Открыть диагностику
+      </button>
+    </div>
+
+    <app-change-date-modal
+      [visible]="showRescheduleModal"
+      [patientId]="lesson?.patients?.[0]?.id"
+      (close)="showRescheduleModal = false"
+      (submit)="onReschedule($event)">
+    </app-change-date-modal>
+  </ng-container>
+
+
+  <!-- Вкладка: О занятии -->
+  <ng-container *ngIf="selectedTab === 'about'">
+    <div class="block-row">
+      <!-- Блок: Логопед -->
 <!--        <div class="block">-->
 <!--          <h3>Логопед</h3>-->
 <!--          <p *ngIf="lesson.logoped">-->
@@ -88,58 +110,59 @@
 <!--          <p *ngIf="!lesson.logoped">Логопед не назначен</p>-->
 <!--        </div>-->
 
-        <!-- Блок: Описание -->
-        <div class="block">
-          <h3>Описание</h3>
-          <p>{{lesson.description}}</p>
-        </div>
-
-        <!-- Блок: Материалы -->
-        <div class="block">
-          <h3>Прилагаемые материалы</h3>
-          <a href="http://www.google.com">Файл</a>
-        </div>
+      <!-- Блок: Описание -->
+      <div class="block">
+        <h3 >Описание</h3>
+        <p *ngIf="!isEditMode">{{ lesson.description }}</p>
+        <textarea *ngIf="isEditMode" [(ngModel)]="editableLesson.description"></textarea>
       </div>
-    </ng-container>
 
-    <!-- Вкладка: Результаты -->
-    <ng-container *ngIf="selectedTab === 'description'">
-      <div class="block-row">
-        <div class="block results">
-          <h3>Итоги</h3>
-
-          <table class="results-table">
-            <thead>
-            <tr>
-              <th>Звук</th>
-              <th>До</th>
-              <th>После</th>
-              <th>Комментарий</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-              <td>С</td>
-              <td>непроизносит</td>
-              <td>произносит правильно</td>
-              <td>Значительный прогресс</td>
-            </tr>
-            <tr>
-              <td>Р</td>
-              <td>искажает</td>
-              <td>неустойчиво</td>
-              <td>Требуется доработка</td>
-            </tr>
-            <!-- Можно добавить больше строк или использовать *ngFor -->
-            </tbody>
-          </table>
-        </div>
-
-        <div class="block">
-          <h3>Домашнее задание</h3>
-          <p *ngIf="lesson.homework">{{ lesson.homework.task }}</p>
-          <p *ngIf="!lesson.homework">Нет домашнего задания</p>
-        </div>
+      <!-- Блок: Материалы -->
+      <div class="block">
+        <h3>Прилагаемые материалы</h3>
+        <a href="http://www.google.com">Файл</a>
       </div>
-    </ng-container>
-  </div>
+    </div>
+  </ng-container>
+
+  <!-- Вкладка: Результаты -->
+  <ng-container *ngIf="selectedTab === 'description'">
+    <div class="block-row">
+      <div class="block results">
+        <h3>Итоги</h3>
+
+        <table class="results-table">
+          <thead>
+          <tr>
+            <th>Звук</th>
+            <th>До</th>
+            <th>После</th>
+            <th>Комментарий</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td>С</td>
+            <td>непроизносит</td>
+            <td>произносит правильно</td>
+            <td>Значительный прогресс</td>
+          </tr>
+          <tr>
+            <td>Р</td>
+            <td>искажает</td>
+            <td>неустойчиво</td>
+            <td>Требуется доработка</td>
+          </tr>
+          <!-- Можно добавить больше строк или использовать *ngFor -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="block">
+        <h3>Домашнее задание</h3>
+        <span *ngIf="!isEditMode">{{ lesson.homework?.task || 'Нет домашнего задания' }}</span>
+        <textarea *ngIf="isEditMode" [(ngModel)]="editableLesson.homework.task"></textarea>
+      </div>
+    </div>
+  </ng-container>
+</div>

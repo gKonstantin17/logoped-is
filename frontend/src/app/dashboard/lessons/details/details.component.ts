@@ -6,6 +6,8 @@ import {LessonStore} from '../../../utils/stores/lesson.store';
 import {Observable} from 'rxjs';
 import {ChangeDateModalComponent} from './change-date-modal/change-date-modal.component';
 import {LessonStatus, LessonStatusLabels} from '../../../utils/enums/lesson-status.enum';
+import {FormsModule} from '@angular/forms';
+import {LessonTypesEnum, LessonTypesEnumLabels} from '../../../utils/enums/lesson-types.enum';
 
 @Component({
   selector: 'app-details',
@@ -16,7 +18,8 @@ import {LessonStatus, LessonStatusLabels} from '../../../utils/enums/lesson-stat
     DatePipe,
     NgForOf,
     AsyncPipe,
-    ChangeDateModalComponent
+    ChangeDateModalComponent,
+    FormsModule
   ],
   templateUrl: './details.component.html',
   styleUrl: './details.component.css'
@@ -24,22 +27,34 @@ import {LessonStatus, LessonStatusLabels} from '../../../utils/enums/lesson-stat
 export class DetailsComponent implements OnInit {
   lessonId!: number;
   selectedTab: 'lesson' | 'about' | 'description' = 'lesson';
+  currentRole: string | null = null;
+  lesson$!: Observable<any>;
+  showRescheduleModal = false;
+  protected readonly LessonStatus = LessonStatus;
+  lessonTypeLabels = LessonTypesEnumLabels;
+  lessonTypeKeys = Object.values(LessonTypesEnum);
+
+  isEditMode = false;
+  editableLesson: any = null;
+  lessonStatuses = Object.values(LessonStatus);
 
   constructor(private userDataStore: UserDataStore,
               private lessonStore: LessonStore,
               private route: ActivatedRoute,
               private router: Router) {}
-
-  currentRole: string | null = null;
-  lesson$!: Observable<any>;
-  showRescheduleModal = false;
-
   ngOnInit() {
     this.lesson$ = this.lessonStore.currentLesson$;
     this.lessonId = +this.route.snapshot.paramMap.get('id')!;
+
     this.userDataStore.userData$.subscribe(user => {
       this.currentRole = user?.role || null;
       this.lessonStore.loadLesson(this.lessonId);
+    });
+
+    this.lesson$.subscribe(lesson => {
+      if (lesson) {
+        this.editableLesson = { ...lesson }; // копия для формы
+      }
     });
   }
 
@@ -92,6 +107,23 @@ export class DetailsComponent implements OnInit {
 
 
   }
+  toggleEditMode() {
+    this.isEditMode = !this.isEditMode;
+    if (this.isEditMode) {
+      //this.editableLesson = { ...this.lessonStore.getCurrentLessonSnapshot() };
+    }
+  }
 
-  protected readonly LessonStatus = LessonStatus;
+  cancelEdit() {
+    this.isEditMode = false;
+    //this.editableLesson = { ...this.lessonStore.getCurrentLessonSnapshot() };
+  }
+
+  saveChanges() {
+    if (!this.editableLesson) return;
+    //this.lessonStore.update(this.lessonId, this.editableLesson);
+    this.isEditMode = false;
+    this.lessonStore.loadLesson(this.lessonId);
+  }
+
 }

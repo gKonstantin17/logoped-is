@@ -1,3 +1,22 @@
+.details-header {
+  display: flex;
+  justify-content: space-between;
+}
+.edit-btns {
+  display: flex;
+  height: 39px;
+  align-items: center;
+}
+.edit-btns p {
+  margin: 0;
+  margin-right: 20px;
+}
+.edit-btn {
+  width: 30px;
+  height: 30px;
+  margin-right: 15px;
+}
+
 .tabs {
   display: flex;
   gap: 1rem;
@@ -11,6 +30,9 @@
   cursor: pointer;
   border-radius: 5px;
 }
+
+
+
 .btn {
   padding: 0.5rem 1rem;
   border: none;
@@ -139,4 +161,5 @@
   background: none; /* убираем фон, если нужен чистый вид */
   flex: 1;
 }
+
 
