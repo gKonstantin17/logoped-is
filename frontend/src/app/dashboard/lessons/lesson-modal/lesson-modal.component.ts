@@ -3,6 +3,7 @@ import {FormsModule} from '@angular/forms';
 import {CommonModule} from '@angular/common';
 import {LessonData} from '../../../utils/services/lesson.service';
 import {LessonStore} from '../../../utils/stores/lesson.store';
+import {LessonTypesEnum, LessonTypesEnumLabels} from '../../../utils/enums/lesson-types.enum';
 
 @Component({
   selector: 'app-lesson-modal',
@@ -24,6 +25,10 @@ export class LessonModalComponent {
   @Output() closeModal = new EventEmitter<void>();
   @Output() confirmBooking = new EventEmitter<LessonData>();
 
+
+
+  lessonTypeLabels = LessonTypesEnumLabels;
+  lessonTypeKeys = Object.values(LessonTypesEnum);
   ngOnInit() {
     this.lessonStore.availableTimeSlots$.subscribe(slots => {
       this.availableTimeSlots = slots;
@@ -34,7 +39,7 @@ export class LessonModalComponent {
   choice: 'diagnostic' | 'lesson' | null = null;
   selectedDate = '';
   selectedTime = '';
-  lessonType = '';
+  lessonType: LessonTypesEnum | null = null;
   topic = '';
   description = '';
   homework = '';
@@ -51,31 +56,31 @@ export class LessonModalComponent {
   }
 
   submit() {
-    // Формируем строку с датой и временем
     const dateTime = `${this.selectedDate}T${this.selectedTime}:00`;
 
     if (this.choice === 'diagnostic') {
       this.confirmBooking.emit({
-        type: 'Диагностика',
+        type: this.lessonTypeLabels[LessonTypesEnum.DIAGNOSTIC],
         topic: 'Первичная диагностика',
         description: 'Проведение первичной диагностики',
         dateOfLesson: dateTime,
         logopedId: null,
         homework: null,
-        patientsId: []  // Добавим позже в handleBooking
+        patientsId: []
       });
-    } else {
+    } else if (this.lessonType) {
       this.confirmBooking.emit({
-        type: this.lessonType || 'Коррекция речи',
+        type: this.lessonTypeLabels[this.lessonType],
         topic: this.topic || 'Занятие с логопедом',
         description: this.description || 'Скоро появится',
         dateOfLesson: dateTime,
         logopedId: null,
         homework: this.homework || null,
-        patientsId: [] // Добавим позже в handleBooking
+        patientsId: []
       });
     }
   }
+
   get allTimeSlots(): string[] {
     return Array.from({ length: 10 }, (_, i) => `${(10 + i).toString().padStart(2, '0')}:00`);
   }
