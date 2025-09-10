@@ -88,7 +88,7 @@ export class DiagnosticComponent implements OnInit{
   currentTime = new Date().toLocaleTimeString();
   showSpeechCard = false;
   availableSounds: string[] = ['С', 'Сь', 'З', 'Зь', 'Ц', 'Ш', 'Ж', 'Ч', 'Щ', 'Р', 'Рь', 'Л', 'Ль'];
-  correctionTypes: string[] = ['Постановка звуков', 'Автоматизация звуков', 'Дифференциация звуков'];
+  correctionTypes: string[] = ['Поставлен', 'Введен в речь', 'Автоматизирован','Дифференцирован','Звукопроизношение в норме'];
 
   newCorrection = {
     sound: '',
