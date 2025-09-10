@@ -309,8 +309,8 @@ public class LessonService {
 
             var result = repository.save(updated);
 
-            LessonNote lessonNote = lessonToLessonNode(result);
-            lessonNoteKafkaProducer.sendLessonNote(lessonNote);
+            LessonNoteWithRecipientDto lessonNote = lessonToLessonNodeDto(result);
+            lessonNoteRecipientKafkaProducer.sendLessonNoteRecipient(lessonNote);
 
             var updatedDto = toReadDtoWithFK(updated);
             return AsyncResult.success(updatedDto);

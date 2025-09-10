@@ -1,11 +1,14 @@
 package logopedis.msnotification.service;
 
+import jakarta.transaction.Transactional;
 import logopedis.libentities.enums.LessonStatus;
 import logopedis.libentities.enums.NotificationMsg;
 import logopedis.libentities.kafka.LessonNoteWithRecipientDto;
 import logopedis.libentities.kafka.LessonsForPeriodDto;
 import logopedis.libentities.msnotification.dto.lessonNote.LessonNoteChangeDto;
+import logopedis.libentities.msnotification.dto.recipient.RecipientDataDto;
 import logopedis.libentities.msnotification.entity.LessonNote;
+import logopedis.libentities.msnotification.entity.Recipient;
 import logopedis.libentities.rsmain.dto.responseWrapper.AsyncResult;
 import logopedis.libentities.rsmain.dto.responseWrapper.ServiceResult;
 import logopedis.libutils.hibernate.ResponseHelper;
@@ -16,11 +19,9 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 @Service
 public class LessonNoteService {
@@ -80,7 +81,7 @@ public class LessonNoteService {
         }
     }
 
-    @Async
+    @Transactional
     public void createWithRecipient(LessonNoteWithRecipientDto dto) {
         LessonNote existing = repository.findById(dto.id()).orElse(null);
         LessonNote received = dtoWithRecipientToLessonNote(dto);
@@ -103,6 +104,36 @@ public class LessonNoteService {
                 notificationService.createForDateChange(existing);
             }
 
+            // Проверяем изменения получателей
+            Set<String> existingRecipients = recipientService.findPairsByLessonNote(existing);
+            Set<String> newRecipients = dto.recipientDtos().stream()
+                    .map(r -> r.patientId() + ":" + r.userId())
+                    .collect(Collectors.toSet());
+
+            if (!existingRecipients.equals(newRecipients)) {
+                // Удаляем тех, кого больше нет
+                for (String oldRec : existingRecipients) {
+                    if (!newRecipients.contains(oldRec)) {
+                        String[] parts = oldRec.split(":");
+                        Long patientId = Long.valueOf(parts[0]);
+                        UUID userId = UUID.fromString(parts[1]);
+                        recipientService.deleteByLessonNoteAndPatientIdAndUserId(existing, patientId, userId);
+                    }
+                }
+                // Добавляем новых
+                for (RecipientDataDto data : dto.recipientDtos()) {
+                    String key = data.patientId() + ":" + data.userId();
+                    if (!existingRecipients.contains(key)) {
+                        Recipient recipient = new Recipient();
+                        recipient.setLessonNote(existing);
+                        recipient.setPatientId(data.patientId());
+                        recipient.setUserId(data.userId());
+                        recipientService.save(recipient);
+                    }
+                }
+                // Уведомлять что появились новые пациенты?
+                //notificationService.createForRecipientsChange(existing);
+            }
         } else {
             // Новое занятие
             received.setStatus(newStatus);
