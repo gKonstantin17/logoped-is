@@ -1,6 +1,12 @@
 import { Injectable } from '@angular/core';
 import {BehaviorSubject, Observable, tap} from 'rxjs';
-import {CheckAvailableTime, LessonData, LessonService, LessonStatusDto} from '../services/lesson.service';
+import {
+  CheckAvailableTime,
+  LessonChangeDto,
+  LessonData,
+  LessonService,
+  LessonStatusDto
+} from '../services/lesson.service';
 
 
 @Injectable({
@@ -82,6 +88,14 @@ export class LessonStore {
 
   updateStatus(data:LessonStatusDto) {
     this.lessonService.updateStatus(data).subscribe({
+      next: updatedLesson => {
+        this.currentLessonSubject.next(updatedLesson); // обновим текущий урок
+      },
+      error: err => console.error('Ошибка при обновлении статуса:', err)
+    });
+  }
+  changeLesson(data:LessonChangeDto) {
+    this.lessonService.changeLesson(data).subscribe({
       next: updatedLesson => {
         this.currentLessonSubject.next(updatedLesson); // обновим текущий урок
       },

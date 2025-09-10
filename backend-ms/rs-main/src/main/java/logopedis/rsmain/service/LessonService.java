@@ -291,8 +291,6 @@ public class LessonService {
             if (dto.topic() != null)  updated.setTopic(dto.topic());
             if (dto.description() != null) updated.setDescription(dto.description());
 
-            List<Patient> oldPatients = patientService.findAllById(dto.patients());
-
             if (dto.patients() != null) {
                 Set<Patient> newPatients = new HashSet<>(patientService.findAllById(dto.patients()));
                 updated.setPatients(newPatients);

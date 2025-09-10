@@ -9,6 +9,7 @@ import {LessonStatus, LessonStatusLabels} from '../../../utils/enums/lesson-stat
 import {FormsModule} from '@angular/forms';
 import {LessonTypesEnum, LessonTypesEnumLabels} from '../../../utils/enums/lesson-types.enum';
 import {PatientStore} from '../../../utils/stores/patient.store';
+import {LessonChangeDto} from '../../../utils/services/lesson.service';
 
 @Component({
   selector: 'app-details',
@@ -59,7 +60,6 @@ export class DetailsComponent implements OnInit {
     this.lesson$.subscribe(lesson => {
       if (lesson) {
         this.editableLesson = { ...lesson }; // копия для редактирования
-        console.log('this.editableLesson',this.editableLesson)
       }
     });
   }
@@ -139,7 +139,6 @@ export class DetailsComponent implements OnInit {
       if (logopedId) {
         this.loadPatientsForLogoped(logopedId);
       }
-      console.log(this.editableLesson)
     }
   }
 
@@ -152,7 +151,6 @@ export class DetailsComponent implements OnInit {
     this.patientStore.findByLogoped(logopedId).subscribe({
       next: patients => {
         this.patients = patients; // сохраняем локально
-        console.log('Загруженные пациенты:', this.patients);
       },
       error: err => console.error('Ошибка при загрузке пациентов:', err)
     });
@@ -193,8 +191,6 @@ export class DetailsComponent implements OnInit {
     if (this.originalPatients) {
       this.patients = JSON.parse(JSON.stringify(this.originalPatients));
     }
-
-    console.log('Изменения откатились:', this.editableLesson, this.patients);
   }
 
   saveChanges() {
@@ -205,22 +201,28 @@ export class DetailsComponent implements OnInit {
       return;
     }
 
-    const lessonDTO = {
+    // DTO для отправки на сервер
+    const lessonDTO: LessonChangeDto = {
       id: this.editableLesson.id,
       type: this.lessonTypeLabels[this.editableLesson.type as LessonTypesEnum], // на русском
       topic: this.editableLesson.topic,
       description: this.editableLesson.description,
-      patients: this.editableLesson.patients.map((p: any) => ({ id: p.id })),
+      patients: this.editableLesson.patients.map((p: any) => p.id), // массив id
       homework: this.editableLesson.homework ? { task: this.editableLesson.homework.task } : null
     };
 
-    console.log('DTO для сохранения:', lessonDTO);
 
     // Отправка на сервер
-    // this.lessonStore.update(this.lessonId, lessonDTO);
+    this.lessonStore.changeLesson(lessonDTO);
+
+    // Обновим editableLesson на основе ответа сервера
+    this.lessonStore.currentLesson$.subscribe(updatedLesson => {
+      if (updatedLesson) {
+        this.editableLesson = { ...updatedLesson }; // обновляем локально
+      }
+    }).unsubscribe();
 
     this.isEditMode = false;
-    this.lessonStore.loadLesson(this.lessonId);
   }
 
 

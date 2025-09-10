@@ -13,6 +13,20 @@ export interface LessonData {
   homework: string | null,
   patientsId: number[]
 }
+export interface HomeworkDto {
+  task: string;
+}
+
+// Интерфейс для урока (LessonChangeDto) под API
+export interface LessonChangeDto {
+  id: number;
+  type: string; // на русском
+  topic: string;
+  description: string;
+  patients: number[]; // теперь просто массив чисел
+  homework: HomeworkDto | null;
+}
+
 export interface LessonFullData {
   id: number;
   type: string;
@@ -42,6 +56,7 @@ export interface LessonStatusDto {
   id:number;
   status:string;
 }
+
 @Injectable({
   providedIn: 'root'
 })
@@ -72,10 +87,9 @@ export class LessonService {
   changeDateLesson(lessonId:number, newDate:Date): Observable<any> {
     return this.backend.createOperation(HttpMethod.PUT, `${this.baseUrl}/change-date/${lessonId}`,newDate);
   }
-  // checkTimeLesson(patientId: number, date: Date): Observable<any> {
-  //   const body = { date: date.toISOString() };
-  //   return this.backend.createOperation(HttpMethod.POST,`${this.baseUrl}/check-time/${patientId}`,body);
-  // }
+  changeLesson(data:LessonChangeDto): Observable<any> {
+    return this.backend.createOperation(HttpMethod.PUT, `${this.baseUrl}/change-lesson`,data);
+  }
   checkTimeLesson(data: CheckAvailableTime): Observable<any> {
     return this.backend.createOperation(HttpMethod.POST,`${this.baseUrl}/check-time`,data);
   }

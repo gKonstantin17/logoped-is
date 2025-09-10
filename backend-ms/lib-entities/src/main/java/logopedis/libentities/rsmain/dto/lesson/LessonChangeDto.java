@@ -2,7 +2,6 @@ package logopedis.libentities.rsmain.dto.lesson;
 
 import logopedis.libentities.rsmain.dto.homework.HomeworkDto;
 
-import java.sql.Timestamp;
 import java.util.List;
 
 public record LessonChangeDto(
