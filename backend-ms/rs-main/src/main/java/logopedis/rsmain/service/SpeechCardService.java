@@ -1,5 +1,6 @@
 package logopedis.rsmain.service;
 
+import logopedis.libentities.enums.DiagnosticTypes;
 import logopedis.libentities.rsmain.dto.responseWrapper.AsyncResult;
 import logopedis.libentities.rsmain.dto.responseWrapper.ServiceResult;
 import logopedis.libentities.rsmain.dto.speechCard.*;
@@ -120,6 +121,7 @@ public class SpeechCardService {
             Diagnostic diagnostic = new Diagnostic();
             diagnostic.setSpeechCard(savedCard);
             diagnostic.setLesson(lesson);
+            diagnostic.setType(DiagnosticTypes.BEGIN.getDescription());
             diagnostic.setDate(new Timestamp(System.currentTimeMillis()));
             diagnosticRepository.save(diagnostic);
 
