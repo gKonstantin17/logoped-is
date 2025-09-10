@@ -23,12 +23,15 @@ public interface SpeechCardRepository extends JpaRepository<SpeechCard,Long> {
     SELECT sc FROM SpeechCard sc
     JOIN FETCH sc.speechErrors
     JOIN FETCH sc.soundCorrections
-    JOIN Diagnostic d ON d.speechCard = sc
-    JOIN Lesson l ON l = d.lesson
-    JOIN l.logoped logoped
-    JOIN l.patients patient
-    WHERE patient.id = :patientId
-""")
+    WHERE sc IN (
+        SELECT d.speechCard
+        FROM Diagnostic d
+        JOIN d.lesson l
+        JOIN l.patients patient
+        WHERE patient.id = :patientId
+        ORDER BY d.date DESC
+        )
+    """)
     Optional<SpeechCard> findDetailedByPatientId(@Param("patientId") Long patientId);
 
 }
