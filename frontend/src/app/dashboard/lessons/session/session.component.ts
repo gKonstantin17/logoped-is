@@ -116,8 +116,8 @@ export class SessionComponent implements OnInit {
 
     // формируем DTO со всеми выбранными коррекциями
     const dto = {
-      patientId: this.patientId,
-      lessonId: this.lessonId,
+      patientId: Number(this.patientId),
+      lessonId: Number(this.lessonId),
       updatedCorrections: updated.map(c => ({
         sound: c.sound,
         correction: c.selectedCorrection
@@ -126,7 +126,13 @@ export class SessionComponent implements OnInit {
 
     console.log('DTO для отправки:', dto);
 
-    this.speechCardStore.updateCorrections(dto);
+    this.speechCardStore.updateCorrections(dto).subscribe({
+      next: card => {
+        console.log("card:")
+        console.log(card)
+      },
+      error: (err) => console.error('Ошибка при создании карты:', err)
+    })
     this.showCorrectionModal = false;
 
     // Теперь обновляем статус урока и переходим
