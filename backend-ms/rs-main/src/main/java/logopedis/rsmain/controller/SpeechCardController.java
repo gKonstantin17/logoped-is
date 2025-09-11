@@ -28,6 +28,10 @@ public class SpeechCardController {
     public SpeechCardFullDto findByPatientId(@RequestBody Long id) throws ExecutionException, InterruptedException, ChangeSetPersister.NotFoundException {
         return service.findByPatientId(id).get().data();
     }
+    @PostMapping("/find-patient-history")
+    public List<PatientHistoryDto> findHistory(@RequestBody Long id) throws ExecutionException, InterruptedException, ChangeSetPersister.NotFoundException {
+        return service.findPatientHistory(id).get().data();
+    }
 
     @PostMapping("/create")
     public ResponseEntity<?> create(@RequestBody SpeechCardDto dto) throws ExecutionException, InterruptedException {

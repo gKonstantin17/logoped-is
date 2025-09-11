@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface DiagnosticRepository extends JpaRepository<Diagnostic,Long> {
@@ -34,5 +35,18 @@ public interface DiagnosticRepository extends JpaRepository<Diagnostic,Long> {
                     p2 WHERE p2.id = :patientId ) 
           """)
     Optional<Diagnostic> findLatestDiagnosticByPatientId(@Param("patientId") Long patientId);
+
+    @Query("""
+    SELECT DISTINCT d
+    FROM Diagnostic d
+    JOIN d.lesson l
+    JOIN l.patients p
+    LEFT JOIN FETCH d.speechCard sc
+    LEFT JOIN FETCH sc.speechErrors
+    LEFT JOIN FETCH sc.soundCorrections
+    WHERE p.id = :patientId
+    ORDER BY d.date ASC
+""")
+    List<Diagnostic> findAllByPatientIdWithSpeechCard(@Param("patientId") Long patientId);
 
 }

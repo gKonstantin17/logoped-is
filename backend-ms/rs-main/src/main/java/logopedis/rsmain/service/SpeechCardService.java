@@ -13,6 +13,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -189,6 +190,48 @@ public class SpeechCardService {
         }
     }
 
+    @Async
+    public CompletableFuture<ServiceResult<List<PatientHistoryDto>>> findPatientHistory(Long patientId) {
+        try {
+            List<Diagnostic> diagnostics = diagnosticService.findAllByPatientId(patientId);
+
+            List<PatientHistoryDto> history = new ArrayList<>();
+            Set<String> prevErrors = new HashSet<>();
+            Set<String> prevCorrections = new HashSet<>();
+
+            for (Diagnostic d : diagnostics.stream().sorted((a,b) -> a.getDate().compareTo(b.getDate())).toList()) {
+                SpeechCard sc = d.getSpeechCard();
+                Set<String> currErrors = sc.getSpeechErrors().stream()
+                        .map(SpeechError::getTitle)
+                        .collect(Collectors.toSet());
+                Set<String> currCorrections = sc.getSoundCorrections().stream()
+                        .map(c -> c.getSound() + ": " + c.getCorrection())
+                        .collect(Collectors.toSet());
+
+                // оставляем только изменения относительно предыдущей даты
+                Set<String> newErrors = new HashSet<>(currErrors);
+                newErrors.removeAll(prevErrors);
+
+                Set<String> newCorrections = new HashSet<>(currCorrections);
+                newCorrections.removeAll(prevCorrections);
+
+                if (!newErrors.isEmpty() || !newCorrections.isEmpty()) {
+                    history.add(new PatientHistoryDto(d.getDate(),
+                            new ArrayList<>(newErrors),
+                            new ArrayList<>(newCorrections)));
+                }
+
+                prevErrors = currErrors;
+                prevCorrections = currCorrections;
+            }
+
+            return AsyncResult.success(history);
+        } catch (Exception ex) {
+            return AsyncResult.error(ex.getMessage());
+        }
+    }
+
+
 
     @Async
     public CompletableFuture<ServiceResult<SpeechCardReadDto>> update(Long id, SpeechCardDto dto) {
@@ -312,4 +355,6 @@ public class SpeechCardService {
                 patient.getLastName(),
                 patient.getDateOfBirth());
     }
+
+
 }
