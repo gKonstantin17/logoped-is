@@ -19,8 +19,13 @@ export class SpeechCardService {
   findByPatient(patientId: number): Observable<any> {
     return this.backend.createOperation(HttpMethod.POST, `${this.baseUrl}/speechcard/find-by-patient`, patientId);
   }
-
+  findCorrectionsByPatient(patientId: number): Observable<any> {
+    return this.backend.createOperation(HttpMethod.POST, `${this.baseUrl}/soundcorrection/find-by-patient`, patientId);
+  }
   createWithDiagnostic(data: any): Observable<any> {
     return this.backend.createOperation(HttpMethod.POST, `${this.baseUrl}/speechcard/create-with-diagnostic`, data);
+  }
+  updateCorrections(data:any): Observable<any> {
+    return this.backend.createOperation(HttpMethod.POST, `${this.baseUrl}/speechcard/create-with-corrections`, data);
   }
 }

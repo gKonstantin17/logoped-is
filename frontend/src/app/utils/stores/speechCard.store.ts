@@ -40,9 +40,15 @@ export class SpeechCardStore {
   createWithDiagnostic(data: any) {
     return this.speechCardService.createWithDiagnostic(data);
   }
+  updateCorrections(data:any) {
+    return this.speechCardService.updateCorrections(data);
+  }
 
   findByPatient(patientId: number) {
     return this.speechCardService.findByPatient(patientId);
+  }
+  findCorrectionsByPatient(patientId: number) {
+    return this.speechCardService.findCorrectionsByPatient(patientId)
   }
 }
 

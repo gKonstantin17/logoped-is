@@ -3,6 +3,7 @@ package logopedis.rsmain.service;
 import logopedis.libentities.enums.DiagnosticTypes;
 import logopedis.libentities.rsmain.dto.responseWrapper.AsyncResult;
 import logopedis.libentities.rsmain.dto.responseWrapper.ServiceResult;
+import logopedis.libentities.rsmain.dto.soundCorrection.SoundCorrectionDto;
 import logopedis.libentities.rsmain.dto.speechCard.*;
 import logopedis.libentities.rsmain.entity.*;
 import logopedis.rsmain.repository.*;
@@ -24,15 +25,18 @@ public class SpeechCardService {
     private final SoundCorrectionRepository soundCorrectionRepository;
     private final SpeechErrorRepository speechErrorRepository;
     private final LessonRepository lessonRepository;
-    private final DiagnosticRepository diagnosticRepository;
+    private final PatientService patientService;
+    private final DiagnosticService diagnosticService;
+
 
     public SpeechCardService(SpeechCardRepository repository, SoundCorrectionRepository soundCorrectionRepository, SpeechErrorRepository speechErrorRepository,
-                             LessonRepository lessonRepository, DiagnosticRepository diagnosticRepository) {
+                             LessonRepository lessonRepository, PatientService patientService, DiagnosticService diagnosticService) {
         this.repository = repository;
         this.soundCorrectionRepository = soundCorrectionRepository;
         this.speechErrorRepository = speechErrorRepository;
         this.lessonRepository = lessonRepository;
-        this.diagnosticRepository = diagnosticRepository;
+        this.patientService = patientService;
+        this.diagnosticService = diagnosticService;
     }
 
     @Async
@@ -46,19 +50,15 @@ public class SpeechCardService {
     }
     @Async
     public CompletableFuture<ServiceResult<SpeechCardFullDto>> findByPatientId(Long patientId) throws ChangeSetPersister.NotFoundException {
-        SpeechCard card = repository.findDetailedByPatientId(patientId)
+        SpeechCard card = repository.findLatestSpeechCardByPatientId(patientId)
                 .orElseThrow(() -> new ChangeSetPersister.NotFoundException());
 
-        Diagnostic diagnostic = diagnosticRepository.findBySpeechCard(card)
-                .orElseThrow(() -> new ChangeSetPersister.NotFoundException());
-
+//        Diagnostic diagnostic = diagnosticRepository.findBySpeechCard(card)
+//                .orElseThrow(() -> new ChangeSetPersister.NotFoundException());
+        Diagnostic diagnostic = diagnosticService.findLatestDiagnosticByPatientId(patientId);
         Lesson lesson = diagnostic.getLesson();
         Logoped logoped = lesson.getLogoped();
-        Patient patient = lesson.getPatients()
-                .stream()
-                .filter(p -> p.getId().equals(patientId))
-                .findFirst()
-                .orElseThrow();
+        Patient patient = patientService.findById(patientId);
 
         SpeechCardFullDto dto = toFullDto(card,diagnostic,logoped,patient);
         return AsyncResult.success(dto);
@@ -123,9 +123,66 @@ public class SpeechCardService {
             diagnostic.setLesson(lesson);
             diagnostic.setType(DiagnosticTypes.BEGIN.getDescription());
             diagnostic.setDate(new Timestamp(System.currentTimeMillis()));
-            diagnosticRepository.save(diagnostic);
+            diagnosticService.save(diagnostic);
 
             return AsyncResult.success(toReadDto(savedCard));
+
+        } catch (Exception ex) {
+            return AsyncResult.error(ex.getMessage());
+        }
+    }
+
+    @Async
+    public CompletableFuture<ServiceResult<SpeechCardFullDto>> createUpdateWithCorrctions(
+            SpeechCardCorrectionDto correctionDto
+    ) {
+        try {
+            Long patientId = correctionDto.patientId();
+            List<SoundCorrectionDto> updatedCorrections = correctionDto.updatedCorrections();
+            Long lessonId = correctionDto.lessonId();
+
+            SpeechCard lastCard = repository.findLatestSpeechCardByPatientId(patientId)
+                    .orElseThrow(() -> new RuntimeException("Речевая карта не найдена"));
+
+
+            Lesson lesson = lessonRepository.findById(lessonId)
+                    .orElseThrow(() -> new RuntimeException("Занятие не найдено"));
+            Patient patient = patientService.findById(patientId);
+
+            Logoped logoped = lesson.getLogoped();
+
+
+            SpeechCard newCard = SpeechCardFromDto(lastCard);
+
+
+            Set<SoundCorrection> corrections = updatedCorrections.stream()
+                    .map(corrDto -> soundCorrectionRepository.findBySoundAndCorrection(
+                            corrDto.sound(), corrDto.correction()
+                    ).orElseGet(() -> {
+                        SoundCorrection sc = new SoundCorrection();
+                        sc.setSound(corrDto.sound());
+                        sc.setCorrection(corrDto.correction());
+                        return soundCorrectionRepository.save(sc);
+                    }))
+                    .collect(Collectors.toSet());
+
+            newCard.setSoundCorrections(new HashSet<>(corrections));
+            newCard.setSpeechErrors(new HashSet<>(lastCard.getSpeechErrors()));
+
+
+            SpeechCard savedCard = repository.save(newCard);
+
+
+            Diagnostic newDiag = new Diagnostic();
+            newDiag.setSpeechCard(savedCard);
+            newDiag.setLesson(lesson);
+            newDiag.setType(DiagnosticTypes.AFTER_LESSON.getDescription());
+            newDiag.setDate(new Timestamp(System.currentTimeMillis()));
+            diagnosticService.save(newDiag);
+
+
+            SpeechCardFullDto dto = toFullDto(savedCard, newDiag, logoped, patient);
+            return AsyncResult.success(dto);
 
         } catch (Exception ex) {
             return AsyncResult.error(ex.getMessage());
@@ -215,6 +272,23 @@ public class SpeechCardService {
         speechCard.setPatientChars(dto.patientChars());
         return speechCard;
     }
+    private SpeechCard SpeechCardFromDto(SpeechCard oldCard) {
+        SpeechCard newCard = new SpeechCard();
+        newCard.setReason(oldCard.getReason());
+        newCard.setStateOfHearning(oldCard.getStateOfHearning());
+        newCard.setAnamnesis(oldCard.getAnamnesis());
+        newCard.setGeneralMotor(oldCard.getGeneralMotor());
+        newCard.setFineMotor(oldCard.getFineMotor());
+        newCard.setArticulatory(oldCard.getArticulatory());
+        newCard.setSoundReproduction(oldCard.getSoundReproduction());
+        newCard.setSoundComponition(oldCard.getSoundComponition());
+        newCard.setSpeechChars(oldCard.getSpeechChars());
+        newCard.setPatientChars(oldCard.getPatientChars());
+        newCard.setSpeechErrors(new HashSet<>(oldCard.getSpeechErrors()));
+        newCard.setSoundCorrections(new HashSet<>(oldCard.getSoundCorrections()));
+        return newCard;
+    }
+
     private SpeechCardFullDto toFullDto(SpeechCard entity, Diagnostic diagnostic, Logoped logoped, Patient patient) {
         return new SpeechCardFullDto(entity.getId(),
                 entity.getReason(),

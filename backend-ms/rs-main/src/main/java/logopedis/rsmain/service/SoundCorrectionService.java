@@ -11,6 +11,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -28,6 +29,22 @@ public class SoundCorrectionService {
         return AsyncResult.success(result);
     }
 
+    @Async
+    public CompletableFuture<ServiceResult<List<SoundCorrectionReadDto>>> findLatestByPatientId(Long patientId) {
+        try {
+            Set<SoundCorrection> corrections = repository
+                    .findLatestSoundCorrectionsByPatientId(patientId)
+                    .orElse(Set.of());
+
+            List<SoundCorrectionReadDto> result = corrections.stream()
+                    .map(this::toReadDto)
+                    .toList();
+
+            return AsyncResult.success(result);
+        } catch (Exception ex) {
+            return AsyncResult.error(ex.getMessage());
+        }
+    }
     @Async
     public CompletableFuture<ServiceResult<SoundCorrectionReadDto>> create(SoundCorrectionDto dto) {
         try {

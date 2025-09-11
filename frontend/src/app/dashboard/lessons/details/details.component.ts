@@ -65,9 +65,10 @@ export class DetailsComponent implements OnInit {
   }
 
   openSession() {
+    const patientId =this.editableLesson.patients[0].id;
     this.lesson$.subscribe(lesson => {
       this.router.navigate(['/dashboard/session'], {
-        queryParams: { id: this.lessonId, status: lesson.status }
+        queryParams: { id: this.lessonId, status: lesson.status, patientId: patientId }
       });
     }).unsubscribe(); // сразу отписываемся
   }

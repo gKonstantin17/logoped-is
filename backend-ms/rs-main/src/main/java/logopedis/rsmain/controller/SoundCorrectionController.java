@@ -24,6 +24,11 @@ public class SoundCorrectionController {
         var result = service.findall();
         return result.get().data();
     }
+    @PostMapping("/find-by-patient")
+    public List<SoundCorrectionReadDto> findByPatient(@RequestBody Long id) throws ExecutionException, InterruptedException {
+        var result = service.findLatestByPatientId(id);
+        return result.get().data();
+    }
     @PostMapping("/create")
     public ResponseEntity<?> create(@RequestBody SoundCorrectionDto dto) throws ExecutionException, InterruptedException {
         if (dto.sound() == null)

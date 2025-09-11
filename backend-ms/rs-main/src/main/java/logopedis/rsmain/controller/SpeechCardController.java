@@ -1,9 +1,6 @@
 package logopedis.rsmain.controller;
 
-import logopedis.libentities.rsmain.dto.speechCard.SCFromDiagnosticDto;
-import logopedis.libentities.rsmain.dto.speechCard.SpeechCardDto;
-import logopedis.libentities.rsmain.dto.speechCard.SpeechCardFullDto;
-import logopedis.libentities.rsmain.dto.speechCard.SpeechCardReadDto;
+import logopedis.libentities.rsmain.dto.speechCard.*;
 import logopedis.rsmain.service.SpeechCardService;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
@@ -28,7 +25,7 @@ public class SpeechCardController {
         return result.get().data();
     }
     @PostMapping("/find-by-patient")
-    public SpeechCardFullDto getByPatientId(@RequestBody Long id) throws ExecutionException, InterruptedException, ChangeSetPersister.NotFoundException {
+    public SpeechCardFullDto findByPatientId(@RequestBody Long id) throws ExecutionException, InterruptedException, ChangeSetPersister.NotFoundException {
         return service.findByPatientId(id).get().data();
     }
 
@@ -68,9 +65,16 @@ public class SpeechCardController {
     }
     @PostMapping("/create-with-diagnostic")
     public ResponseEntity<?> createWithDiagnostic(@RequestBody SCFromDiagnosticDto dto) throws ExecutionException, InterruptedException {
-
-
         var future = service.createFromDiag(dto);
+        var result = future.get();
+
+        return result.isSuccess()
+                ? ResponseEntity.ok(result.data())
+                : ResponseEntity.badRequest().body(result.message());
+    }
+    @PostMapping("/create-with-corrections")
+    public ResponseEntity<?> createUpdateWithCorrctions(@RequestBody SpeechCardCorrectionDto dto) throws ExecutionException, InterruptedException {
+        var future = service.createUpdateWithCorrctions(dto);
         var result = future.get();
 
         return result.isSuccess()

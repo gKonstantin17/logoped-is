@@ -211,7 +211,7 @@ class SpeechCardServiceTest {
         lesson.setPatients(Set.of(patient));
         diag.setLesson(lesson);
 
-        when(repository.findDetailedByPatientId(patientId)).thenReturn(Optional.of(card));
+        when(repository.findLatestSpeechCardByPatientId(patientId)).thenReturn(Optional.of(card));
         when(diagnosticRepository.findBySpeechCard(card)).thenReturn(Optional.of(diag));
 
         CompletableFuture<ServiceResult<SpeechCardFullDto>> future = service.findByPatientId(patientId);

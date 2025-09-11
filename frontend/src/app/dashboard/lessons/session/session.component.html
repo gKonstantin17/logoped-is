@@ -23,4 +23,11 @@
     (confirm)="onConfirm()"
     (cancel)="showConfirmModal=false">
   </app-confirm-modal>
+
+  <app-correction-modal
+    *ngIf="showCorrectionModal"
+    [corrections]="corrections"
+    (submit)="onCorrectionsSubmit($event)"
+    (cancel)="showCorrectionModal=false">
+  </app-correction-modal>
 </div>

@@ -5,28 +5,35 @@ import {LessonStatus} from '../../../utils/enums/lesson-status.enum';
 import {LessonStore} from '../../../utils/stores/lesson.store';
 import {ConfirmModalComponent} from './confirm-modal.component';
 import {NgIf} from '@angular/common';
+import {SpeechCardStore} from '../../../utils/stores/speechCard.store';
+import {CorrectionItem, CorrectionModalComponent} from './components/correction-modal.component';
 
 @Component({
   selector: 'app-session',
   standalone: true,
-  imports: [NgIf,ConfirmModalComponent],
+  imports: [NgIf, ConfirmModalComponent, CorrectionModalComponent],
   templateUrl: './session.component.html',
   styleUrl: './session.component.css'
 })
 export class SessionComponent implements OnInit {
   constructor(private router: Router,
               private route: ActivatedRoute,
-              private lessonStore: LessonStore) {
+              private lessonStore: LessonStore,
+              private speechCardStore: SpeechCardStore) {
   }
+
+
   currentTime: string = '';
   lessonId!: number;
   status!:string;
-
+  patientId!: number;
   showConfirmModal = false;
   confirmMessage = '';
   confirmAction!: () => void;
   statusUpdated = false; // флаг, чтобы скрывать кнопки после ответа
 
+  corrections: CorrectionItem[] = [];
+  showCorrectionModal = false;
   ngOnInit() {
     this.updateTime();
     setInterval(() => this.updateTime(), 1000);
@@ -34,6 +41,7 @@ export class SessionComponent implements OnInit {
     this.route.queryParams.subscribe(params => {
       this.lessonId = +params['id'];
       this.status = params['status'];
+      this.patientId = params['patientId'];
     });
   }
 
@@ -65,17 +73,69 @@ export class SessionComponent implements OnInit {
     if (this.confirmAction) this.confirmAction();
   }
 
+  // endSession() {
+  //
+  //   this.speechCardStore.findCorrectionsByPatient(this.patientId).subscribe({
+  //     next: (corrections) => {
+  //       console.log('Коррекции пациента:', corrections);
+  //       this.corrections = corrections;
+  //     },
+  //     error: (err) => console.error('Ошибка при получении коррекций:', err)
+  //   });
+  // }
   endSession() {
-    const dto : LessonStatusDto = {
-      id: this.lessonId,
-      status: LessonStatus.COMPLETED
-    }
-    this.lessonStore.updateStatus(dto);
-    this.router.navigate(['dashboard/lessons'])
-    // Здесь можно добавить логику перехода/сохранения
-    // нужен переход в details
-    // и перед этим опрос о занятии
+
+    // const dto : LessonStatusDto = {
+    //   id: this.lessonId,
+    //   status: LessonStatus.COMPLETED
+    // }
+
+
+    this.speechCardStore.findCorrectionsByPatient(this.patientId).subscribe({
+      next: (corrections) => {
+        console.log('Коррекции пациента:', corrections);
+        // сохраняем и открываем новое модальное окно
+        this.corrections = corrections.map((c:any) => ({ ...c, selectedCorrection: c.correction }));
+        this.showCorrectionModal = true;
+      },
+      error: (err) => console.error('Ошибка при получении коррекций:', err)
+    });
+    // this.lessonStore.updateStatus(dto);
+    // this.router.navigate(['dashboard/lessons'])
   }
+
+  onCorrectionsSubmit(updated: CorrectionItem[]) {
+    // проверяем, есть ли хотя бы одно изменение
+    const hasChange = updated.some(c => c.selectedCorrection !== c.correction);
+
+    if (!hasChange) {
+      console.log('Коррекции не изменились, ничего не отправляем');
+      this.showCorrectionModal = false;
+      return; // ничего не делаем
+    }
+
+    // формируем DTO со всеми выбранными коррекциями
+    const dto = {
+      patientId: this.patientId,
+      lessonId: this.lessonId,
+      updatedCorrections: updated.map(c => ({
+        sound: c.sound,
+        correction: c.selectedCorrection
+      }))
+    };
+
+    console.log('DTO для отправки:', dto);
+
+    this.speechCardStore.updateCorrections(dto);
+    this.showCorrectionModal = false;
+
+    // Теперь обновляем статус урока и переходим
+    const statusDto: LessonStatusDto = { id: this.lessonId, status: LessonStatus.COMPLETED };
+    this.lessonStore.updateStatus(statusDto);
+    this.router.navigate(['dashboard/lessons']);
+  }
+
+
 
   setLessonInProgress() {
     const dto : LessonStatusDto = {

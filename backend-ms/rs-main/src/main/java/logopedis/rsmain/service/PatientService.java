@@ -33,6 +33,9 @@ public class PatientService {
         List<PatientReadDto> result = data.stream().map(this::toReadDto).toList();
         return AsyncResult.success(result);
     }
+    public Patient findById(Long id){
+        return repository.findById(id).get();
+    }
     @Async
     public CompletableFuture<ServiceResult<List<PatientWithSpeechCard>>> findAllWithSC(UUID userId) {
         try {
