@@ -12,6 +12,7 @@
   "private": true,
   "dependencies": {
     "@angular/animations": "^19.2.10",
+    "@angular/cdk": "^19.2.19",
     "@angular/common": "^19.2.0",
     "@angular/compiler": "^19.2.0",
     "@angular/core": "^19.2.0",
@@ -24,20 +25,22 @@
     "@fullcalendar/daygrid": "^6.1.17",
     "@fullcalendar/interaction": "^6.1.17",
     "@fullcalendar/timegrid": "^6.1.17",
+    "@stomp/stompjs": "^7.1.0",
     "angular-calendar": "^0.31.1",
+    "chart.js": "^3.9.1",
     "date-fns": "^4.1.0",
+    "ng2-charts": "^4.0.1",
     "rxjs": "~7.8.0",
-    "tslib": "^2.3.0",
-    "zone.js": "~0.15.0",
-
     "sockjs-client": "^1.6.1",
-    "@stomp/stompjs": "^7.1.0"
+    "tslib": "^2.3.0",
+    "zone.js": "~0.15.0"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^19.2.11",
     "@angular/cli": "^19.2.11",
     "@angular/compiler-cli": "^19.2.0",
     "@types/jasmine": "~5.1.0",
+    "@types/sockjs-client": "^1.5.4",
     "jasmine-core": "~5.6.0",
     "jasmine-spec-reporter": "^7.0.0",
     "karma": "~6.4.0",
@@ -45,8 +48,7 @@
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
-    "typescript": "~5.7.2",
     "ts-node": "^10.9.1",
-    "@types/sockjs-client": "^1.5.4"
+    "typescript": "~5.7.2"
   }
 }

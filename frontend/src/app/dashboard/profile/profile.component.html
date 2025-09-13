@@ -2,13 +2,20 @@
   <aside class="sidebar">
     <nav class="tab-list">
       <button class="tab-button"
-        [class.active]="activeTab === 'account'"
-        (click)="activeTab = 'account'">
+              [class.active]="activeTab === 'account'"
+              (click)="setActiveTab('account')">
         Учётная запись
       </button>
+
       <button class="tab-button"
-        [class.active]="activeTab === 'help'"
-        (click)="activeTab = 'help'">
+              [class.active]="activeTab === 'statistics'"
+              (click)="setActiveTab('statistics')">
+        Статистика
+      </button>
+
+      <button class="tab-button"
+              [class.active]="activeTab === 'help'"
+              (click)="setActiveTab('help')">
         Помощь
       </button>
     </nav>
@@ -26,6 +33,32 @@
         <button (click)="saveChanges()">Сохранить</button>
       </div>
     </div>
+
+    <div *ngIf="activeTab === 'statistics'" class="tab-section">
+      <h3>Статистика занятий</h3>
+
+      <!-- Список пациентов -->
+      <label>Выберите пациента:
+        <select (change)="onPatientSelect($any($event.target).value)">
+        <option *ngFor="let patient of patients" [value]="patient.id">
+            {{ patient.firstName }} {{ patient.lastName }}
+          </option>
+        </select>
+      </label>
+
+      <div style="max-width: 400px; margin-top: 20px;">
+        <canvas baseChart
+                [data]="pieChartData"
+                [type]="pieChartType"
+                [options]="pieChartOptions">
+        </canvas>
+      </div>
+
+      <ng-template #noLessons>
+        <p>Занятий с этим пациентом пока нет.</p>
+      </ng-template>
+    </div>
+
 
     <!-- Помощь -->
     <div *ngIf="activeTab === 'help'" class="tab-section">
