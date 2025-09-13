@@ -156,31 +156,34 @@
       <div class="block results">
         <h3>Итоги</h3>
 
-        <table class="results-table">
+        <table class="results-table" *ngIf="changedCorrections">
           <thead>
           <tr>
             <th>Звук</th>
             <th>До</th>
             <th>После</th>
-            <th>Комментарий</th>
           </tr>
           </thead>
           <tbody>
-          <tr>
-            <td>С</td>
-            <td>непроизносит</td>
-            <td>произносит правильно</td>
-            <td>Значительный прогресс</td>
+          <!-- новые или измененные -->
+          <tr *ngFor="let added of changedCorrections.added">
+            <td>{{ added.sound }}</td>
+            <td>{{ getOldCorrection(added.sound) || '—' }}</td>
+            <td>{{ added.correction }}</td>
           </tr>
-          <tr>
-            <td>Р</td>
-            <td>искажает</td>
-            <td>неустойчиво</td>
-            <td>Требуется доработка</td>
+
+          <!-- только удалённые -->
+          <tr *ngFor="let removed of changedCorrections.removed">
+            <ng-container *ngIf="isRemovedOnly(removed.sound)">
+              <td>{{ removed.sound }}</td>
+              <td>{{ removed.correction }}</td>
+              <td>—</td>
+            </ng-container>
           </tr>
-          <!-- Можно добавить больше строк или использовать *ngFor -->
           </tbody>
         </table>
+
+        <p *ngIf="!changedCorrections">Нет изменений в направлениях коррекции</p>
       </div>
 
       <div class="block">

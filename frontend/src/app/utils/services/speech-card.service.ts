@@ -4,6 +4,18 @@ import {HttpMethod} from '../oauth2/model/RequestBFF';
 import {Observable} from 'rxjs';
 import {BackendService} from '../oauth2/backend/backend.service';
 
+export interface SoundCorrection {
+  id: number;
+  sound: string;
+  correction: string;
+}
+
+export interface SoundCorrectionChanges {
+  added: SoundCorrection[];
+  removed: SoundCorrection[];
+}
+
+
 @Injectable({
   providedIn: 'root'
 })
@@ -27,5 +39,8 @@ export class SpeechCardService {
   }
   updateCorrections(data:any): Observable<any> {
     return this.backend.createOperation(HttpMethod.POST, `${this.baseUrl}/speechcard/create-with-corrections`, data);
+  }
+  findChangedCorrections(data:any): Observable<any> {
+    return this.backend.createOperation(HttpMethod.POST, `${this.baseUrl}/soundcorrection/find-changes`, data);
   }
 }

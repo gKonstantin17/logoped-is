@@ -261,3 +261,23 @@ textarea.auto-resize {
 .editable-patients button.add-btn:hover {
   background-color: #0056b3;
 }
+.results-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.results-table td,
+.results-table th {
+  padding: 8px;
+  border-bottom: 1px solid #ddd;
+}
+
+.positive {
+  color: green;
+  font-weight: bold;
+}
+
+.negative {
+  color: red;
+  font-weight: bold;
+}

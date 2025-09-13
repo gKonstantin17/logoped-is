@@ -50,5 +50,8 @@ export class SpeechCardStore {
   findCorrectionsByPatient(patientId: number) {
     return this.speechCardService.findCorrectionsByPatient(patientId)
   }
+  findChangedCorrections(lessonId: number) {
+    return this.speechCardService.findChangedCorrections(lessonId)
+  }
 }
 

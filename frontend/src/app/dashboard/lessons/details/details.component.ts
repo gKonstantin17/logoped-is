@@ -10,6 +10,8 @@ import {FormsModule} from '@angular/forms';
 import {LessonTypesEnum, LessonTypesEnumLabels} from '../../../utils/enums/lesson-types.enum';
 import {PatientStore} from '../../../utils/stores/patient.store';
 import {LessonChangeDto} from '../../../utils/services/lesson.service';
+import {SpeechCardStore} from '../../../utils/stores/speechCard.store';
+import {SoundCorrectionChanges} from '../../../utils/services/speech-card.service';
 
 @Component({
   selector: 'app-details',
@@ -42,10 +44,12 @@ export class DetailsComponent implements OnInit {
   private originalPatients: any[] = [];
   lessonStatuses = Object.values(LessonStatus);
   patients: any[] = [];
+  changedCorrections: SoundCorrectionChanges | null = null;
 
   constructor(private userDataStore: UserDataStore,
               private lessonStore: LessonStore,
               private patientStore: PatientStore,
+              private speechCardStore: SpeechCardStore,
               private route: ActivatedRoute,
               private router: Router) {}
   ngOnInit() {
@@ -61,6 +65,9 @@ export class DetailsComponent implements OnInit {
       if (lesson) {
         this.editableLesson = { ...lesson }; // копия для редактирования
       }
+    });
+    this.speechCardStore.findChangedCorrections(this.lessonId).subscribe(result => {
+      this.changedCorrections = result;
     });
   }
 
@@ -143,6 +150,20 @@ export class DetailsComponent implements OnInit {
     }
   }
 
+  getOldCorrection(sound: string): string | null {
+    if (!this.changedCorrections) {
+      return null;
+    }
+    const match = this.changedCorrections.removed.find(r => r.sound === sound);
+    return match ? match.correction : null;
+  }
+
+  isRemovedOnly(sound: string): boolean {
+    if (!this.changedCorrections) {
+      return false;
+    }
+    return !this.changedCorrections.added.find(a => a.sound === sound);
+  }
 
 
 

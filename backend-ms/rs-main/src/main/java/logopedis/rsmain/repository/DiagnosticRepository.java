@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,5 +49,20 @@ public interface DiagnosticRepository extends JpaRepository<Diagnostic,Long> {
     ORDER BY d.date ASC
 """)
     List<Diagnostic> findAllByPatientIdWithSpeechCard(@Param("patientId") Long patientId);
+
+    @Query("""
+    SELECT d
+    FROM Diagnostic d
+    JOIN d.lesson l
+    JOIN l.patients p
+    WHERE p.id = :patientId
+      AND d.date < :currentDate
+    ORDER BY d.date DESC
+""")
+    List<Diagnostic> findPreviousByPatientIdAndDate(
+            @Param("patientId") Long patientId,
+            @Param("currentDate") Timestamp currentDate
+    );
+
 
 }
