@@ -5,14 +5,16 @@
   import {UserDataStore} from '../../utils/stores/user-data.store';
   import {LessonStore} from '../../utils/stores/lesson.store';
   import {PatientStore} from '../../utils/stores/patient.store';
-  import {ChartConfiguration, ChartData, ChartOptions, ChartType} from 'chart.js';
+  import {Chart, ChartConfiguration, ChartData, ChartOptions, ChartType} from 'chart.js';
   import {LessonStatus, LessonStatusLabels} from '../../utils/enums/lesson-status.enum';
   import {NgChartsModule} from 'ng2-charts';
   import {RouterLink} from '@angular/router';
   import {SpeechCardStore} from '../../utils/stores/speechCard.store';
   import 'chartjs-adapter-date-fns';
-  import { addDays, parseISO } from 'date-fns';
+  import { addDays } from 'date-fns';
+  import { parseISO } from 'date-fns/parseISO';
   import { ru } from 'date-fns/locale';
+
   import {
   correctionTypesArray,
   CorrectionTypesEnum,
@@ -68,13 +70,17 @@
           type: 'time',
           time: {
             unit: 'day',
-            tooltipFormat: 'dd.MM.yyyy'
+            tooltipFormat: 'dd.MM.yyyy',
+            displayFormats: {
+              day: 'dd MMM'
+            }
           },
-
-          title: {
-            display: true,
-            text: 'Дата'
-          }
+          adapters: {
+            date: {
+              locale: ru
+            }
+          },
+          title: { display: true, text: 'Дата' }
         },
         y: {
           type: 'category',
@@ -83,12 +89,10 @@
             display: true,
             text: 'Статус'
           },
-          // Добавляем reverse, чтобы статусы шли в правильном порядке сверху вниз
           reverse: true
         }
       }
     };
-
     // Chart
     public pieChartData: ChartData<'pie', number[], string | string[]> = {
       labels: [],
@@ -103,7 +107,12 @@
       private lessonStore: LessonStore,
       private patientStore: PatientStore,
       private speechCardStore: SpeechCardStore
-    ) {}
+    ) {
+      const chart = Chart as any;
+      if (chart.defaults?.adapters?.date) {
+        chart.defaults.adapters.date.locale = ru;
+      }
+    }
 
     ngOnInit() {
       // данные пользователя
