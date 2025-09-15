@@ -39,7 +39,7 @@
 
       <!-- Список пациентов -->
       <label>Выберите пациента:
-        <select (change)="onPatientSelect($any($event.target).value)">
+        <select class="form-control" (change)="onPatientSelect($any($event.target).value)">
           <option [value]="null" selected disabled>-- Выберите пациента --</option>
           <option *ngFor="let patient of patients" [value]="patient.id">
             {{ patient.firstName }} {{ patient.lastName }}

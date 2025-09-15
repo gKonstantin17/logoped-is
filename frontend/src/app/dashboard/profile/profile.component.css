@@ -143,3 +143,20 @@ a {
   text-decoration: none;
   font-weight: 500;
 }
+.form-control {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  box-sizing: border-box;
+  background-color: white;
+  transition: all 0.2s ease;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #ef019b;
+  box-shadow: 0 0 8px rgba(239, 1, 155, 0.3);
+}

@@ -34,6 +34,9 @@ export class SpeechCardService {
   findCorrectionsByPatient(patientId: number): Observable<any> {
     return this.backend.createOperation(HttpMethod.POST, `${this.baseUrl}/soundcorrection/find-by-patient`, patientId);
   }
+  findPatientHistory(patientId: number): Observable<any> {
+    return this.backend.createOperation(HttpMethod.POST, `${this.baseUrl}/soundcorrection/find-patient-history`, patientId);
+  }
   createWithDiagnostic(data: any): Observable<any> {
     return this.backend.createOperation(HttpMethod.POST, `${this.baseUrl}/speechcard/create-with-diagnostic`, data);
   }
