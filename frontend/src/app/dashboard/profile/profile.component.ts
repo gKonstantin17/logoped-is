@@ -9,6 +9,16 @@
   import {LessonStatus, LessonStatusLabels} from '../../utils/enums/lesson-status.enum';
   import {NgChartsModule} from 'ng2-charts';
   import {RouterLink} from '@angular/router';
+  import {SpeechCardStore} from '../../utils/stores/speechCard.store';
+  import 'chartjs-adapter-date-fns';
+  import { addDays, parseISO } from 'date-fns';
+  import { ru } from 'date-fns/locale';
+  import {
+  correctionTypesArray,
+  CorrectionTypesEnum,
+    CorrectionTypesLabels,
+    labelToEnumMap
+  } from '../../utils/enums/correction-tipes.enum';
 
   @Component({
     selector: 'app-profile',
@@ -27,6 +37,58 @@
 
     patients: any[] = []; // список пациентов для select
 
+
+    speechCategories: CorrectionTypesEnum[] = correctionTypesArray;
+    public lineChartData: ChartData<'line'> = {
+      labels: [],
+      datasets: []
+    };
+
+    public lineChartOptions: ChartOptions<'line'> = {
+      responsive: true,
+      interaction: {
+        mode: 'nearest',
+        intersect: false
+      },
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: (tooltipItem) => {
+              const datasetLabel = tooltipItem.dataset.label || '';
+              const pointData = tooltipItem.raw as any;
+              const status = pointData.rawStatus || 'Неизвестно';
+              const date = new Date(tooltipItem.parsed.x).toLocaleDateString('ru-RU');
+              return `${datasetLabel}: ${status} (${date})`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          type: 'time',
+          time: {
+            unit: 'day',
+            tooltipFormat: 'dd.MM.yyyy'
+          },
+
+          title: {
+            display: true,
+            text: 'Дата'
+          }
+        },
+        y: {
+          type: 'category',
+          labels: correctionTypesArray.map(s => CorrectionTypesLabels[s]),
+          title: {
+            display: true,
+            text: 'Статус'
+          },
+          // Добавляем reverse, чтобы статусы шли в правильном порядке сверху вниз
+          reverse: true
+        }
+      }
+    };
+
     // Chart
     public pieChartData: ChartData<'pie', number[], string | string[]> = {
       labels: [],
@@ -39,7 +101,8 @@
     constructor(
       private userDataStore: UserDataStore,
       private lessonStore: LessonStore,
-      private patientStore: PatientStore
+      private patientStore: PatientStore,
+      private speechCardStore: SpeechCardStore
     ) {}
 
     ngOnInit() {
@@ -88,6 +151,21 @@
       this.selectedPatientId = Number(value);
       this.filterLessons();  // обновляем список занятий
       this.updateChart();    // обновляем диаграмму
+
+      // Получаем историю пациента
+      if (this.selectedPatientId != null) {
+        this.speechCardStore.findPatientHistory(this.selectedPatientId).subscribe({
+          next: (history) => {
+            console.log('История пациента:', history);
+          },
+          error: (err) => {
+            console.error('Ошибка при получении истории пациента', err);
+          }
+        });
+      }
+      if (this.subTab === 'speechCards' && this.selectedPatientId != null) {
+        this.loadSpeechChart();
+      }
     }
 
     filterLessons() {
@@ -150,6 +228,73 @@
       };
     }
 
+    loadSpeechChart() {
+      if (!this.selectedPatientId) return;
+
+      this.speechCardStore.findPatientHistory(this.selectedPatientId).subscribe({
+        next: (history) => {
+          // сортируем по дате
+          history.sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+          // собираем уникальные звуки (Р, Ж и т.д.)
+          const soundSet = new Set<string>();
+          history.forEach((h: any) => {
+            h.soundCorrections.forEach((sc: string) => {
+              const sound = sc.split(':')[0].trim();
+              soundSet.add(sound);
+            });
+          });
+          const sounds = Array.from(soundSet);
+
+          // создаем dataset для каждого звука
+          const datasets = sounds.map(sound => {
+            const dataPoints: any[] = [];
+
+            history.forEach((h: any) => {
+              // Ищем запись для текущего звука в этой дате
+              const soundRecord = h.soundCorrections.find((sc: string) =>
+                sc.startsWith(sound + ':')
+              );
+
+              if (soundRecord) {
+                const statusLabel = soundRecord.split(':')[1].trim();
+                const statusEnum = labelToEnumMap[statusLabel];
+
+                if (statusEnum) {
+                  // Используем строковое значение для категориальной оси Y
+                  dataPoints.push({
+                    x: parseISO(h.date),
+                    y: CorrectionTypesLabels[statusEnum], // Используем label для оси Y
+                    rawStatus: statusLabel,
+                    rawEnum: statusEnum
+                  });
+                }
+              }
+            });
+
+            return {
+              label: sound,
+              data: dataPoints,
+              fill: false,
+              tension: 0.4,
+              pointRadius: 5,
+              pointHoverRadius: 7
+            };
+          });
+
+          this.lineChartData = {
+            labels: history.map((h: any) => parseISO(h.date)),
+            datasets
+          };
+        },
+        error: (err) => console.error(err)
+      });
+    }
+
+
+
+
+
     saveChanges() {
       if (!this.data) return;
       this.userDataStore.update(this.data!).subscribe({
@@ -160,8 +305,10 @@
     subTab: 'lessons' | 'speechCards' = 'lessons';
     setSubTab(tab: 'lessons' | 'speechCards') {
       this.subTab = tab;
+      if (tab === 'speechCards' && this.selectedPatientId != null) {
+        this.loadSpeechChart();
+      }
     }
-
     getStatusLabel(status: LessonStatus): string {
       return LessonStatusLabels[status];
     }

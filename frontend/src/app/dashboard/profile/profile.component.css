@@ -41,7 +41,7 @@
 }
 
 .tab-section {
-  max-width: 500px;
+  max-width: 100%;
 }
 
 label {
@@ -72,10 +72,6 @@ button {
   margin-top: 1.5rem;
 }
 
-canvas {
-  height: 350px;
-  width: 350px;
-}
 
 .sub-tab-list {
   display: flex;

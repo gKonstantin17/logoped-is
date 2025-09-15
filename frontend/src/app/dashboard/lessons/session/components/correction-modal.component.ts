@@ -1,12 +1,12 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {NgForOf} from '@angular/common';
-
+import {CorrectionTypesEnum,correctionTypes } from '../../../../utils/enums/correction-tipes.enum';
 export interface CorrectionItem {
   id: number;
   sound: string;
-  correction: string;
-  selectedCorrection?: string; // для выбора из типов
+  correction: CorrectionTypesEnum;       // используем enum
+  selectedCorrection?: CorrectionTypesEnum; // для выбора из типов
 }
 
 @Component({
@@ -59,7 +59,8 @@ export class CorrectionModalComponent {
   @Output() submit = new EventEmitter<CorrectionItem[]>();
   @Output() cancel = new EventEmitter<void>();
 
-  correctionTypes: string[] = ['Поставлен', 'Введен в речь', 'Автоматизирован','Дифференцирован','Звукопроизношение в норме'];
+  // Используем enum вместо строк
+  correctionTypes = correctionTypes;
 
   confirm() {
     this.submit.emit(this.corrections);

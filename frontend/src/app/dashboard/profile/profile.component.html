@@ -63,7 +63,6 @@
 
       <!-- Контент "Занятия" -->
       <div *ngIf="subTab === 'lessons'" class="lessons-stat">
-
         <!-- Диаграмма сверху -->
         <div class="lessons-chart">
           <canvas baseChart
@@ -100,9 +99,15 @@
 
       </div>
 
+
       <!-- Контент "Речевые карты" -->
       <div *ngIf="subTab === 'speechCards'" class="speech-cards-stat">
-        <p>Здесь будет статистика речевых карт</p>
+        <canvas baseChart
+                [data]="lineChartData"
+                [type]="'line'"
+                [options]="lineChartOptions">
+        </canvas>
+
       </div>
     </div>
 
