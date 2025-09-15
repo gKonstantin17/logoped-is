@@ -58,7 +58,10 @@ public class SoundCorrectionService {
     public CompletableFuture<ServiceResult<SoundCorrectionChangesDto>> findChanges(Long lessonId) {
         try {
             Diagnostic current = diagnosticRepository.findByLessonId(lessonId)
-                    .orElseThrow(() -> new IllegalArgumentException("Diagnostic not found for lesson " + lessonId));
+                    .orElse(null);
+            // если на уроке не было изменений речевой карты, то пустой ответ
+            if (current == null)
+                return AsyncResult.success(new SoundCorrectionChangesDto(Set.of(), Set.of()));
 
             Long patientId = current.getLesson()
                     .getPatients()

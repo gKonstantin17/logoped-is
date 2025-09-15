@@ -17,7 +17,7 @@ export class AuthInterceptorService implements HttpInterceptor {
         console.log('Intercepted error:', error.status);
 
         // Предотвращаем повторную попытку обновления токена
-        //if ((error.status === 401) && !this.isRefreshing) {
+        // if ((error.status === 401) && !this.isRefreshing) {
         if ((error.status === 401 || error.status === 403) && !this.isRefreshing) {
           this.isRefreshing = true;
           console.log('Attempting to refresh token...');
