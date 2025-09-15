@@ -35,29 +35,78 @@
     </div>
 
     <div *ngIf="activeTab === 'statistics'" class="tab-section">
-      <h3>Статистика занятий</h3>
+      <h3>Статистика</h3>
 
       <!-- Список пациентов -->
       <label>Выберите пациента:
         <select (change)="onPatientSelect($any($event.target).value)">
-        <option *ngFor="let patient of patients" [value]="patient.id">
+          <option [value]="null" selected disabled>-- Выберите пациента --</option>
+          <option *ngFor="let patient of patients" [value]="patient.id">
             {{ patient.firstName }} {{ patient.lastName }}
           </option>
         </select>
       </label>
 
-      <div style="max-width: 400px; margin-top: 20px;">
-        <canvas baseChart
-                [data]="pieChartData"
-                [type]="pieChartType"
-                [options]="pieChartOptions">
-        </canvas>
+      <!-- Подвкладки -->
+      <nav class="sub-tab-list">
+        <button class="sub-tab-button"
+                [class.active]="subTab === 'lessons'"
+                (click)="setSubTab('lessons')">
+          Занятия
+        </button>
+        <button class="sub-tab-button"
+                [class.active]="subTab === 'speechCards'"
+                (click)="setSubTab('speechCards')">
+          Речевые карты
+        </button>
+      </nav>
+
+      <!-- Контент "Занятия" -->
+      <div *ngIf="subTab === 'lessons'" class="lessons-stat">
+
+        <!-- Диаграмма сверху -->
+        <div class="lessons-chart">
+          <canvas baseChart
+                  [data]="pieChartData"
+                  [type]="pieChartType"
+                  [options]="pieChartOptions">
+          </canvas>
+        </div>
+
+        <!-- Таблица занятий снизу -->
+        <div class="lessons-table" style="margin-top: 20px;">
+          <table>
+            <thead>
+            <tr>
+              <th>Дата</th>
+              <th>Тема</th>
+              <th>Статус</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let lesson of filteredLessons">
+              <td>{{ lesson.dateOfLesson | date:'dd.MM.yyyy' }}</td>
+              <td> <a [routerLink]="['/dashboard/details', lesson.id]">
+                {{ lesson.topic }}
+              </a></td>
+              <td>{{ getStatusLabel(lesson.status) }}</td>
+            </tr>
+            <tr *ngIf="filteredLessons.length === 0">
+              <td colspan="3">Занятий для выбранного пациента пока нет</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+
       </div>
 
-      <ng-template #noLessons>
-        <p>Занятий с этим пациентом пока нет.</p>
-      </ng-template>
+      <!-- Контент "Речевые карты" -->
+      <div *ngIf="subTab === 'speechCards'" class="speech-cards-stat">
+        <p>Здесь будет статистика речевых карт</p>
+      </div>
     </div>
+
+
 
 
     <!-- Помощь -->

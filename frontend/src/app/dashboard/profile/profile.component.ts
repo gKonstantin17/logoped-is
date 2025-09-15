@@ -8,11 +8,12 @@
   import {ChartConfiguration, ChartData, ChartOptions, ChartType} from 'chart.js';
   import {LessonStatus, LessonStatusLabels} from '../../utils/enums/lesson-status.enum';
   import {NgChartsModule} from 'ng2-charts';
+  import {RouterLink} from '@angular/router';
 
   @Component({
     selector: 'app-profile',
     standalone: true,
-    imports: [CommonModule, FormsModule, NgChartsModule],
+    imports: [CommonModule, FormsModule, NgChartsModule, RouterLink],
     templateUrl: './profile.component.html',
     styleUrl: './profile.component.css'
   })
@@ -67,9 +68,9 @@
         this.patients = Array.from(patientsMap.values());
 
         // выбираем первого пациента по умолчанию
-        if (this.patients.length > 0 && !this.selectedPatientId) {
-          this.selectedPatientId = this.patients[0].id;
-        }
+        // if (this.patients.length > 0 && !this.selectedPatientId) {
+        //   this.selectedPatientId = this.patients[0].id;
+        // }
 
         this.filterLessons();
       });
@@ -85,52 +86,67 @@
 
     onPatientSelect(value: string) {
       this.selectedPatientId = Number(value);
-      this.updateChart();
+      this.filterLessons();  // обновляем список занятий
+      this.updateChart();    // обновляем диаграмму
     }
 
     filterLessons() {
-      if (this.selectedPatientId && this.lessons.length > 0) {
-        this.filteredLessons = this.lessons.filter(lesson =>
-          lesson.patients?.some((p: any) => p.id === this.selectedPatientId)
-        );
+      if (this.selectedPatientId != null && this.lessons.length > 0) {
+        this.filteredLessons = this.lessons
+          .filter(lesson =>
+            lesson.patients?.some((p: any) => p.id === this.selectedPatientId)
+          )
+          .sort((a, b) => {
+            // Сортируем по дате по убыванию
+            return new Date(b.dateOfLesson).getTime() - new Date(a.dateOfLesson).getTime();
+          });
       } else {
         this.filteredLessons = [];
       }
     }
 
     updateChart() {
-      if (!this.selectedPatientId) return;
+      if (!this.selectedPatientId) {
+        // сбрасываем диаграмму если пациент не выбран
+        this.pieChartData = { labels: [], datasets: [{ data: [] }] };
+        return;
+      }
 
       const patientLessons = this.lessons.filter(lesson =>
         lesson.patients?.some((p: any) => p.id === this.selectedPatientId)
       );
 
-      // считаем количество по статусам
-      const statusCount: Record<LessonStatus, number> = {} as any;
-      Object.values(LessonStatus).forEach(status => (statusCount[status] = 0));
+      // считаем количество по нужным группам
+      let completed = 0;
+      let noShow = 0;
+      let canceled = 0;
 
       patientLessons.forEach(lesson => {
-        const status = lesson.status as LessonStatus; // приведение типа
-        if (status in statusCount) {
-          statusCount[status] += 1;
-        }
-      });
+        const status = lesson.status as LessonStatus;
 
+        switch (status) {
+          case LessonStatus.COMPLETED:
+            completed++;
+            break;
 
-      const total = patientLessons.length;
-      const labels: string[] = [];
-      const data: number[] = [];
+          case LessonStatus.NO_SHOW_CLIENT:
+            noShow++;
+            break;
 
-      Object.entries(statusCount).forEach(([status, count]) => {
-        if (count > 0) {
-          labels.push(`${LessonStatusLabels[status as LessonStatus]} (${((count / total) * 100).toFixed(1)}%)`);
-          data.push(count);
+          case LessonStatus.CANCELED_BY_CLIENT:
+          case LessonStatus.CANCELED_BY_LOGOPED:
+          case LessonStatus.NO_SHOW_LOGOPED:
+            canceled++;
+            break;
+
+          default:
+            break; // остальные статусы не учитываем
         }
       });
 
       this.pieChartData = {
-        labels,
-        datasets: [{ data }]
+        labels: ['Проведено', 'Не состоялось', 'Отменено'],
+        datasets: [{ data: [completed, noShow, canceled] }]
       };
     }
 
@@ -141,7 +157,14 @@
         error: () => alert('Ошибка при сохранении. Попробуйте позже.')
       });
     }
+    subTab: 'lessons' | 'speechCards' = 'lessons';
+    setSubTab(tab: 'lessons' | 'speechCards') {
+      this.subTab = tab;
+    }
 
+    getStatusLabel(status: LessonStatus): string {
+      return LessonStatusLabels[status];
+    }
 
     changeLogoped() {
       alert('Форма смены логопеда откроется здесь');

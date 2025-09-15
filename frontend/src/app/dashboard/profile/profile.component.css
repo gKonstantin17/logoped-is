@@ -71,3 +71,75 @@ button {
 .support-text {
   margin-top: 1.5rem;
 }
+
+canvas {
+  height: 350px;
+  width: 350px;
+}
+
+.sub-tab-list {
+  display: flex;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.sub-tab-button {
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  background: #888686;
+  cursor: pointer;
+}
+
+.sub-tab-button.active {
+  background: #007bff;
+  color: white;
+}
+
+.lessons-container {
+  display: flex;
+  gap: 20px;
+  margin-top: 15px;
+}
+
+.lessons-table {
+  width: 100%;
+  max-width: 600px;
+  margin: 20px auto 0 auto;
+}
+
+.lessons-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.lessons-table th,
+.lessons-table td {
+  border: 1px solid #ddd;
+  padding: 6px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.lessons-table th:nth-child(1),
+.lessons-table td:nth-child(1) {
+  width: 80px; /* Дата */
+}
+
+.lessons-table th:nth-child(2),
+.lessons-table td:nth-child(2) {
+  width: 200px; /* Тема */
+}
+
+.lessons-table th:nth-child(3),
+.lessons-table td:nth-child(3) {
+  width: 150px; /* Статус */
+}
+.lessons-chart {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+}
+a {
+  color: #ef019b;
+  text-decoration: none;
+  font-weight: 500;
+}
