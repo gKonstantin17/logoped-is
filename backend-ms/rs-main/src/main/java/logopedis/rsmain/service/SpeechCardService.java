@@ -1,6 +1,7 @@
 package logopedis.rsmain.service;
 
 import logopedis.libentities.enums.DiagnosticTypes;
+import logopedis.libentities.rsmain.dto.patient.PatientReadDto;
 import logopedis.libentities.rsmain.dto.responseWrapper.AsyncResult;
 import logopedis.libentities.rsmain.dto.responseWrapper.ServiceResult;
 import logopedis.libentities.rsmain.dto.soundCorrection.SoundCorrectionDto;
@@ -13,11 +14,9 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 @Service
@@ -64,18 +63,46 @@ public class SpeechCardService {
     }
 
     @Async
-    public CompletableFuture<ServiceResult<SpeechCardFullDto>> findFirstByPatientId(Long patientId) throws ChangeSetPersister.NotFoundException {
-        SpeechCard card = repository.findEarliestSpeechCardByPatientId(patientId)
-                .orElseThrow(() -> new ChangeSetPersister.NotFoundException());
+    public CompletableFuture<ServiceResult<List<SpechCardMinDto>>> findAllPatientsFirstCards(UUID logopedId)
+            throws ChangeSetPersister.NotFoundException, ExecutionException, InterruptedException {
 
-        Diagnostic diagnostic = diagnosticService.findEarliestDiagnosticByPatientId(patientId);
-        Lesson lesson = diagnostic.getLesson();
-        Logoped logoped = lesson.getLogoped();
-        Patient patient = patientService.findById(patientId);
+        // Получаем всех пациентов логопеда
+        List<PatientReadDto> patients = patientService.findByLogopegId(logopedId).get().data();
 
-        SpeechCardFullDto dto = toFullDto(card, diagnostic, logoped, patient);
-        return AsyncResult.success(dto);
+        List<SpechCardMinDto> result = new ArrayList<>();
+
+        for (PatientReadDto patientDto : patients) {
+            Long patientId = patientDto.id();
+
+            // Получаем первую речевую карту
+            Optional<SpeechCard> cardOpt = repository.findEarliestSpeechCardByPatientId(patientId);
+            if (cardOpt.isEmpty()) {
+                continue; // если карта не найдена — пропускаем пациента
+            }
+            SpeechCard card = cardOpt.get();
+
+            Diagnostic diagnostic = diagnosticService.findEarliestDiagnosticByPatientId(patientId);
+            Patient patient = patientService.findById(patientId);
+
+            SpechCardMinDto dto = new SpechCardMinDto(
+                    patient.getId(),
+                    patient.getFirstName() + " " + patient.getLastName(),
+                    diagnostic.getDate(),
+                    card.getSpeechErrors().stream()
+                            .map(SpeechError::getTitle)
+                            .toList(),
+                    card.getSoundCorrections().stream()
+                            .map(sc -> sc.getSound() + ": " + sc.getCorrection())
+                            .toList(),
+                    card.getId()
+            );
+
+            result.add(dto);
+        }
+
+        return AsyncResult.success(result);
     }
+
 
 
     @Async

@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 @RestController
@@ -29,8 +30,8 @@ public class SpeechCardController {
         return service.findByPatientId(id).get().data();
     }
     @PostMapping("/find-first-by-patient")
-    public SpeechCardFullDto findFirstByPatientId(@RequestBody Long id) throws ExecutionException, InterruptedException, ChangeSetPersister.NotFoundException {
-        return service.findFirstByPatientId(id).get().data();
+    public List<SpechCardMinDto> findFirstByPatientId(@RequestBody UUID logopedId) throws ExecutionException, InterruptedException, ChangeSetPersister.NotFoundException {
+        return service.findAllPatientsFirstCards(logopedId).get().data();
     }
     @PostMapping("/find-patient-history")
     public List<PatientHistoryDto> findHistory(@RequestBody Long id) throws ExecutionException, InterruptedException, ChangeSetPersister.NotFoundException {
