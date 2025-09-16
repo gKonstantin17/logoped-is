@@ -32,9 +32,17 @@ export class SpeechCardStore {
       })
     ).subscribe(); // или возвращай Observable и подписывайся из компонента
   }
+  findById(speechCardId: number) {
+    return this.speechCardService.findById(speechCardId).pipe(
+      tap({
+        next: data => this.currentSpeechCardSubject.next(data),
+        error: () => this.currentSpeechCardSubject.next(null)
+      })
+    );
+  }
 
-  findLastByPatient(logopedId: string) {
-    return this.speechCardService.findLastByPatient(logopedId);
+  findFirstAllByPatient(logopedId: string) {
+    return this.speechCardService.findFirstAllByPatient(logopedId);
   }
   findAllError() {
     return this.speechCardService.findAllError();

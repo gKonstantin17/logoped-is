@@ -213,3 +213,12 @@ a {
   text-decoration: none;
   font-weight: 500;
 }
+.link-button {
+  background: none;
+  border: none;
+  color: #ef019b;
+  text-decoration: underline;
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+}

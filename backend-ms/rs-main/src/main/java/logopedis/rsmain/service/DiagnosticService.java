@@ -5,6 +5,7 @@ import logopedis.libentities.rsmain.dto.diagnostic.DiagnosticReadDto;
 import logopedis.libentities.rsmain.dto.responseWrapper.AsyncResult;
 import logopedis.libentities.rsmain.dto.responseWrapper.ServiceResult;
 import logopedis.libentities.rsmain.entity.Diagnostic;
+import logopedis.libentities.rsmain.entity.SpeechCard;
 import logopedis.rsmain.repository.DiagnosticRepository;
 import logopedis.libutils.hibernate.ResponseHelper;
 import logopedis.rsmain.repository.SpeechCardRepository;
@@ -31,6 +32,9 @@ public class DiagnosticService {
         var data = repository.findAll();
         var result = data.stream().map(this::toReadDto).toList();
         return AsyncResult.success(result);
+    }
+    public Diagnostic findBySpeechCard(SpeechCard sc) {
+        return repository.findBySpeechCard(sc).get();
     }
     public Diagnostic findLatestDiagnosticByPatientId(Long patientId) {
         return repository.findLatestDiagnosticByPatientId(patientId).get();

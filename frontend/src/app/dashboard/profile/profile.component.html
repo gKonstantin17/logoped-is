@@ -147,7 +147,11 @@
               <td>{{ card.diagnosticDate | date:'dd.MM.yyyy' }}</td>
               <td>{{ card.speechErrors.join(', ') }}</td>
               <td>{{ card.soundCorrections.join(', ') }}</td>
-              <td><a [routerLink]="['/dashboard/speech-card', card.speechCardId]">Первичная речевая карта</a></td>
+              <td>
+                <button class="link-button" (click)="goToSpeechCard(card.speechCardId)">
+                  Первичная речевая карта
+                </button>
+              </td>
             </tr>
             <tr *ngIf="patientsCards.length === 0">
               <td colspan="5">Пациенты пока не найдены</td>

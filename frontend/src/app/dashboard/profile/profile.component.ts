@@ -8,7 +8,7 @@
   import {Chart, ChartConfiguration, ChartData, ChartOptions, ChartType} from 'chart.js';
   import {LessonStatus, LessonStatusLabels} from '../../utils/enums/lesson-status.enum';
   import {NgChartsModule} from 'ng2-charts';
-  import {RouterLink} from '@angular/router';
+  import {Router, RouterLink} from '@angular/router';
   import {SpeechCardStore} from '../../utils/stores/speechCard.store';
   import 'chartjs-adapter-date-fns';
   import { addDays } from 'date-fns';
@@ -109,7 +109,8 @@
       private userDataStore: UserDataStore,
       private lessonStore: LessonStore,
       private patientStore: PatientStore,
-      private speechCardStore: SpeechCardStore
+      private speechCardStore: SpeechCardStore,
+      private router: Router
     ) {
       const chart = Chart as any;
       if (chart.defaults?.adapters?.date) {
@@ -320,7 +321,7 @@
     loadPatientsCards() {
       if (!this.data) return;
 
-      this.speechCardStore.findLastByPatient(this.data.id.toString()).subscribe({
+      this.speechCardStore.findFirstAllByPatient(this.data.id.toString()).subscribe({
         next: (cards: any[]) => {
           this.patientsCards = cards;
 
@@ -366,6 +367,15 @@
     }
     getStatusLabel(status: LessonStatus): string {
       return LessonStatusLabels[status];
+    }
+
+    goToSpeechCard(speechCardId: number) {
+      if (!speechCardId) {
+        alert('Невозможно перейти, идентификатор речевой карты отсутствует');
+        return;
+      }
+
+      this.router.navigate(['/dashboard/speechcard'], { queryParams: { speechCardId } });
     }
 
     changeLogoped() {

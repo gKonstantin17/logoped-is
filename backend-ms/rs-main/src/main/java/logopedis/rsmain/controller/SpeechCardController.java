@@ -25,12 +25,16 @@ public class SpeechCardController {
         var result = service.findall();
         return result.get().data();
     }
+    @PostMapping("/find-by-id")
+    public SpeechCardFullDto findFullById(@RequestBody Long id) throws ExecutionException, InterruptedException, ChangeSetPersister.NotFoundException {
+        return service.findFullById(id).get().data();
+    }
     @PostMapping("/find-by-patient")
     public SpeechCardFullDto findByPatientId(@RequestBody Long id) throws ExecutionException, InterruptedException, ChangeSetPersister.NotFoundException {
         return service.findByPatientId(id).get().data();
     }
-    @PostMapping("/find-first-by-patient")
-    public List<SpechCardMinDto> findFirstByPatientId(@RequestBody UUID logopedId) throws ExecutionException, InterruptedException, ChangeSetPersister.NotFoundException {
+    @PostMapping("/find-firsts-by-logoped")
+    public List<SpechCardMinDto> findFirstsByLogoped(@RequestBody UUID logopedId) throws ExecutionException, InterruptedException, ChangeSetPersister.NotFoundException {
         return service.findAllPatientsFirstCards(logopedId).get().data();
     }
     @PostMapping("/find-patient-history")

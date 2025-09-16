@@ -103,7 +103,7 @@ export class ChildrenComponent implements OnInit {
     this.patientStore.existsSpeechCard(patientId)
       .subscribe((exists: boolean) => {
         if (exists) {
-          this.router.navigate(['/dashboard/speechcard'], { queryParams: { id: patientId } });
+          this.router.navigate(['/dashboard/speechcard'], { queryParams: { patientId: patientId } });
         } else {
           alert('Речевая карта для этого пациента не найдена.');
         }

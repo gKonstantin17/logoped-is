@@ -24,13 +24,22 @@ export class SpeechCardComponent implements OnInit {
 
   ngOnInit() {
     this.speechCardData$ = this.speechCardStore.currentSpeechCard$;
+
     this.route.queryParams.subscribe(params => {
-      const patientId = +params['id'];
-      if (patientId) {
+      const speechCardId = params.hasOwnProperty('speechCardId') ? Number(params['speechCardId']) : null;
+      const patientId = params.hasOwnProperty('patientId') ? Number(params['patientId']) : null;
+
+      if (speechCardId) {
+        this.speechCardStore.findById(speechCardId).subscribe();
+      } else if (patientId) {
         this.speechCardStore.loadSpeechCard(patientId).subscribe();
+      } else {
+        alert('Не указан идентификатор для загрузки речевой карты');
       }
     });
   }
+
+
   getAge(birthDateStr: string): string {
     const birthDate = new Date(birthDateStr);
     const now = new Date();
