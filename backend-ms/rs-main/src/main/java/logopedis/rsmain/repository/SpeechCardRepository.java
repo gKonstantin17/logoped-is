@@ -39,6 +39,23 @@ public interface SpeechCardRepository extends JpaRepository<SpeechCard,Long> {
     Optional<SpeechCard> findLatestSpeechCardByPatientId(@Param("patientId") Long patientId);
 
 
-
+    @Query("""
+    SELECT sc
+    FROM Diagnostic d
+    JOIN d.speechCard sc
+    LEFT JOIN FETCH sc.soundCorrections
+    LEFT JOIN FETCH sc.speechErrors
+    JOIN d.lesson l
+    JOIN l.patients p
+    WHERE p.id = :patientId
+      AND d.date = (
+          SELECT MIN(d2.date)
+          FROM Diagnostic d2
+          JOIN d2.lesson l2
+          JOIN l2.patients p2
+          WHERE p2.id = :patientId
+      )
+""")
+    Optional<SpeechCard> findEarliestSpeechCardByPatientId(@Param("patientId") Long patientId);
 
 }

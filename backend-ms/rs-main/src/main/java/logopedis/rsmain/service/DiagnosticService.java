@@ -35,6 +35,9 @@ public class DiagnosticService {
     public Diagnostic findLatestDiagnosticByPatientId(Long patientId) {
         return repository.findLatestDiagnosticByPatientId(patientId).get();
     }
+    public Diagnostic findEarliestDiagnosticByPatientId(Long patientId) {
+        return repository.findEarliestDiagnosticByPatientId(patientId).get();
+    }
     public List<Diagnostic> findAllByPatientId(Long patientId) {
         return repository.findAllByPatientIdWithSpeechCard(patientId);
     }

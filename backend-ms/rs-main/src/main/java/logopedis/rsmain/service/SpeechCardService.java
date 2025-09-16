@@ -54,14 +54,26 @@ public class SpeechCardService {
         SpeechCard card = repository.findLatestSpeechCardByPatientId(patientId)
                 .orElseThrow(() -> new ChangeSetPersister.NotFoundException());
 
-//        Diagnostic diagnostic = diagnosticRepository.findBySpeechCard(card)
-//                .orElseThrow(() -> new ChangeSetPersister.NotFoundException());
         Diagnostic diagnostic = diagnosticService.findLatestDiagnosticByPatientId(patientId);
         Lesson lesson = diagnostic.getLesson();
         Logoped logoped = lesson.getLogoped();
         Patient patient = patientService.findById(patientId);
 
         SpeechCardFullDto dto = toFullDto(card,diagnostic,logoped,patient);
+        return AsyncResult.success(dto);
+    }
+
+    @Async
+    public CompletableFuture<ServiceResult<SpeechCardFullDto>> findFirstByPatientId(Long patientId) throws ChangeSetPersister.NotFoundException {
+        SpeechCard card = repository.findEarliestSpeechCardByPatientId(patientId)
+                .orElseThrow(() -> new ChangeSetPersister.NotFoundException());
+
+        Diagnostic diagnostic = diagnosticService.findEarliestDiagnosticByPatientId(patientId);
+        Lesson lesson = diagnostic.getLesson();
+        Logoped logoped = lesson.getLogoped();
+        Patient patient = patientService.findById(patientId);
+
+        SpeechCardFullDto dto = toFullDto(card, diagnostic, logoped, patient);
         return AsyncResult.success(dto);
     }
 

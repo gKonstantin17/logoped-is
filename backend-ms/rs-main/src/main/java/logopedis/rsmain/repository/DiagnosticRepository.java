@@ -64,5 +64,23 @@ public interface DiagnosticRepository extends JpaRepository<Diagnostic,Long> {
             @Param("currentDate") Timestamp currentDate
     );
 
+    @Query("""
+    SELECT d
+    FROM Diagnostic d
+    JOIN FETCH d.speechCard sc
+    LEFT JOIN FETCH sc.speechErrors
+    LEFT JOIN FETCH sc.soundCorrections
+    JOIN d.lesson l
+    JOIN l.patients p
+    WHERE p.id = :patientId
+      AND d.date = (
+          SELECT MIN(d2.date)
+          FROM Diagnostic d2
+          JOIN d2.lesson l2
+          JOIN l2.patients p2
+          WHERE p2.id = :patientId
+      )
+""")
+    Optional<Diagnostic> findEarliestDiagnosticByPatientId(@Param("patientId") Long patientId);
 
 }
