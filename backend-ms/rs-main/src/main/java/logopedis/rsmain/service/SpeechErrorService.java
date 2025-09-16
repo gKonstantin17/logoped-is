@@ -6,7 +6,7 @@ import logopedis.libentities.rsmain.dto.speechError.SpeechErrorDto;
 import logopedis.libentities.rsmain.dto.speechError.SpeechErrorReadDto;
 import logopedis.libentities.rsmain.entity.SpeechError;
 import logopedis.rsmain.repository.SpeechErrorRepository;
-import logopedis.rsmain.utils.hibernate.ResponseHelper;
+import logopedis.libutils.hibernate.ResponseHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 

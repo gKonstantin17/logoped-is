@@ -1,5 +1,6 @@
 package logopedis.libentities.rsmain.dto.lesson;
 
+import logopedis.libentities.enums.LessonStatus;
 import logopedis.libentities.rsmain.dto.homework.HomeworkDto;
 import logopedis.libentities.rsmain.dto.logoped.LogopedDto;
 import logopedis.libentities.rsmain.dto.patient.PatientWithoutFKDto;
@@ -13,7 +14,7 @@ public record LessonWithFKDto(
         String topic,
         String description,
         Timestamp dateOfLesson,
-        String status,
+        LessonStatus status,
         LogopedDto logoped,
         HomeworkDto homework,
         List<PatientWithoutFKDto> patients

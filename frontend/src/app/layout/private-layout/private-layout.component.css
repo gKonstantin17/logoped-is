@@ -62,6 +62,103 @@
   margin-left: 20px; /* небольшой отступ от логотипа */
 }
 
+.icon-container {
+  position: relative;
+  display: inline-block; /* чтобы размеры совпадали с картинки */
+}
+
+.circle {
+  position: absolute;
+  right: -5px; /* смещаем вправо */
+  background-color: #d30c5f;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.icon-container {
+  position: relative;
+  cursor: pointer;
+}
+
+.notifications-popup {
+  position: absolute;
+  top: 50px;
+  right: 0;
+  width: 320px;
+  max-height: 400px;
+  overflow-y: auto;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+  z-index: 100;
+  padding: 12px;
+  border-radius: 10px;
+}
+
+.notifications-popup ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.notifications-popup li {
+  padding: 10px;
+  margin-bottom: 6px;
+  border-radius: 6px;
+  background-color: #f9f9f9;
+  transition: background-color 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.notifications-popup li.unread {
+  background-color: #ffeef0; /* подсветка для непрочитанных */
+  font-weight: 500;
+}
+
+.notifications-popup li:hover {
+  background-color: #f1f1f1;
+}
+
+.notifications-popup li .message {
+  margin-top: 4px;
+  font-size: 14px;
+  color: #333;
+}
+
+.notifications-popup li .patients a {
+  color: #EF019B;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.notifications-popup li .patients a:hover {
+  text-decoration: underline;
+}
+
+.notifications-popup .footer {
+  text-align: center;
+  margin-top: 12px;
+}
+
+.notifications-popup .footer a {
+  color: #EF019B;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.notifications-popup .footer a:hover {
+  text-decoration: underline;
+}
+
+
+
 .nav-item:hover .children-img {
   content: url('/assets/header/children.gif');
 }
@@ -73,6 +170,9 @@
 }
 .nav-item:hover .profile-img {
   content: url('/assets/header/profile.gif');
+}
+.nav-item:hover .message-img {
+  content: url('/assets/header/message.gif');
 }
 .nav-item:hover .logout-img {
   content: url('/assets/header/logout.gif');

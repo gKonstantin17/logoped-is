@@ -45,6 +45,14 @@
           {{ slot }}
         </button>
       </div>
+
+      <div class="custom-time">
+        <label>Любое время (для тестирования)</label>
+        <input
+          type="time"
+          [(ngModel)]="selectedTime" />
+      </div>
+
       <button class="modal-step1-btn"
               *ngIf="choice === 'lesson' && currentRole === 'logoped'"
               (click)="proceedToStep3()">
@@ -63,11 +71,9 @@
 
       <label>Тип занятия:</label>
       <select [(ngModel)]="lessonType" required>
-        <option value="Коррекция звукопроизношения">Коррекция звукопроизношения</option>
-        <option value="Коррекция лексико-грамматических нарушений">Коррекция лексико-грамматических нарушений</option>
-        <option value="Формирование связной речи">Формирование связной речи</option>
-        <option value="Фонетико-фонематические нарушения">Фонетико-фонематические нарушения</option>
-        <option value="Логопедический массаж">Логопедический массаж</option>
+        <option *ngFor="let key of lessonTypeKeys" [ngValue]="key">
+          {{ lessonTypeLabels[key] }}
+        </option>
       </select>
 
       <label>Тема:</label>

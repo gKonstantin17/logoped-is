@@ -27,6 +27,34 @@
             <img class="profile-img" src="assets/header/profile_static.png" alt="Profile">
             <span>Профиль</span>
           </a>
+          <div class="nav-item">
+            <div class="icon-container" (click)="toggleNotifications()">
+              <div class="circle" *ngIf="unreadCount > 0">{{ unreadCount }}</div>
+              <img class="message-img" src="assets/header/message.png" alt="Message">
+            </div>
+            <span>Уведомления</span>
+            <!-- Всплывающее окно уведомлений -->
+            <div class="notifications-popup" *ngIf="showNotifications">
+              <ul>
+                <li *ngFor="let n of notificationsWithNames | slice:0:5" [ngClass]="{'unread': !n.received}">
+                  <div class="patients">{{ n.patientNames.join(', ') }}</div>
+                  <div class="message">
+                    {{ n.sendDate | date:'HH:mm' }} | {{ n.message }}
+                  </div>
+                </li>
+              </ul>
+              <div class="footer">
+                <a routerLink="notifications" (click)="closeNotifications()">Посмотреть все</a>
+              </div>
+            </div>
+
+
+          </div>
+
+
+
+
+
           <div (click)="logout()" class="nav-item">
             <img class="logout-img" src="assets/header/logout_static.png" alt="Logout">
             <span>Выйти</span>

@@ -1,6 +1,7 @@
 package logopedis.libentities.rsmain.entity;
 
 import jakarta.persistence.*;
+import logopedis.libentities.enums.LessonStatus;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -32,7 +33,8 @@ public class Lesson {
     @Column(name = "DateOfLesson")
     private Timestamp dateOfLesson;
     @Column(name = "Status")
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private LessonStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "LogopedId")

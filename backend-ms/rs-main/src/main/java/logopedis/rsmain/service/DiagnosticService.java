@@ -5,8 +5,10 @@ import logopedis.libentities.rsmain.dto.diagnostic.DiagnosticReadDto;
 import logopedis.libentities.rsmain.dto.responseWrapper.AsyncResult;
 import logopedis.libentities.rsmain.dto.responseWrapper.ServiceResult;
 import logopedis.libentities.rsmain.entity.Diagnostic;
+import logopedis.libentities.rsmain.entity.SpeechCard;
 import logopedis.rsmain.repository.DiagnosticRepository;
-import logopedis.rsmain.utils.hibernate.ResponseHelper;
+import logopedis.libutils.hibernate.ResponseHelper;
+import logopedis.rsmain.repository.SpeechCardRepository;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -17,12 +19,12 @@ import java.util.concurrent.CompletableFuture;
 public class DiagnosticService {
     private final DiagnosticRepository repository;
     private final LessonService lessonService;
-    private final SpeechCardService speechCardService;
+    private final SpeechCardRepository speechCardRepository;
 
-    public DiagnosticService(DiagnosticRepository repository, LessonService lessonService, SpeechCardService speechCardService) {
+    public DiagnosticService(DiagnosticRepository repository, LessonService lessonService, SpeechCardRepository speechCardRepository) {
         this.repository = repository;
         this.lessonService = lessonService;
-        this.speechCardService = speechCardService;
+        this.speechCardRepository = speechCardRepository;
     }
 
     @Async
@@ -30,6 +32,18 @@ public class DiagnosticService {
         var data = repository.findAll();
         var result = data.stream().map(this::toReadDto).toList();
         return AsyncResult.success(result);
+    }
+    public Diagnostic findBySpeechCard(SpeechCard sc) {
+        return repository.findBySpeechCard(sc).get();
+    }
+    public Diagnostic findLatestDiagnosticByPatientId(Long patientId) {
+        return repository.findLatestDiagnosticByPatientId(patientId).get();
+    }
+    public Diagnostic findEarliestDiagnosticByPatientId(Long patientId) {
+        return repository.findEarliestDiagnosticByPatientId(patientId).get();
+    }
+    public List<Diagnostic> findAllByPatientId(Long patientId) {
+        return repository.findAllByPatientIdWithSpeechCard(patientId);
     }
 
     @Async
@@ -43,7 +57,8 @@ public class DiagnosticService {
                 diagnostic.setLesson(lesson);
             }
             if (dto.speechCardId() != null) {
-                var speechCard = speechCardService.findById(dto.speechCardId());
+                var speechCard = speechCardRepository.findById(dto.speechCardId())
+                        .orElseThrow(() -> new RuntimeException("Речевая карта не найдена"));
                 diagnostic.setSpeechCard(speechCard);
             }
 
@@ -67,9 +82,11 @@ public class DiagnosticService {
                 updated.setLesson(lesson);
             }
             if (dto.speechCardId() != null) {
-                var speechCard = speechCardService.findById(dto.speechCardId());
+                var speechCard = speechCardRepository.findById(dto.speechCardId())
+                        .orElseThrow(() -> new RuntimeException("Речевая карта не найдена"));
                 updated.setSpeechCard(speechCard);
             }
+
             repository.save(updated);
             var result = toReadDto(repository.findById(updated.getId()).get());
             return AsyncResult.success(result);
@@ -95,5 +112,9 @@ public class DiagnosticService {
                 entity.getLesson().getId(),
                 entity.getSpeechCard().getId()
         );
+    }
+
+    public Diagnostic save(Diagnostic diagnostic) {
+        return repository.save(diagnostic);
     }
 }

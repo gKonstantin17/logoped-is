@@ -3,6 +3,7 @@ import { appConfig } from './app/app.config';
 import { AppComponent } from './app/app.component';
 import {registerLocaleData} from '@angular/common';
 import localeRu from '@angular/common/locales/ru';
+import 'chartjs-adapter-date-fns';
 
 // ng serve --host 0.0.0.0
 //npm install angular-calendar date-fns

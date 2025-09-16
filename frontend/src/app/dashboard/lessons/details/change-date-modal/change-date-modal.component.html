@@ -6,11 +6,12 @@
     </div>
 
     <label>Выберите дату:</label>
-    <input type="date" [(ngModel)]="selectedDate" [min]="minDate" />
+    <input type="date" [(ngModel)]="selectedDate" [min]="minDate" (ngModelChange)="onDateChange()" />
 
     <label>Выберите время:</label>
     <div class="time-slots">
       <button *ngFor="let slot of timeSlots"
+              [disabled]="!availableTimeSlots.includes(slot)"
               [class.selected]="selectedTime === slot"
               (click)="selectedTime = slot">
         {{ slot }}

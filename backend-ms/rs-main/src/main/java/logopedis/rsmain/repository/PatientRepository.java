@@ -41,8 +41,14 @@ public interface PatientRepository  extends JpaRepository<Patient,Long> {
     LEFT JOIN FETCH sc.speechErrors se
     LEFT JOIN FETCH sc.soundCorrections corr
     WHERE p.logoped.id = :userId
+    AND d.date = (
+        SELECT MAX(d2.date) 
+        FROM Diagnostic d2 
+        WHERE d2.lesson MEMBER OF p.lessons
+    )
 """)
     List<Patient> findAllWithSpeechData(@Param("userId") UUID userId);
+
 
 
 

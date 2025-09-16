@@ -121,9 +121,9 @@ CREATE TABLE IF NOT EXISTS logoped."Lesson"
     "Topic" text COLLATE pg_catalog."default",
     "Description" text COLLATE pg_catalog."default",
     "DateOfLesson" timestamp without time zone,
-    "Status" text COLLATE pg_catalog."default",
     "HomeworkId" bigint,
     "LogopedId" uuid,
+    "Status" text COLLATE pg_catalog."default",
     CONSTRAINT "Lesson_pkey" PRIMARY KEY ("Id"),
     CONSTRAINT homework_uniq UNIQUE ("HomeworkId"),
     CONSTRAINT "FK_lesson_homework" FOREIGN KEY ("HomeworkId")
@@ -136,8 +136,7 @@ CREATE TABLE IF NOT EXISTS logoped."Lesson"
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
         NOT VALID
-)
---
+)--
 --		9 Diagnostic
 --
 CREATE TABLE IF NOT EXISTS logoped."Diagnostic"
@@ -146,6 +145,7 @@ CREATE TABLE IF NOT EXISTS logoped."Diagnostic"
     "Date" timestamp without time zone,
     "LessonId" bigint,
     "SpeechCardId" bigint,
+    "Type" text COLLATE pg_catalog."default",
     CONSTRAINT "Diagnostic_pkey" PRIMARY KEY ("Id"),
     CONSTRAINT "speechCard_uniq" UNIQUE ("SpeechCardId"),
     CONSTRAINT "FK_diag_lesson" FOREIGN KEY ("LessonId")
@@ -216,7 +216,58 @@ CREATE TABLE IF NOT EXISTS logoped."Lesson_Patient"
         ON DELETE NO ACTION
         NOT VALID
 )
--- у userdata, patient, logoped
---		.
+-- 
+--		
 --
+-- SCHEMA: notification
 
+-- DROP SCHEMA IF EXISTS notification ;
+
+CREATE SCHEMA IF NOT EXISTS notification
+    AUTHORIZATION postgres;
+--
+--	LessonNote
+--
+CREATE TABLE IF NOT EXISTS notification."LessonNote"
+(
+    "Id" bigint NOT NULL,
+    "Status" text COLLATE pg_catalog."default",
+    "StartTime" timestamp without time zone,
+    "LogopedId" uuid,
+    CONSTRAINT "Lesson_pkey" PRIMARY KEY ("Id")
+)
+--
+--	Recipient
+--
+CREATE TABLE IF NOT EXISTS notification."Recipient"
+(
+    "Id" bigint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1 ),
+    "PatientId" bigint,
+    "UserId" uuid,
+    "LessonNoteId" bigint,
+    CONSTRAINT "Recipient_pkey" PRIMARY KEY ("Id"),
+    CONSTRAINT "FK_Recipient_LessonNote" FOREIGN KEY ("LessonNoteId")
+        REFERENCES notification."LessonNote" ("Id") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        NOT VALID
+)
+--
+--	Notification
+--
+CREATE TABLE IF NOT EXISTS notification."Notification"
+(
+    "Id" bigint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1 ),
+    "LessonNoteId" bigint NOT NULL,
+    "SendDate" timestamp without time zone,
+    "Message" text COLLATE pg_catalog."default",
+    "Received" boolean,
+    "RecipientId" uuid NOT NULL,
+    "PatientsId" bigint[],
+    CONSTRAINT "Notification_pkey" PRIMARY KEY ("Id"),
+    CONSTRAINT "FK_notification_lessonNote" FOREIGN KEY ("LessonNoteId")
+        REFERENCES notification."LessonNote" ("Id") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        NOT VALID
+)

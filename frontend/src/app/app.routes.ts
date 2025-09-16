@@ -38,6 +38,7 @@ export const routes: Routes = [
       {path: 'diagnostic', loadComponent: () => import('./dashboard/lessons/diagnostic/diagnostic.component').then(m => m.DiagnosticComponent)},
       // сформированная речевая карта
       { path:'speechcard', loadComponent:() => import('./docs/speech-card/speech-card.component').then(m => m.SpeechCardComponent)},
+      { path:'notifications', loadComponent:() => import('./dashboard/notifications/notifications.component').then(m => m.NotificationsComponent)},
     ]
   }
 ]

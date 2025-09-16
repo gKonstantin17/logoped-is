@@ -27,19 +27,41 @@
   font-weight: bold;
 }
 
-.end-session-btn {
+.session-actions {
   position: absolute;
   bottom: 30px;
   right: 30px;
-  background-color: #e74c3c;
-  color: white;
+  display: flex;
+  flex-direction: column;
+  gap: 12px; /* расстояние между кнопками */
+}
+
+.session-btn {
   padding: 12px 20px;
   border: none;
   border-radius: 8px;
   font-size: 16px;
   cursor: pointer;
+  color: white;
 }
 
-.end-session-btn:hover {
+.session-btn.end {
+  background-color: #e74c3c;
+}
+.session-btn.end:hover {
   background-color: #c0392b;
+}
+
+.session-btn.start {
+  background-color: #27ae60;
+}
+.session-btn.start:hover {
+  background-color: #1e8449;
+}
+
+.session-btn.no-show {
+  background-color: #f39c12;
+}
+.session-btn.no-show:hover {
+  background-color: #d68910;
 }

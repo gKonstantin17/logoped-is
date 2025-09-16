@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import {BehaviorSubject, Observable, of, tap} from 'rxjs';
+import {BehaviorSubject, Observable} from 'rxjs';
 import {PatientChangeData, PatientService} from '../services/patient.service';
-import {catchError} from 'rxjs/operators';
 
 
 @Injectable({
@@ -48,6 +47,10 @@ export class PatientStore {
       this.refresh(this.lastUserId, this.lastRole);
     }
   }
+  findByLogoped(logopedId:string): Observable<any[]> {
+    return  this.patientService.findByLogoped(logopedId);
+  }
+
   create(data: any) {
     this.patientService.create(data).subscribe({
       next: created => {

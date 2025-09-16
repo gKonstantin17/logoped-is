@@ -41,7 +41,7 @@
 }
 
 .tab-section {
-  max-width: 500px;
+  max-width: 100%;
 }
 
 label {
@@ -70,4 +70,155 @@ button {
 }
 .support-text {
   margin-top: 1.5rem;
+}
+
+
+.sub-tab-list {
+  display: flex;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.sub-tab-button {
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  background: #888686;
+  cursor: pointer;
+}
+
+.sub-tab-button.active {
+  background: #007bff;
+  color: white;
+}
+
+.lessons-container {
+  display: flex;
+  gap: 20px;
+  margin-top: 15px;
+}
+
+.lessons-table {
+  width: 100%;
+  max-width: 600px;
+  margin: 20px auto 0 auto;
+}
+
+.lessons-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.lessons-table th,
+.lessons-table td {
+  border: 1px solid #ddd;
+  padding: 6px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.lessons-table th:nth-child(1),
+.lessons-table td:nth-child(1) {
+  width: 80px; /* Дата */
+}
+
+.lessons-table th:nth-child(2),
+.lessons-table td:nth-child(2) {
+  width: 200px; /* Тема */
+}
+
+.lessons-table th:nth-child(3),
+.lessons-table td:nth-child(3) {
+  width: 150px; /* Статус */
+}
+.lessons-chart {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+a {
+  color: #ef019b;
+  text-decoration: none;
+  font-weight: 500;
+}
+.form-control {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  box-sizing: border-box;
+  background-color: white;
+  transition: all 0.2s ease;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #ef019b;
+  box-shadow: 0 0 8px rgba(239, 1, 155, 0.3);
+}
+/* Контейнер для диаграммы и таблицы пациентов */
+.patients-chart {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.patients-table {
+  width: 100%;
+  max-width: 800px;
+  margin: 20px auto 0 auto;
+}
+
+.patients-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.patients-table th,
+.patients-table td {
+  border: 1px solid #ddd;
+  padding: 6px;
+  text-align: center;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.patients-table th:nth-child(1),
+.patients-table td:nth-child(1) {
+  width: 150px; /* Пациент */
+}
+
+.patients-table th:nth-child(2),
+.patients-table td:nth-child(2) {
+  width: 130px; /* Дата первичной диагностики */
+}
+
+.patients-table th:nth-child(3),
+.patients-table td:nth-child(3) {
+  width: 200px; /* Речевые нарушения */
+}
+
+.patients-table th:nth-child(4),
+.patients-table td:nth-child(4) {
+  width: 200px; /* Направления коррекции */
+}
+
+.patients-table th:nth-child(5),
+.patients-table td:nth-child(5) {
+  width: 150px; /* Ссылка на карту */
+}
+
+.patients-table a {
+  color: #ef019b;
+  text-decoration: none;
+  font-weight: 500;
+}
+.link-button {
+  background: none;
+  border: none;
+  color: #ef019b;
+  text-decoration: underline;
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
 }

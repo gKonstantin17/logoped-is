@@ -5,7 +5,7 @@ import logopedis.libentities.rsmain.dto.speechError.SpeechErrorDto;
 import logopedis.libentities.rsmain.dto.speechError.SpeechErrorReadDto;
 import logopedis.libentities.rsmain.entity.SpeechError;
 import logopedis.rsmain.repository.SpeechErrorRepository;
-import logopedis.rsmain.utils.hibernate.ResponseHelper;
+import logopedis.libutils.hibernate.ResponseHelper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

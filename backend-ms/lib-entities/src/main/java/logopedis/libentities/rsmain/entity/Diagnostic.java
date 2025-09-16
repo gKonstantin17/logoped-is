@@ -21,6 +21,9 @@ public class Diagnostic {
     @Column(name = "Date")
     private Timestamp date;
 
+    @Column(name = "Type")
+    private String type;
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "LessonId")
     private Lesson lesson;

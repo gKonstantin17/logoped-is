@@ -1,0 +1,32 @@
+<div class="notifications-page">
+  <h2>Все уведомления</h2>
+  <table>
+    <thead>
+    <tr>
+      <th>Дата</th>
+      <th>Пациент</th>
+      <th>Сообщение</th>
+      <th>Занятие</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let n of notificationsWithDetails"
+        (mouseenter)="markAsRead(n, $event)">
+      <td>{{ n.sendDate | date:'short' }}</td>
+      <td>
+      <span *ngFor="let p of n.patients; let last = last">
+        <a [routerLink]="['/dashboard/speechcard']" [queryParams]="{ id: p.id }">{{ p.name }}</a>{{ !last ? ', ' : '' }}
+      </span>
+      </td>
+      <td>
+        <span *ngIf="!n.received" class="unread-dot"></span>
+        {{ n.message }}
+      </td>
+      <td>
+        <a [routerLink]="['/dashboard/details', n.lessonId]">{{ n.lessonTopic }}</a>
+      </td>
+    </tr>
+
+    </tbody>
+  </table>
+</div>

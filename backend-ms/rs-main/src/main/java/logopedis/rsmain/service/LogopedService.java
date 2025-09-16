@@ -6,8 +6,8 @@ import logopedis.libentities.rsmain.dto.responseWrapper.ServiceResult;
 import logopedis.libentities.rsmain.dto.user.BaseUserDto;
 import logopedis.libentities.rsmain.entity.Logoped;
 import logopedis.rsmain.repository.LogopedRepository;
-import logopedis.rsmain.utils.hibernate.ResponseHelper;
-import logopedis.rsmain.utils.keycloak.KeycloakAdminService;
+import logopedis.libutils.hibernate.ResponseHelper;
+import logopedis.libutils.keycloak.KeycloakAdminService;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 

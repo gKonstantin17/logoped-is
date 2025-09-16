@@ -10,7 +10,7 @@ import logopedis.libentities.rsmain.dto.soundCorrection.SoundCorrectionDto;
 import logopedis.libentities.rsmain.dto.speechError.SpeechErrorDto;
 import logopedis.libentities.rsmain.entity.*;
 import logopedis.rsmain.repository.PatientRepository;
-import logopedis.rsmain.utils.hibernate.ResponseHelper;
+import logopedis.libutils.hibernate.ResponseHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +32,9 @@ public class PatientService {
         var data = repository.findAll();
         List<PatientReadDto> result = data.stream().map(this::toReadDto).toList();
         return AsyncResult.success(result);
+    }
+    public Patient findById(Long id){
+        return repository.findById(id).get();
     }
     @Async
     public CompletableFuture<ServiceResult<List<PatientWithSpeechCard>>> findAllWithSC(UUID userId) {

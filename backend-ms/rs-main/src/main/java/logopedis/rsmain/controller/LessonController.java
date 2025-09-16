@@ -1,5 +1,6 @@
 package logopedis.rsmain.controller;
 
+import logopedis.libentities.kafka.LessonStatusDto;
 import logopedis.libentities.rsmain.dto.lesson.*;
 import logopedis.rsmain.service.LessonService;
 import org.springframework.http.HttpStatus;
@@ -82,9 +83,17 @@ public class LessonController {
                 ? ResponseEntity.ok(result.data())
                 : ResponseEntity.badRequest().body(result.message());
     }
-    @PutMapping("changeDate/{id}")
+    @PutMapping("change-date/{id}")
     public ResponseEntity<?> changeDate(@PathVariable Long id, @RequestBody Timestamp newDate) throws ExecutionException, InterruptedException {
         var future = service.changeDate(id,newDate);
+        var result = future.get();
+        return result.isSuccess()
+                ? ResponseEntity.ok(result.data())
+                : ResponseEntity.badRequest().body(result.message());
+    }
+    @PutMapping("change-lesson")
+    public ResponseEntity<?> changeLesson(@RequestBody LessonChangeDto dto) throws ExecutionException, InterruptedException {
+        var future = service.changeLesson(dto);
         var result = future.get();
         return result.isSuccess()
                 ? ResponseEntity.ok(result.data())
@@ -98,6 +107,15 @@ public class LessonController {
                 ? ResponseEntity.ok(result.data())
                 : ResponseEntity.badRequest().body(result.message());
     }
+    @PutMapping("update-status")
+    public ResponseEntity<?> updateStatus(@RequestBody LessonStatusDto dto) throws ExecutionException, InterruptedException {
+        var future = service.updateStatusFromFE(dto);
+        var result = future.get();
+        return result.isSuccess()
+                ? ResponseEntity.ok(result.data())
+                : ResponseEntity.badRequest().body(result.message());
+    }
+
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) throws ExecutionException, InterruptedException {
         var future = service.delete(id);

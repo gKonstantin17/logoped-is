@@ -5,7 +5,7 @@ import logopedis.libentities.rsmain.dto.responseWrapper.AsyncResult;
 import logopedis.libentities.rsmain.dto.responseWrapper.ServiceResult;
 import logopedis.libentities.rsmain.entity.Homework;
 import logopedis.rsmain.repository.HomeworkRepository;
-import logopedis.rsmain.utils.hibernate.ResponseHelper;
+import logopedis.libutils.hibernate.ResponseHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -68,5 +68,9 @@ public class HomeworkService {
             return AsyncResult.error(ex.getMessage());
         }
 
+    }
+
+    public Homework save(Homework newHw) {
+        return repository.save(newHw);
     }
 }

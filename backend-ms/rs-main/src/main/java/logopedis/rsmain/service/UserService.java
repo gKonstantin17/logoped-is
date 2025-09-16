@@ -7,8 +7,8 @@ import logopedis.libentities.rsmain.dto.user.UserWithIdDto;
 import logopedis.libentities.rsmain.entity.Logoped;
 import logopedis.libentities.rsmain.entity.UserData;
 import logopedis.rsmain.repository.UserRepository;
-import logopedis.rsmain.utils.hibernate.ResponseHelper;
-import logopedis.rsmain.utils.keycloak.KeycloakAdminService;
+import logopedis.libutils.hibernate.ResponseHelper;
+import logopedis.libutils.keycloak.KeycloakAdminService;
 import logopedis.rsmain.service.LogopedService;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -48,7 +48,9 @@ public class UserService {
             return AsyncResult.error(ex.getMessage());
         }
     }
-
+    public UserData findByPatient(Long id) {
+        return repository.findByPatient(id);
+    }
     @Async
     public CompletableFuture<ServiceResult<Boolean>> createIfNotExists(UserWithIdDto dto) {
         try {

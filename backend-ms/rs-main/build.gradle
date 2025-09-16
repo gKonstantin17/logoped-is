@@ -56,7 +56,11 @@ dependencies {
 	// keycloak
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
 
+	// kafka
+	implementation 'org.springframework.kafka:spring-kafka'
+
 	implementation project (':lib-entities')
+	implementation project (':lib-utils')
 }
 dependencyManagement {
 	imports {

@@ -3,6 +3,7 @@ import {environment} from '../../../environments/environment';
 import {HttpMethod, Operation} from '../oauth2/model/RequestBFF';
 import {Observable} from 'rxjs';
 import {BackendService} from '../oauth2/backend/backend.service';
+import {LessonStatus} from '../enums/lesson-status.enum';
 export interface LessonData {
   type: string,
   topic: string,
@@ -12,13 +13,27 @@ export interface LessonData {
   homework: string | null,
   patientsId: number[]
 }
+export interface HomeworkDto {
+  task: string;
+}
+
+// Интерфейс для урока (LessonChangeDto) под API
+export interface LessonChangeDto {
+  id: number;
+  type: string; // на русском
+  topic: string;
+  description: string;
+  patients: number[]; // теперь просто массив чисел
+  homework: HomeworkDto | null;
+}
+
 export interface LessonFullData {
   id: number;
   type: string;
   topic: string;
   description: string;
   dateOfLesson: string;
-  status:string;
+  status:LessonStatus;
   logoped: {
     firstName: string;
     lastName: string;
@@ -37,6 +52,11 @@ export interface CheckAvailableTime {
   patientId: number;
   date: string;
 }
+export interface LessonStatusDto {
+  id:number;
+  status:string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -65,14 +85,15 @@ export class LessonService {
     return this.backend.createOperation(HttpMethod.PUT, `${this.baseUrl}/cancel/${lessonId}`,);
   }
   changeDateLesson(lessonId:number, newDate:Date): Observable<any> {
-    return this.backend.createOperation(HttpMethod.PUT, `${this.baseUrl}/changeDate/${lessonId}`,newDate);
+    return this.backend.createOperation(HttpMethod.PUT, `${this.baseUrl}/change-date/${lessonId}`,newDate);
   }
-  // checkTimeLesson(patientId: number, date: Date): Observable<any> {
-  //   const body = { date: date.toISOString() };
-  //   return this.backend.createOperation(HttpMethod.POST,`${this.baseUrl}/check-time/${patientId}`,body);
-  // }
+  changeLesson(data:LessonChangeDto): Observable<any> {
+    return this.backend.createOperation(HttpMethod.PUT, `${this.baseUrl}/change-lesson`,data);
+  }
   checkTimeLesson(data: CheckAvailableTime): Observable<any> {
     return this.backend.createOperation(HttpMethod.POST,`${this.baseUrl}/check-time`,data);
   }
-
+  updateStatus(data:LessonStatusDto): Observable<any> {
+    return this.backend.createOperation(HttpMethod.PUT,`${this.baseUrl}/update-status`,data);
+  }
 }

@@ -7,6 +7,7 @@ import {LessonData, LessonService} from '../../utils/services/lesson.service';
 import {UserDataStore} from '../../utils/stores/user-data.store';
 import {PatientStore} from '../../utils/stores/patient.store';
 import {LessonStore} from '../../utils/stores/lesson.store';
+import {LessonStatus} from '../../utils/enums/lesson-status.enum';
 
 @Component({
   selector: 'app-lessons',
@@ -56,22 +57,33 @@ export class LessonsComponent implements OnInit {
     this.lessonStore.refresh(this.userId!, this.currentRole!);
   }
 
+  private cancelledStatuses: LessonStatus[] = [
+    LessonStatus.CANCELED_BY_CLIENT,
+    LessonStatus.CANCELED_BY_LOGOPED
+  ];
+
   get upcomingLessons() {
     const now = new Date();
     return this.selectedChildLessons.filter(
-      lesson => lesson.status !== 'Отменено' && new Date(lesson.dateOfLesson) >= now
+      lesson => !this.cancelledStatuses.includes(lesson.status) &&
+        new Date(lesson.dateOfLesson) >= now
     );
   }
 
   get pastLessons() {
     const now = new Date();
     return this.selectedChildLessons.filter(
-      lesson => lesson.status !== 'Отменено' && new Date(lesson.dateOfLesson) < now
+      lesson => !this.cancelledStatuses.includes(lesson.status) &&
+        new Date(lesson.dateOfLesson) < now
     );
   }
+
   get cancelledLessons() {
-    return this.selectedChildLessons.filter(lesson => lesson.status === 'Отменено');
+    return this.selectedChildLessons.filter(
+      lesson => this.cancelledStatuses.includes(lesson.status)
+    );
   }
+
 
   get selectedChildLessons() {
     if (this.selectedChildId === 0) {

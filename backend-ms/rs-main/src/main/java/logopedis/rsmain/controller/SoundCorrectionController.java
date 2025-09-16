@@ -24,6 +24,19 @@ public class SoundCorrectionController {
         var result = service.findall();
         return result.get().data();
     }
+    @PostMapping("/find-by-patient")
+    public List<SoundCorrectionReadDto> findByPatient(@RequestBody Long id) throws ExecutionException, InterruptedException {
+        var result = service.findLatestByPatientId(id);
+        return result.get().data();
+    }
+    @PostMapping("/find-changes")
+    public ResponseEntity<?> findByChanged(@RequestBody Long id) throws ExecutionException, InterruptedException {
+        var future = service.findChanges(id);
+        var result = future.get();
+        return result.isSuccess()
+                ? ResponseEntity.ok(result.data())
+                : ResponseEntity.badRequest().body(result.message());
+    }
     @PostMapping("/create")
     public ResponseEntity<?> create(@RequestBody SoundCorrectionDto dto) throws ExecutionException, InterruptedException {
         if (dto.sound() == null)
@@ -38,6 +51,8 @@ public class SoundCorrectionController {
                 ? ResponseEntity.ok(result.data())
                 : ResponseEntity.badRequest().body(result.message());
     }
+
+
     @PutMapping("/update/{id}")
     public ResponseEntity<?> update(@PathVariable Long id,@RequestBody SoundCorrectionDto dto) throws ExecutionException, InterruptedException {
         var future = service.update(id, dto);

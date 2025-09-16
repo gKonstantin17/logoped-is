@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.lang.NonNull;
 
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -36,5 +37,6 @@ public interface LessonRepository extends JpaRepository<Lesson,Long> {
             @Param("start") Timestamp start,
             @Param("end") Timestamp end
     );
-
+    @Query("SELECT l FROM Lesson l LEFT JOIN FETCH l.patients WHERE l.dateOfLesson BETWEEN :start AND :end")
+    List<Lesson> findByDateOfLessonBetween(@Param("start") Timestamp start, @Param("end") Timestamp end);
 }

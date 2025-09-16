@@ -2,13 +2,20 @@
   <aside class="sidebar">
     <nav class="tab-list">
       <button class="tab-button"
-        [class.active]="activeTab === 'account'"
-        (click)="activeTab = 'account'">
+              [class.active]="activeTab === 'account'"
+              (click)="setActiveTab('account')">
         Учётная запись
       </button>
+
       <button class="tab-button"
-        [class.active]="activeTab === 'help'"
-        (click)="activeTab = 'help'">
+              [class.active]="activeTab === 'statistics'"
+              (click)="setActiveTab('statistics')">
+        Статистика
+      </button>
+
+      <button class="tab-button"
+              [class.active]="activeTab === 'help'"
+              (click)="setActiveTab('help')">
         Помощь
       </button>
     </nav>
@@ -26,6 +33,137 @@
         <button (click)="saveChanges()">Сохранить</button>
       </div>
     </div>
+
+    <div *ngIf="activeTab === 'statistics'" class="tab-section">
+      <h3>Статистика</h3>
+
+      <!-- Список пациентов -->
+      <label>Выберите пациента:
+        <select class="form-control" (change)="onPatientSelect($any($event.target).value)">
+          <option [value]="null" selected disabled>-- Выберите пациента --</option>
+          <option *ngFor="let patient of patients" [value]="patient.id">
+            {{ patient.firstName }} {{ patient.lastName }}
+          </option>
+        </select>
+      </label>
+
+      <!-- Подвкладки -->
+      <nav class="sub-tab-list">
+        <button class="sub-tab-button"
+                [class.active]="subTab === 'lessons'"
+                (click)="setSubTab('lessons')">
+          Занятия
+        </button>
+        <button class="sub-tab-button"
+                [class.active]="subTab === 'speechCards'"
+                (click)="setSubTab('speechCards')">
+          Динамика лечения
+        </button>
+        <button *ngIf="currentRole === 'logoped'"
+                class="sub-tab-button"
+                [class.active]="subTab === 'patients'"
+                (click)="setSubTab('patients')">
+          Пациенты
+        </button>
+      </nav>
+
+      <!-- Контент "Занятия" -->
+      <div *ngIf="subTab === 'lessons'" class="lessons-stat">
+        <!-- Диаграмма сверху -->
+        <div class="lessons-chart">
+          <canvas baseChart
+                  [data]="pieChartData"
+                  [type]="pieChartType"
+                  [options]="pieChartOptions">
+          </canvas>
+        </div>
+
+        <!-- Таблица занятий снизу -->
+        <div class="lessons-table" style="margin-top: 20px;">
+          <table>
+            <thead>
+            <tr>
+              <th>Дата</th>
+              <th>Тема</th>
+              <th>Статус</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let lesson of filteredLessons">
+              <td>{{ lesson.dateOfLesson | date:'dd.MM.yyyy' }}</td>
+              <td> <a [routerLink]="['/dashboard/details', lesson.id]">
+                {{ lesson.topic }}
+              </a></td>
+              <td>{{ getStatusLabel(lesson.status) }}</td>
+            </tr>
+            <tr *ngIf="filteredLessons.length === 0">
+              <td colspan="3">Занятий для выбранного пациента пока нет</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+
+      <!-- Контент "Речевые карты" -->
+      <div *ngIf="subTab === 'speechCards'" class="speech-cards-stat">
+        <canvas baseChart
+                [data]="lineChartData"
+                [type]="'line'"
+                [options]="lineChartOptions">
+        </canvas>
+
+      </div>
+
+      <!-- Контент "Пациенты" -->
+      <div *ngIf="subTab === 'patients' && currentRole === 'logoped'" class="tab-section">
+        <h3>Пациенты</h3>
+
+        <!-- Круговая диаграмма -->
+        <div class="patients-chart">
+          <canvas baseChart
+                  [data]="patientsChartData"
+                  [type]="'pie'"
+                  [options]="pieChartOptions">
+          </canvas>
+        </div>
+
+        <!-- Таблица пациентов -->
+        <div class="patients-table" style="margin-top: 20px;">
+          <table>
+            <thead>
+            <tr>
+              <th>Пациент</th>
+              <th>Дата первичной диагностики</th>
+              <th>Речевые нарушения</th>
+              <th>Направления коррекции</th>
+              <th>Карта</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let card of patientsCards">
+              <td>{{ card.patientName }}</td>
+              <td>{{ card.diagnosticDate | date:'dd.MM.yyyy' }}</td>
+              <td>{{ card.speechErrors.join(', ') }}</td>
+              <td>{{ card.soundCorrections.join(', ') }}</td>
+              <td>
+                <button class="link-button" (click)="goToSpeechCard(card.speechCardId)">
+                  Первичная речевая карта
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="patientsCards.length === 0">
+              <td colspan="5">Пациенты пока не найдены</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+
+
 
     <!-- Помощь -->
     <div *ngIf="activeTab === 'help'" class="tab-section">

@@ -5,9 +5,8 @@ import logopedis.libentities.rsmain.dto.responseWrapper.ServiceResult;
 import logopedis.libentities.rsmain.dto.user.BaseUserDto;
 import logopedis.libentities.rsmain.entity.Logoped;
 import logopedis.rsmain.repository.LogopedRepository;
-import logopedis.rsmain.utils.hibernate.ResponseHelper;
-import logopedis.rsmain.utils.keycloak.KeycloakAdminService;
-import logopedis.rsmain.service.LogopedService;
+import logopedis.libutils.hibernate.ResponseHelper;
+import logopedis.libutils.keycloak.KeycloakAdminService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -63,7 +62,7 @@ public class LogopedServiceTest {
 
     @Test
     void create_Success() throws ExecutionException, InterruptedException {
-        BaseUserDto dto = new LogopedDto("Иван","Иванов","ivan@gmail.com","+79123456789");
+        BaseUserDto dto = new LogopedDto(UUID.randomUUID(),"Иван","Иванов","ivan@gmail.com","+79123456789");
         Logoped saved = new Logoped();
         saved.setId(UUID.randomUUID());
 
@@ -83,7 +82,7 @@ public class LogopedServiceTest {
         Logoped existing = new Logoped();
         existing.setId(id);
 
-        LogopedDto dto = new LogopedDto("NewName",null,null,null);
+        LogopedDto dto = new LogopedDto(UUID.randomUUID(),"NewName",null,null,null);
 
         try (var mocked = mockStatic(ResponseHelper.class)) {
             mocked.when(() -> ResponseHelper.findById(repository,id,"Логопед не найден"))
@@ -123,7 +122,7 @@ public class LogopedServiceTest {
 
     @Test
     void create_WhenException_ReturnError() throws ExecutionException, InterruptedException {
-        BaseUserDto dto = new LogopedDto("Иван","Иванов","ivan@gmail.com","+79123456789");
+        BaseUserDto dto = new LogopedDto(UUID.randomUUID(),"Иван","Иванов","ivan@gmail.com","+79123456789");
         when(repository.save(any(Logoped.class))).thenThrow(new RuntimeException("DB Error"));
 
         CompletableFuture<ServiceResult<Logoped>> resultFuture = service.create(dto);

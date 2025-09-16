@@ -1,5 +1,12 @@
 package logopedis.rsmain.service;
 
+import jakarta.transaction.Transactional;
+import logopedis.libentities.enums.LessonStatus;
+import logopedis.libentities.kafka.LessonNoteWithRecipientDto;
+import logopedis.libentities.kafka.LessonStatusDto;
+import logopedis.libentities.kafka.LessonsForPeriodDto;
+import logopedis.libentities.msnotification.dto.recipient.RecipientDataDto;
+import logopedis.libentities.msnotification.entity.LessonNote;
 import logopedis.libentities.rsmain.dto.homework.HomeworkDto;
 import logopedis.libentities.rsmain.dto.lesson.*;
 import logopedis.libentities.rsmain.dto.logoped.LogopedDto;
@@ -11,8 +18,10 @@ import logopedis.libentities.rsmain.entity.Homework;
 import logopedis.libentities.rsmain.entity.Lesson;
 import logopedis.libentities.rsmain.entity.Logoped;
 import logopedis.libentities.rsmain.entity.Patient;
+import logopedis.rsmain.kafka.LessonNoteKafkaProducer;
+import logopedis.rsmain.kafka.LessonNoteRecipientKafkaProducer;
 import logopedis.rsmain.repository.*;
-import logopedis.rsmain.utils.hibernate.ResponseHelper;
+import logopedis.libutils.hibernate.ResponseHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -30,12 +39,18 @@ public class LessonService {
     private final LogopedService logopedService;
     private final HomeworkService homeworkService;
     private final PatientService patientService;
+    private final LessonNoteRecipientKafkaProducer lessonNoteRecipientKafkaProducer;
+    private final LessonNoteKafkaProducer lessonNoteKafkaProducer;
+    private final UserService userService;
 
-    public LessonService(LessonRepository repository, LogopedService logopedService, HomeworkService homeworkService,PatientService patientService) {
+    public LessonService(LessonRepository repository, LogopedService logopedService, HomeworkService homeworkService, PatientService patientService, LessonNoteRecipientKafkaProducer lessonNoteKafkaProducer, LessonNoteKafkaProducer lessonNoteKafkaProducer1, UserService userService) {
         this.repository = repository;
         this.logopedService = logopedService;
         this.homeworkService = homeworkService;
         this.patientService = patientService;
+        this.lessonNoteRecipientKafkaProducer = lessonNoteKafkaProducer;
+        this.lessonNoteKafkaProducer = lessonNoteKafkaProducer1;
+        this.userService = userService;
     }
 
     @Async
@@ -90,7 +105,7 @@ public class LessonService {
             lesson.setTopic(dto.topic());
             lesson.setDescription(dto.description());
             lesson.setDateOfLesson(dto.dateOfLesson());
-            lesson.setStatus("Активно");
+            lesson.setStatus(LessonStatus.PLANNED);
 
             if (dto.logopedId() != null) {
                 var logoped = logopedService.findById(dto.logopedId()).get();
@@ -124,6 +139,12 @@ public class LessonService {
 
             var createdLesson = repository.findById(lesson.getId()).get();
             var readDto = toReadDto(createdLesson);
+
+            // отправка по Kafka
+
+            LessonNoteWithRecipientDto lessonNote = lessonToLessonNodeDto(createdLesson);
+            lessonNoteRecipientKafkaProducer.sendLessonNoteRecipient(lessonNote);
+
             return AsyncResult.success(readDto);
 
         } catch (Exception ex) {
@@ -169,23 +190,36 @@ public class LessonService {
 
     }
     @Async
-    public CompletableFuture<ServiceResult<Lesson>> canselLesson(Long id) {
+    public CompletableFuture<ServiceResult<LessonReadDto>> canselLesson(Long id) {
         try {
+            // TODO: добавить логику отмену за разных ролей
             var lesson = repository.findById(id).get();
-            lesson.setStatus("Отменено");
-            repository.save(lesson);
-            return AsyncResult.success(lesson);
+            lesson.setStatus(LessonStatus.CANCELED_BY_CLIENT);
+            var changed = repository.save(lesson);
+
+            LessonNote lessonNote = lessonToLessonNode(changed);
+            lessonNoteKafkaProducer.sendLessonNote(lessonNote);
+            var result = toReadDto(changed);
+            return AsyncResult.success(result);
         } catch (Exception ex) {
             return AsyncResult.error(ex.getMessage());
         }
     }
     @Async
-    public CompletableFuture<ServiceResult<Lesson>> changeDate(Long id, Timestamp newDate) {
+    public CompletableFuture<ServiceResult<LessonReadDto>> changeDate(Long id, Timestamp newDate) {
         try {
             var lesson = repository.findById(id).get();
+            if (Objects.equals(lesson.getDateOfLesson(), newDate))
+                return AsyncResult.error("Дата не изменена");
+
             lesson.setDateOfLesson(newDate);
-            repository.save(lesson);
-            return AsyncResult.success(lesson);
+            var changed = repository.save(lesson);
+
+            LessonNote lessonNote = lessonToLessonNode(changed);
+            lessonNoteKafkaProducer.sendLessonNote(lessonNote);
+
+            var result = toReadDto(changed);
+            return AsyncResult.success(result);
         } catch (Exception ex) {
             return AsyncResult.error(ex.getMessage());
         }
@@ -226,10 +260,68 @@ public class LessonService {
             return AsyncResult.error(ex.getMessage());
         }
     }
+    public void updateStatusFromKafka(LessonStatusDto dto) {
+        try {
+            var updated = ResponseHelper.findById(repository,dto.id(),"Занятие не найдено");
+            updated.setStatus(dto.status());
+            repository.save(updated);
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
+    public CompletableFuture<ServiceResult<LessonReadDto>> updateStatusFromFE(LessonStatusDto dto) {
+        try {
+            Lesson updated = ResponseHelper.findById(repository,dto.id(),"Занятие не найдено");
+            updated.setStatus(dto.status());
+            var result = repository.save(updated);
+
+            LessonNote lessonNote = lessonToLessonNode(result);
+            lessonNoteKafkaProducer.sendLessonNote(lessonNote);
+
+            var updatedDto = toReadDto(updated);
+            return AsyncResult.success(updatedDto);
+        } catch (Exception ex) {
+            return AsyncResult.error(ex.getMessage());
+        }
+    }
+    public CompletableFuture<ServiceResult<LessonWithFKDto>> changeLesson(LessonChangeDto dto) {
+        try {
+            Lesson updated = ResponseHelper.findById(repository,dto.id(),"Занятие не найдено");
+            if (dto.type() != null) updated.setType(dto.type());
+            if (dto.topic() != null)  updated.setTopic(dto.topic());
+            if (dto.description() != null) updated.setDescription(dto.description());
+
+            if (dto.patients() != null) {
+                Set<Patient> newPatients = new HashSet<>(patientService.findAllById(dto.patients()));
+                updated.setPatients(newPatients);
+            }
+
+            if (dto.homework() != null) {
+                if (updated.getHomework() == null) {
+                    Homework newHw = new Homework();
+                    newHw.setTask(dto.homework().task());
+                    homeworkService.save(newHw);
+                    updated.setHomework(newHw);
+                } else {
+                    updated.getHomework().setTask(dto.homework().task());
+                }
+            }
+
+            var result = repository.save(updated);
+
+            LessonNoteWithRecipientDto lessonNote = lessonToLessonNodeDto(result);
+            lessonNoteRecipientKafkaProducer.sendLessonNoteRecipient(lessonNote);
+
+            var updatedDto = toReadDtoWithFK(updated);
+            return AsyncResult.success(updatedDto);
+        } catch (Exception ex) {
+            return AsyncResult.error(ex.getMessage());
+        }
+    }
     @Async
     public CompletableFuture<ServiceResult<Long>> delete(Long id) {
         try {
-            var deletedData = ResponseHelper.findById(repository,id,"Логопед не найден");
+            var deletedData = ResponseHelper.findById(repository,id,"Занятие не найдено");
             repository.deleteById(id);
             return AsyncResult.success(deletedData.getId());
         } catch (Exception ex) {
@@ -261,6 +353,7 @@ public class LessonService {
                 lesson.getStatus(),
                 lesson.getLogoped() == null ? null :
                         new LogopedDto(
+                                lesson.getLogoped().getId(),
                                 lesson.getLogoped().getFirstName(),
                                 lesson.getLogoped().getLastName(),
                                 lesson.getLogoped().getPhone(),
@@ -298,5 +391,52 @@ public class LessonService {
         return selectedLogoped;
     }
 
+    public List<Lesson> findByPeriod(Timestamp start, Timestamp end) {
+        return repository.findByDateOfLessonBetween(start,end)
+                .stream()
+                .toList();
+    }
 
+    @Async
+    @Transactional
+    public CompletableFuture<LessonsForPeriodDto> createResponseInLessonNote(Timestamp start, Timestamp end) {
+        List<Lesson> lessons = findByPeriod(start, end);
+
+        List<LessonNoteWithRecipientDto> list = lessons.stream()
+                .map(this::lessonToLessonNodeDto)
+                .toList();
+
+        LessonsForPeriodDto dto = new LessonsForPeriodDto(list);
+
+        return CompletableFuture.completedFuture(dto);
+    }
+    private LessonNoteWithRecipientDto lessonToLessonNodeDto(Lesson lesson) {
+        List<RecipientDataDto> recipientDtos = new ArrayList<>();
+        List<Long> patientIds = lesson.getPatients()
+                .stream()
+                .map(Patient::getId)
+                .toList();
+
+        for (Long patientId : patientIds) {
+            UUID userId = userService.findByPatient(patientId).getId();
+            recipientDtos.add(new RecipientDataDto(patientId, userId));
+        }
+
+        LessonNoteWithRecipientDto dto = new LessonNoteWithRecipientDto(
+                lesson.getId(),
+                lesson.getStatus(),
+                lesson.getDateOfLesson(),
+                lesson.getLogoped().getId(),
+                recipientDtos
+        );
+        return dto;
+    }
+    private LessonNote lessonToLessonNode(Lesson lesson) {
+        LessonNote lessonNote = new LessonNote();
+        lessonNote.setId(lesson.getId());
+        lessonNote.setStartTime(lesson.getDateOfLesson());
+        lessonNote.setStatus(lesson.getStatus());
+        lessonNote.setLogopedId(lesson.getLogoped().getId());
+        return lessonNote;
+    }
 }

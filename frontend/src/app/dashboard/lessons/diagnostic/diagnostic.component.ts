@@ -10,6 +10,7 @@ import {
 import {Router} from '@angular/router';
 import {SpeechCardStore} from '../../../utils/stores/speechCard.store';
 import {Observable} from 'rxjs';
+import {CorrectionTypesEnum,correctionTypes} from '../../../utils/enums/correction-tipes.enum';
 @Component({
   selector: 'app-session',
   standalone: true,
@@ -88,11 +89,10 @@ export class DiagnosticComponent implements OnInit{
   currentTime = new Date().toLocaleTimeString();
   showSpeechCard = false;
   availableSounds: string[] = ['С', 'Сь', 'З', 'Зь', 'Ц', 'Ш', 'Ж', 'Ч', 'Щ', 'Р', 'Рь', 'Л', 'Ль'];
-  correctionTypes: string[] = ['Постановка звуков', 'Автоматизация звуков', 'Дифференциация звуков'];
-
+  correctionTypes = correctionTypes;
   newCorrection = {
     sound: '',
-    correction: ''
+    correction: CorrectionTypesEnum.PLACED // дефолтное значение
   };
 
   speechCard = {
@@ -110,13 +110,13 @@ export class DiagnosticComponent implements OnInit{
     speechChars: '',
     patientChars: '',
     speechErrors: [] as { id: number; title: string; description: string }[],
-    soundCorrections: [] as { sound: string, correction: string }[]
+    soundCorrections: [] as { sound: string, correction: CorrectionTypesEnum }[]
   };
 
   addSoundCorrection() {
     if (this.newCorrection.sound && this.newCorrection.correction) {
       this.speechCard.soundCorrections.push({ ...this.newCorrection });
-      this.newCorrection = { sound: '', correction: '' }; // Сброс
+      this.newCorrection = { sound: '', correction: CorrectionTypesEnum.PLACED }; // сброс
     }
   }
 

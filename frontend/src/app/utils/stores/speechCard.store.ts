@@ -32,7 +32,18 @@ export class SpeechCardStore {
       })
     ).subscribe(); // или возвращай Observable и подписывайся из компонента
   }
+  findById(speechCardId: number) {
+    return this.speechCardService.findById(speechCardId).pipe(
+      tap({
+        next: data => this.currentSpeechCardSubject.next(data),
+        error: () => this.currentSpeechCardSubject.next(null)
+      })
+    );
+  }
 
+  findFirstAllByPatient(logopedId: string) {
+    return this.speechCardService.findFirstAllByPatient(logopedId);
+  }
   findAllError() {
     return this.speechCardService.findAllError();
   }
@@ -40,9 +51,21 @@ export class SpeechCardStore {
   createWithDiagnostic(data: any) {
     return this.speechCardService.createWithDiagnostic(data);
   }
+  updateCorrections(data:any) {
+    return this.speechCardService.updateCorrections(data);
+  }
 
   findByPatient(patientId: number) {
     return this.speechCardService.findByPatient(patientId);
+  }
+  findCorrectionsByPatient(patientId: number) {
+    return this.speechCardService.findCorrectionsByPatient(patientId)
+  }
+  findChangedCorrections(lessonId: number) {
+    return this.speechCardService.findChangedCorrections(lessonId)
+  }
+  findPatientHistory(patientId: number) {
+    return this.speechCardService.findPatientHistory(patientId)
   }
 }
 
