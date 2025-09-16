@@ -57,7 +57,13 @@
         <button class="sub-tab-button"
                 [class.active]="subTab === 'speechCards'"
                 (click)="setSubTab('speechCards')">
-          Речевые карты
+          Динамика лечения
+        </button>
+        <button *ngIf="currentRole === 'logoped'"
+                class="sub-tab-button"
+                [class.active]="subTab === 'patients'"
+                (click)="setSubTab('patients')">
+          Пациенты
         </button>
       </nav>
 
@@ -108,6 +114,47 @@
                 [options]="lineChartOptions">
         </canvas>
 
+      </div>
+
+      <!-- Контент "Пациенты" -->
+      <div *ngIf="subTab === 'patients' && currentRole === 'logoped'" class="tab-section">
+        <h3>Пациенты</h3>
+
+        <!-- Круговая диаграмма -->
+        <div class="patients-chart">
+          <canvas baseChart
+                  [data]="patientsChartData"
+                  [type]="'pie'"
+                  [options]="pieChartOptions">
+          </canvas>
+        </div>
+
+        <!-- Таблица пациентов -->
+        <div class="patients-table" style="margin-top: 20px;">
+          <table>
+            <thead>
+            <tr>
+              <th>Пациент</th>
+              <th>Дата первичной диагностики</th>
+              <th>Речевые нарушения</th>
+              <th>Направления коррекции</th>
+              <th>Карта</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let card of patientsCards">
+              <td>{{ card.patientName }}</td>
+              <td>{{ card.diagnosticDate | date:'dd.MM.yyyy' }}</td>
+              <td>{{ card.speechErrors.join(', ') }}</td>
+              <td>{{ card.soundCorrections.join(', ') }}</td>
+              <td><a [routerLink]="['/dashboard/speech-card', card.speechCardId]">Первичная речевая карта</a></td>
+            </tr>
+            <tr *ngIf="patientsCards.length === 0">
+              <td colspan="5">Пациенты пока не найдены</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 

@@ -36,8 +36,11 @@
     selectedPatientId: number | null = null;
     filteredLessons: any[] = [];
     data: UserData | null = null;
-
+    currentRole: string | null = null;
     patients: any[] = []; // список пациентов для select
+    // Для вкладки "Пациенты" у логопеда
+    patientsCards: any[] = []; // данные всех пациентов с первичными картами
+    patientsChartData: ChartData<'pie', number[], string | string[]> = { labels: [], datasets: [{ data: [] }] };
 
 
     speechCategories: CorrectionTypesEnum[] = correctionTypesArray;
@@ -117,10 +120,16 @@
     ngOnInit() {
       // данные пользователя
       this.userDataStore.userData$.subscribe(user => {
-        if (user) {
+        this.currentRole = user?.role || null;
+        console.log('user'+user?.id);
+        if (user && this.currentRole === 'user') {
           this.data = user;
-          // загружаем уроки для этого пользователя
           this.lessonStore.refresh(user.id, 'user');
+        }
+
+        if (user && this.currentRole === 'logoped') {
+          this.data = user;
+          this.lessonStore.refresh(user.id, 'logoped');
         }
       });
 
@@ -150,11 +159,18 @@
     }
     setActiveTab(tab: 'account' | 'statistics' | 'help') {
       this.activeTab = tab;
-      if (tab === 'statistics' && this.data) {
-        this.lessonStore.refresh(this.data.id, 'user');
-        this.patientStore.refresh(this.data.id.toString(), 'logoped');
+
+      if (tab === 'statistics' && this.data && this.currentRole) {
+        this.lessonStore.refresh(this.data.id, this.currentRole);
+        this.patientStore.refresh(this.data.id.toString(), this.currentRole);
+
+        if (this.currentRole === 'logoped') {
+          // загружаем первичные карты пациентов
+          this.loadPatientsCards();
+        }
       }
     }
+
 
     onPatientSelect(value: string) {
       this.selectedPatientId = Number(value);
@@ -301,6 +317,31 @@
     }
 
 
+    loadPatientsCards() {
+      if (!this.data) return;
+
+      this.speechCardStore.findLastByPatient(this.data.id.toString()).subscribe({
+        next: (cards: any[]) => {
+          this.patientsCards = cards;
+
+          // обновляем круговую диаграмму
+          const speechErrorsCount: Record<string, number> = {};
+          cards.forEach(card => {
+            card.speechErrors.forEach((error: string) => {
+              speechErrorsCount[error] = (speechErrorsCount[error] || 0) + 1;
+            });
+          });
+
+          this.patientsChartData = {
+            labels: Object.keys(speechErrorsCount),
+            datasets: [{
+              data: Object.values(speechErrorsCount)
+            }]
+          };
+        },
+        error: (err) => console.error('Ошибка при загрузке пациентов', err)
+      });
+    }
 
 
 
@@ -311,11 +352,16 @@
         error: () => alert('Ошибка при сохранении. Попробуйте позже.')
       });
     }
-    subTab: 'lessons' | 'speechCards' = 'lessons';
-    setSubTab(tab: 'lessons' | 'speechCards') {
+    subTab: 'lessons' | 'speechCards' | 'patients' = 'lessons';
+    setSubTab(tab: 'lessons' | 'speechCards' | 'patients') {
       this.subTab = tab;
+
       if (tab === 'speechCards' && this.selectedPatientId != null) {
         this.loadSpeechChart();
+      }
+
+      if (tab === 'patients' && this.currentRole === 'logoped') {
+        this.loadPatientsCards();
       }
     }
     getStatusLabel(status: LessonStatus): string {

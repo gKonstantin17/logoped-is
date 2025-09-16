@@ -33,6 +33,9 @@ export class SpeechCardStore {
     ).subscribe(); // или возвращай Observable и подписывайся из компонента
   }
 
+  findLastByPatient(logopedId: string) {
+    return this.speechCardService.findLastByPatient(logopedId);
+  }
   findAllError() {
     return this.speechCardService.findAllError();
   }

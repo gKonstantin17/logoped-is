@@ -156,3 +156,60 @@ a {
   border-color: #ef019b;
   box-shadow: 0 0 8px rgba(239, 1, 155, 0.3);
 }
+/* Контейнер для диаграммы и таблицы пациентов */
+.patients-chart {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.patients-table {
+  width: 100%;
+  max-width: 800px;
+  margin: 20px auto 0 auto;
+}
+
+.patients-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.patients-table th,
+.patients-table td {
+  border: 1px solid #ddd;
+  padding: 6px;
+  text-align: center;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.patients-table th:nth-child(1),
+.patients-table td:nth-child(1) {
+  width: 150px; /* Пациент */
+}
+
+.patients-table th:nth-child(2),
+.patients-table td:nth-child(2) {
+  width: 130px; /* Дата первичной диагностики */
+}
+
+.patients-table th:nth-child(3),
+.patients-table td:nth-child(3) {
+  width: 200px; /* Речевые нарушения */
+}
+
+.patients-table th:nth-child(4),
+.patients-table td:nth-child(4) {
+  width: 200px; /* Направления коррекции */
+}
+
+.patients-table th:nth-child(5),
+.patients-table td:nth-child(5) {
+  width: 150px; /* Ссылка на карту */
+}
+
+.patients-table a {
+  color: #ef019b;
+  text-decoration: none;
+  font-weight: 500;
+}
