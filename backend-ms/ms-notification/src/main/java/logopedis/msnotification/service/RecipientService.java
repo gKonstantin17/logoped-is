@@ -27,13 +27,6 @@ public class RecipientService {
                 .map(r -> r.getPatientId() + ":" + r.getUserId())
                 .collect(Collectors.toSet());
     }
-    public Recipient create(RecipientCreateDto dto) {
-        Recipient recipient = new Recipient();
-        recipient.setLessonNote(dto.lessonNote());
-        recipient.setUserId(dto.userId());
-        recipient.setPatientId(dto.patientId());
-        return repository.save(recipient);
-    }
 
     public Recipient save(Recipient recipient) {
         return repository.save(recipient);
@@ -58,10 +51,5 @@ public class RecipientService {
 
     public void deleteByLessonNoteAndPatientIdAndUserId(LessonNote lessonNote, Long patientId, UUID userId) {
         repository.deleteByLessonNoteAndPatientIdAndUserId(lessonNote, patientId, userId);
-    }
-
-    public List<UUID> findUsersByLessonNote(LessonNote lessonNote) {
-        List<Recipient> list = findByLessonNote(lessonNote);
-        return list.stream().map(Recipient::getUserId).toList();
     }
 }
