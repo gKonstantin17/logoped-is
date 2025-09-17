@@ -9,6 +9,7 @@ plugins {
 group = 'logoped-is'
 version = '0.0.1-SNAPSHOT'
 description = 'ms-notification'
+sourceCompatibility = '17'
 
 java {
     toolchain {
