@@ -1,0 +1,166 @@
+version: "3.9"
+
+services:
+  keycloak-database:
+    container_name: keycloak-database
+    image: postgres:16
+    restart: always
+    ports:
+      - '3333:5432'
+    volumes:
+      - ./mount/keycloak/db/data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    networks:
+      - network-logoped
+
+
+  keycloak-server:
+    container_name: keycloak-server
+    image: quay.io/keycloak/keycloak:18.0.2
+    command:
+      #- -v start # -v означает verbose - подробные логи (только для тестирования, в продакшне нужно отключать)
+      - -v start-dev
+      - --http-port=8180
+      - --import-realm
+      - --auto-build # обязательно для правильной авто сборки KK и чтобы не было ошибки jdbc driver not found
+      - --log-level=DEBUG #для тестирования (в продакшне нужно отключать)
+    environment:
+      # https://www.keycloak.org/server/all-config
+      KEYCLOAK_ADMIN: root
+      KEYCLOAK_ADMIN_PASSWORD: rootroot
+      KC_HOSTNAME: localhost
+      KC_HOSTNAME_PORT: 8180
+      KC_HEALTH_ENABLED: true
+      KC_METRICS_ENABLED: true
+      KC_DB: postgres # имя вендора БД (значение должно быть именно таким)
+      KC_DB_URL_DATABASE: postgres # название БД (может быть и другим)
+      KC_DB_URL_HOST: keycloak-database # DNS-имя - это ссылка на сервис, который находится в той же по сети network-todo
+      KC_DB_URL_PORT: 5432 # указываем именно внутренний порт сервиса (а не хоста), который работает в docker
+      KC_DB_USERNAME: postgres
+      KC_DB_PASSWORD: postgres
+      KC_DB_SCHEMA: public
+      #KC_HTTPS_CERTIFICATE_FILE: /var/lib/keycloak/ssl/docker.cer
+      #KC_HTTPS_CERTIFICATE_KEY_FILE: /var/lib/keycloak/ssl/docker.pkcs8
+    restart: always
+    ports:
+#      - "8080:8080"
+      - "8180:8180"
+    depends_on:
+      - keycloak-database
+    volumes:
+      #- ./mount/ssl:/var/lib/keycloak/ssl
+      - ./mount/keycloak/logopedrealm:/opt/keycloak/data/import
+      - ./mount/keycloak/themes/keywind:/opt/keycloak/themes/keywind
+    networks:
+      - network-logoped
+
+  rs-main-database:
+    container_name: rs-main-database
+    image: postgres:17
+    restart: always
+    ports:
+      - '4444:5432'
+    volumes:
+      #      - ./mount/db/rs-main/data:/var/lib/postgresql/data
+      - ./mount/db/rs-main/ddl/tables.sql:/docker-entrypoint-initdb.d/tables.sql
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    networks:
+      - network-logoped
+
+  ms-notification-database:
+    container_name: ms-notification-database
+    image: postgres:17
+    restart: always
+    ports:
+      - '4445:5432'
+    volumes:
+      #      - ./mount/db/ms-notification/data:/var/lib/postgresql/data
+      - ./mount/db/ms-notification/ddl/tables.sql:/docker-entrypoint-initdb.d/tables.sql
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    networks:
+      - network-logoped
+
+  sys-server:
+    container_name: sys-server
+    image: sys-server
+    restart: on-failure
+    ports:
+      - '8761:8761'
+    networks:
+      - network-logoped
+
+  sys-gateway:
+    container_name: sys-gateway
+    image: sys-gateway
+    restart: always
+    environment:
+      - SPRING_PROFILES_ACTIVE=default
+      - SPRING_CONFIG_IMPORT=configserver:http://localhost:8888
+    depends_on:
+      sys-server:
+        condition: service_started
+    ports:
+      - "8765:8765"
+    networks:
+      - network-logoped
+
+  rs-main:
+    container_name: rs-main
+    image: rs-main
+    restart: always
+    environment:
+      - SWAGGER_ENABLED=false
+    depends_on:
+      sys-server:
+        condition: service_started
+    networks:
+      - network-logoped
+
+  ms-notification:
+    container_name: ms-notification
+    image: ms-notification
+    restart: always
+    environment:
+      - SWAGGER_ENABLED=false
+    depends_on:
+      sys-server:
+        condition: service_started
+    networks:
+      - network-logoped
+
+
+  bff-for-angular:
+    container_name: bff-for-angular
+    image: bff-for-angular
+    restart: on-failure
+    environment:
+      - KEYCLOAK_URL=http://keycloak-server:8180/realms/logoped-realm/protocol/openid-connect # все служебные URL можно получить в админке Keycloak
+      - RESOURCESERVER_URL=http://sys-gateway:8765/planner-todo # запрос не напрямую, а через gateway
+    ports:
+      - "8380:8380"
+    networks:
+      - network-logoped
+
+  angular-logoped:
+    container_name: angular-logoped
+    image: angular-logoped
+    restart: on-failure
+#    environment:
+#      - --environment=prod
+    ports:
+      - "4200:80"
+      #- "4200:443"
+    networks:
+      - network-logoped
+
+networks:
+  network-logoped:

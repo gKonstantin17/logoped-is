@@ -1,0 +1,12 @@
+синхронизировать файлы для всех бд
+
+перейдя в нужные директории
+docker build Dockerfile -t logoped-be-deps
+docker build Dockerfile -t sys-server
+docker build Dockerfile -t sys-gateway
+docker build Dockerfile -t rs-main
+docker build Dockerfile -t ms-notification
+docker build Dockerfile -t angular-logoped
+
+после создания контейнера с keycloak скопировать secret в app.props
+docker build Dockerfile -t bff-for-angular
