@@ -7,6 +7,7 @@ plugins {
 group = 'logoped-is'
 version = '0.0.1-SNAPSHOT'
 description = 'lib-utils'
+sourceCompatibility = '17'
 
 java {
     toolchain {
