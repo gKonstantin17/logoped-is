@@ -15,8 +15,7 @@
 - **Resource Server**: Управление расписанием, пациентами, диагностикой для речевых карт
 - **Notification microservice**: содержит Scheduled-задачи, которые периодически опрашивают БД, чтобы сгенерировать события уведомлений, которые отправляются в Frontend по Websocket 
 - **База данных**: PostgreSQL, хранение данных, каждый сервис обращается к собственной БД
-
-![[arch.png]]
+![arch](img/arch.png)
 **Стек**: Java 17, Gradle, Spring, Hibernate, PostgreSQL, Apache Kafka, JUnit, Mockito, TypeScript, Angular, Keycloak, Docker.
 
 ### Запуск
@@ -39,16 +38,25 @@ docker build Dockerfile -t bff-for-angular
 docker-compose up
 ```
 ### Демонстрация
-![[1.png]]
-![[2.png]]
-![[3.png]]
-![[4.png]]
-![[5.png]]
-![[6.png]]
-![[7.png]]
-![[8.png]]
-![[9.png]]
-![[10.png]]
+#### Промо
+![1](img/1.png)
+#### Авторизация через Keycloak
+![2](img/2.png)
+#### Управление пациентами Клиентом
+![3s](img/3s.png)
+#### Занятия
+![3](img/3.png)
+#### Расписание
+![4](img/4.png)
+#### Уведомления
+![5](img/5.png)
+#### Статистика
+![6](img/6.png)
+![7](img/7.png)
+![8](img/8.png)
+#### API
+![9](img/9.png)
+![10](img/10.png)
 
 ### Планы по развитию
 - Организация видеозвонков для онлайн логопедических занятий
