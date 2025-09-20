@@ -37,6 +37,7 @@ docker build Dockerfile -t bff-for-angular
 ```
 docker-compose up
 ```
+Алтернативный способ запуска показан в релизе
 ### Демонстрация
 #### Промо
 ![1](img/1.png)
